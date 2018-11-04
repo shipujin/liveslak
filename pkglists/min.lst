@@ -25,6 +25,7 @@ diffutils
 dmidecode
 dnsmasq
 e2fsprogs
+ed
 #elvis
 etc
 eudev

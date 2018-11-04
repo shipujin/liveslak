@@ -6,6 +6,7 @@ alsa-oss
 alsa-plugins
 alsa-utils
 audiofile
+bc
 bison
 cgmanager
 db48
@@ -110,6 +111,7 @@ radeontool
 rpcbind
 samba
 sg3_utils
+smartmontools
 speexdsp
 sqlite
 svgalib
