@@ -63,6 +63,7 @@ giflib-compat32
 glib2-compat32
 gmp-compat32
 gnome-keyring-compat32
+graphite2-compat32
 gtk+2-compat32
 gst-plugins-base-compat32
 gst-plugins-base0-compat32
@@ -110,6 +111,7 @@ libvorbis-compat32
 libwebp-compat32
 libxml2-compat32
 libxslt-compat32
+lmdb-compat32
 lzo-compat32
 ncurses-compat32
 ocl-icd-compat32
@@ -131,6 +133,7 @@ startup-notification-compat32
 svgalib-compat32
 v4l-utils-compat32
 zlib-compat32
+zstd-compat32
 # The N/ series:
 curl-compat32
 cyrus-sasl-compat32

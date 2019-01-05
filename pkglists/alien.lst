@@ -86,6 +86,7 @@ unrar
 veracrypt
 #vlc
 wxGTK
+xfce4-statusnotifier-plugin
 zope.interface
 
 # LXQT deps:

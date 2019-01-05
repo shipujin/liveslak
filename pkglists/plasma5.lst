@@ -19,6 +19,7 @@ gpgme
 grantlee
 grantlee-qt4
 hack-font-ttf
+hyphen
 id3lib
 json-glib
 lensfun
@@ -44,6 +45,7 @@ phonon-gstreamer
 phonon-vlc
 polkit-qt5-1
 poppler
+python-enum34
 qca-qt5
 qrencode
 qt-gstreamer
@@ -223,6 +225,7 @@ kdepim-apps-libs
 kdepim-runtime
 kidentitymanagement
 kimap
+kitinerary
 kldap
 kleopatra
 kmail
@@ -235,6 +238,7 @@ kontact
 kontactinterface
 korganizer
 kpimtextedit
+kpkpass
 ksmtp
 ktnef
 libgravatar
@@ -377,6 +381,7 @@ kigo
 killbots
 kimagemapeditor
 kio-extras
+kirigami-gallery
 kiriki
 kiten
 kjumpingcube
@@ -393,6 +398,7 @@ kmouth
 kmplot
 knavalbattle
 knetwalk
+knights
 kolf
 kollision
 kolourpaint
