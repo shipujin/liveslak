@@ -367,6 +367,17 @@ if [ "$RESCUE" = "" ]; then
     echo ${1-0}.${2-0}.${3-0}.${4-0}
   }
 
+  get_dhcpcd_pid() {
+    # Find the location of the PID file of dhcpcd:
+    MYDEV="$1"
+    if [ -s /run/dhcpcd/dhcpcd-${MYDEV}.pid ]; then
+      echo "/run/dhcpcd/dhcpcd-${MYDEV}.pid"
+    elif [ -s /run/dhcpcd-${MYDEV}.pid ]; then
+      echo "/run/dhcpcd-${MYDEV}.pid"
+    fi
+    echo UNKNOWNLOC
+  }
+
   setnet() {
     # Find and configure the network interface for NFS root support.
     # Assume nothing about the method of network configuration:
@@ -425,7 +436,7 @@ if [ "$RESCUE" = "" ]; then
       # What interface did dhcpcd configure?
       INTERFACE=""
       for EDEV in $(cat /proc/net/dev |grep ':' |sed -e "s/^ *//" |cut -f1 -d: |grep -v lo); do
-        if [ -s /run/dhcpcd/dhcpcd-${EDEV}.pid ]; then
+        if [ -s $(get_dhcpcd_pid $EDEV) ]; then
           INTERFACE="${EDEV}"
           break
         fi
@@ -442,12 +453,12 @@ if [ "$RESCUE" = "" ]; then
     # We know our INTERFACE, so let's configure it:
     if [ "$ENET_MODE" = "ask" -o "$ENET_MODE" = "dhcp" ]; then
       # Invoke dhcpcd only if it was not called yet:
-      if [ ! -s /run/dhcpcd/dhcpcd-${INTERFACE}.pid ]; then
+      if [ ! -s $(get_dhcpcd_pid $INTERFACE) ]; then
         /sbin/dhcpcd -L -p -t $DHCPWAIT $INTERFACE
       fi
     else
       # Kill dhcpcd if we used it to find a statically configured interface:
-      if [ -s /run/dhcpcd/dhcpcd-${INTERFACE}.pid ]; then
+      if [ -s $(get_dhcpcd_pid $INTERFACE) ]; then
         /sbin/dhcpcd -k $INTERFACE
       fi
       # Static IP address requires IPADDRESS, NETMASK, NETMASK at a minimum:
@@ -1090,7 +1101,7 @@ EOPW
     sed -i -e "s/^\(127.0.0.1\t*\)@DARKSTAR@.*/\1${LIVE_HOSTNAME}.example.net ${LIVE_HOSTNAME}/" /mnt/overlay/etc/hosts
   fi
 
-  if [ -n "$NFSHOST" -a -s /run/dhcpcd/dhcpcd-${INTERFACE}.pid ]; then
+  if [ -n "$NFSHOST" -a -s $(get_dhcpcd_pid $INTERFACE) ]; then
     # Ensure that dhcpcd will find its configuration:
     mount --bind /var/lib/dhcpcd /mnt/overlay/var/lib/dhcpcd
     mkdir -p /mnt/overlay/run/dhcpcd
