@@ -1786,7 +1786,7 @@ autostart=false
 
 [main Settings]
 Storage Dir[\$e]=\$HOME/.kde/share/apps/nepomuk/repository/main/
-Used Soprano Backend=virtuosobackend
+Used Soprano Backend=redlandbackend
 rebuilt index for type indexing=true
 EOT
 
@@ -1853,23 +1853,28 @@ if [ "$LIVEDE" = "PLASMA5" ]; then
   mkdir -p ${LIVE_ROOTDIR}/var/lib/sddm
   cat <<EOT > ${LIVE_ROOTDIR}/var/lib/sddm/state.conf 
 [Last]
-# Name of the last logged-in user. This username will be preselected/shown when the login screen shows up
+# Name of the last logged-in user.
+# This user will be preselected when the login screen appears
 User=${LIVEUID}
 
-# Name of the session file of the last session selected. This session will be preselected when the login screen shows up.
+# Name of the session for the last logged-in user.
+# This session will be preselected when the login screen appears.
 Session=/usr/share/xsessions/plasma.desktop
-
 EOT
   chroot ${LIVE_ROOTDIR} chown -R sddm:sddm var/lib/sddm
 
   # Thanks to Fedora Live: https://git.fedorahosted.org/cgit/spin-kickstarts.git
   mkdir -p ${LIVE_ROOTDIR}/etc/skel/.config/akonadi
+  mkdir -p ${LIVE_ROOTDIR}/etc/skel/.local/share/akonadi
   mkdir -p ${LIVE_ROOTDIR}/etc/skel/.kde/share/config
 
   # Set akonadi backend:
   cat <<AKONADI_EOF >${LIVE_ROOTDIR}/etc/skel/.config/akonadi/akonadiserverrc
 [%General]
-Driver=QSQLITE3
+Driver=QSQLITE
+
+[QSQLITE]
+Name=/home/live/.local/share/akonadi/akonadi.db
 AKONADI_EOF
 
   # Disable baloo:
