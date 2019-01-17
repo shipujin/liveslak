@@ -1327,7 +1327,7 @@ EOT
   echo 0x0100 > /proc/sys/kernel/real-root-dev
 
   # Re-mount the overlay read-only: 
-  mount -t overlay -o remount,ro,workdir=${OVLWORK},upperdir=${UPPERDIR},lowerdir=${RODIRS} overlay /mnt/overlay
+  mount -o remount,ro /mnt/overlay 2>/dev/null
 
   if [ ! -r /mnt/overlay/${INIT} ]; then
     echo "ERROR:  No ${INIT} found on rootdev (or not mounted).  Trouble ahead."
