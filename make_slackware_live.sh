@@ -2159,9 +2159,6 @@ fi
 # Skip all filesystem checks at boot:
 touch ${LIVE_ROOTDIR}/etc/fastboot
 
-# Disable the root filesystem check altogether:
-sed -i -e '/^if \[ ! \$READWRITE = yes/,/^fi # Done checking root filesystem/s/^/#/' ${LIVE_ROOTDIR}/etc/rc.d/rc.S
-
 # We will not write to the hardware clock:
 sed -i -e '/systohc/s/^/# /' ${LIVE_ROOTDIR}/etc/rc.d/rc.6
 
