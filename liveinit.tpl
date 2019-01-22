@@ -589,6 +589,10 @@ if [ "$RESCUE" = "" ]; then
   if [ -n "$NFSHOST" ]; then
     # NFS root.  First configure our network interface:
     setnet
+
+    # Allow for debugging the PXE boot:
+    debugit
+
     # Mount the NFS share and hope for the best:
     mount -t nfs -o nolock,vers=3 $NFSHOST:$NFSPATH /mnt/media
     LIVEALL="$NFSHOST:$NFSPATH"
