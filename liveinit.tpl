@@ -374,8 +374,9 @@ if [ "$RESCUE" = "" ]; then
       echo "/run/dhcpcd/dhcpcd-${MYDEV}.pid"
     elif [ -s /run/dhcpcd-${MYDEV}.pid ]; then
       echo "/run/dhcpcd-${MYDEV}.pid"
+    else
+      echo UNKNOWNLOC
     fi
-    echo UNKNOWNLOC
   }
 
   setnet() {
