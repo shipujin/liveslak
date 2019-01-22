@@ -447,7 +447,7 @@ if [ "$RESCUE" = "" ]; then
 
     if [ "x$INTERFACE" = "x" ]; then
       # Failed to find a configured interface... desperate measure:
-      echo "${MARKER}:  Failed to find network interface... trouble ahead."
+      echo "${MARKER}:  Failed to find network interface... assuming 'eth0'. Trouble ahead."
       INTERFACE="eth0"
     fi
 
