@@ -422,7 +422,7 @@ if [ "$RESCUE" = "" ]; then
           continue # skip wireless interfaces
         fi
         # If this configures an interface, we're done with dhcpcd afterwards:
-        /sbin/dhcpcd -L -p -t $DHCPWAIT $EDEV &
+        /sbin/dhcpcd -L -p -j /var/log/dhcpcd.log -t $DHCPWAIT $EDEV &
       done
       unset EDEV
       # Wait at most DHCPWAIT seconds for a DHCP-configured interface to appear:
@@ -455,7 +455,7 @@ if [ "$RESCUE" = "" ]; then
     if [ "$ENET_MODE" = "ask" -o "$ENET_MODE" = "dhcp" ]; then
       # Invoke dhcpcd only if it was not called yet:
       if [ ! -s $(get_dhcpcd_pid $INTERFACE) ]; then
-        /sbin/dhcpcd -L -p -t $DHCPWAIT $INTERFACE
+        /sbin/dhcpcd -L -p -j /var/log/dhcpcd.log -t $DHCPWAIT $INTERFACE
       fi
     else
       # Kill dhcpcd if we used it to find a statically configured interface:
