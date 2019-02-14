@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright 2014, 2015, 2016, 2017, 2018  Eric Hameleers, Eindhoven, NL 
+# Copyright 2014, 2015, 2016, 2017, 2018, 2019  Eric Hameleers, Eindhoven, NL 
 # All rights reserved.
 #
 #   Permission to use, copy, modify, and distribute this software for
@@ -1041,7 +1041,7 @@ DEF_SL_PATCHROOT=${SL_PATCHROOT}
 # Are all the required add-on tools present?
 [ "$USEXORR" = "NO" ] && ISOGEN="mkisofs isohybrid" || ISOGEN="xorriso"
 PROG_MISSING=""
-for PROGN in mksquashfs unsquashfs grub-mkfont syslinux $ISOGEN installpkg upgradepkg keytab-lilo rsync ; do
+for PROGN in mksquashfs unsquashfs grub-mkfont grub-mkimage syslinux $ISOGEN installpkg upgradepkg keytab-lilo rsync mkdosfs ; do
   if ! which $PROGN 1>/dev/null 2>/dev/null ; then
     PROG_MISSING="${PROG_MISSING}--   $PROGN\n"
   fi
