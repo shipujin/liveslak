@@ -1166,7 +1166,7 @@ esac
 # Do we need to create/include additional module(s) defined by a pkglist:
 if [ -n "$SEQ_ADDMOD" ]; then
   echo "-- Adding ${SEQ_ADDMOD}."
-  MSEQ="${MSEQ} pkglist:${SEQ_ADDMOD}"
+  MSEQ="${MSEQ} ${SEQ_ADDMOD}"
 fi
 
 # Do we need to include multilib?
