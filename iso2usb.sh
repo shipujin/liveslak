@@ -653,7 +653,11 @@ if [ $REFRESH -eq 0 ]; then
     FEAT_64BIT="-O ^64bit"
   fi
   tune2fs -c 0 -i 0 -m 0 ${FEAT_64BIT} ${TARGETP3}
-
+else
+  # Determine partition names independently of storage architecture:
+  TARGETP1=$(fdisk -l $TARGET |grep ^$TARGET |cut -d' ' -f1 |grep -E '[^0-9]1$')
+  TARGETP2=$(fdisk -l $TARGET |grep ^$TARGET |cut -d' ' -f1 |grep -E '[^0-9]2$')
+  TARGETP3=$(fdisk -l $TARGET |grep ^$TARGET |cut -d' ' -f1 |grep -E '[^0-9]3$')
 fi # End [ $REFRESH -eq 0 ]
 
 # Create temporary mount points for the ISO file and USB device:
