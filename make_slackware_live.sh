@@ -176,7 +176,6 @@ SEQ_KDE4BASE="pkglist:${MINLIST},noxbase,x_base,xapbase,kde4base"
 
 # List of Slackware package series with Plasma5 instead of KDE 4 (full install):
 # - each will become a squashfs module:
-#SEQ_PLASMA5="tagfile:a,ap,d,e,f,k,l,n,t,tcl,x,xap,xfce,y pkglist:alien,alienrest,kde4plasma5,plasma5,slackextra,slackpkgplus"
 SEQ_PLASMA5="tagfile:a,ap,d,e,f,k,l,n,t,tcl,x,xap,xfce,y pkglist:alien,alienrest,plasma5,slackextra,slackpkgplus"
 
 # List of Slackware package series with MSB instead of KDE 4 (full install):
