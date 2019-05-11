@@ -212,6 +212,7 @@ NETFIRMWARE="3com acenic adaptec bnx tigon e100 sun kaweth tr_smctr cxgb3"
 # If any Live variant needs additional 'append' parameters, define them here,
 # either using a variable name 'KAPPEND_<LIVEDE>', or by defining 'KAPPEND' in the .conf file:
 KAPPEND_SLACKWARE=""
+KAPPEND_PLASMA5="threadirqs"
 KAPPEND_STUDIOWARE="threadirqs"
 
 # Add CACert root certificates yes/no?
@@ -1992,6 +1993,14 @@ if [ "$LIVEDE" = "STUDIOWARE" ]; then
   chroot ${LIVE_ROOTDIR} /usr/sbin/useradd -c "Avahi Service Account" -u 214 -g 214 -d /dev/null -s /bin/false avahi
   echo "avahi:$(openssl rand -base64 12)" | chroot ${LIVE_ROOTDIR} /usr/sbin/chpasswd
 
+fi # End LIVEDE = STUDIOWARE  
+
+if [ "$LIVEDE" = "PLASMA5" -o "$LIVEDE" = "STUDIOWARE" ]; then
+
+  # -------------------------------------------------------------------------- #
+  echo "-- Configuring $LIVEDE (RT beaviour)."
+  # -------------------------------------------------------------------------- #
+
   # RT Scheduling and Locked Memory:
   cat << "EOT" > ${LIVE_ROOTDIR}/etc/initscript
 # Set umask to safe level:
@@ -2007,7 +2016,7 @@ ulimit -r 65
 eval exec "$4"
 EOT
 
-fi # End LIVEDE = STUDIOWARE  
+fi # End LIVEDE = PLASMA5/STUDIOWARE  
 
 # You can define the function 'custom_config()' by uncommenting it in
 # the configuration file 'make_slackware_live.conf'.
