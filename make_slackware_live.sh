@@ -467,7 +467,9 @@ function install_pkgs() {
   fi
 
   if [ "$TRIM" = "doc" -o "$TRIM" = "mandoc" -o "$LIVEDE" = "XFCE"  ]; then
-    # Remove undesired (too big for a live OS) document subdirectories:
+    # Remove undesired (too big for a live OS) document subdirectories,
+    # but leave cups alone because it contains the CUPS service's web page:
+    mv "${2}"/usr/doc/cups-* "${2}"/usr/ 2>/dev/null
     (cd "${2}/usr/doc" && find . -type d -mindepth 2 -maxdepth 2 -exec rm -rf {} \;)
     rm -rf "$2"/usr/share/gtk-doc
     rm -rf "$2"/usr/share/help
@@ -479,6 +481,8 @@ function install_pkgs() {
     find "${2}"/usr/doc/ -type f -size +50k |xargs rm -f
     # Remove info pages:
     rm -rf "$2"/usr/info
+    # Move cups documentation back in place:
+    mv "${2}"/usr/cups-* "${2}"/usr/doc/ 2>/dev/null
   fi
   if [ "$TRIM" = "mandoc" ]; then
     # Also remove man pages:
@@ -491,17 +495,26 @@ function install_pkgs() {
     rm -f "$2"/usr/bin/mysql*embedded*
     # I am against torture:
     rm -f "$2"/usr/bin/smbtorture
-    # Also remove some of the big unused/esoteric static libraries:
-    rm -rf "$2"/usr/lib${DIRSUFFIX}/{libaudiofile,libgdk,libglib,libgtk}.a
-    rm -rf "$2"/usr/lib${DIRSUFFIX}/{liblftp*,libnl}.a
-    rm -rf "$2"/usr/lib${DIRSUFFIX}/libboost*test*.a
-    # The llvm static libraries are not needed since we also ship the .so:
-    rm -rf "$2"/usr/lib${DIRSUFFIX}/lib{LLVM,clang,lldb}*.a
-    # And these are not needed for a simple XFCE ISO:
-    rm -rf "$2"/usr/lib${DIRSUFFIX}/clang/*/lib/linux/*.a{,.syms}
-    rm -f "$2"/usr/bin/{c-index-test,clang-change-namespace,clang-check,clang-func-mapping,clang-import-test,clang-include-fixer,clang-offload-bundler,clang-order-fields,clang-refactor,clang-query,clang-rename,clang-reorder-fields,clang-tidy,clangd,find-all-symbols,lldb-server,lldb-test,modularize}
+    # Also remove the big unused/esoteric static libraries:
+    rm -f "$2"/usr/lib${DIRSUFFIX}/*.a
+    # This was inadvertantly left in the gcc package:
+    rm -f "$2"/usr/libexec/gcc/*/*/cc1objplus
+    # From llvm we only want the shared runtime libraries so wipe the rest:
+    rm -f "$2"/usr/lib${DIRSUFFIX}/lib{LLVM,lldb}*.a
+    rm -rf "$2"/usr/lib${DIRSUFFIX}/libclang*
+    rm -rf "$2"/usr/include/{c++/v1,clang,clang-c,lldb,llvm,llvm-c}
+    rm -rf "$2"/usr/share/{clang,opt-viewer,scan-build,scan-view}
+    rm -rf "$2"/usr/lib${DIRSUFFIX}/cmake/{clang,llvm}
+    rm -rf "$2"/usr/lib${DIRSUFFIX}/clang
+    rm -rf "$2"/usr/lib${DIRSUFFIX}/python*/site-packages/{clang,lldb}
+    if [ -e "$2"/var/log/packages/llvm-[0-9]* ]; then
+      for BINFILE in $(grep /bin/. "$2"/var/log/packages/llvm-[0-9]*) ; do
+         rm -f "$2"/$BINFILE ; 
+      done
+    fi
+    # Bye llvm; on with the rest:
     rm -rf "$2"/usr/lib${DIRSUFFIX}/d3d
-    rm -rf "$2"/usr/lib${DIRSUFFIX}/guile/*/ccache/*
+    rm -rf "$2"/usr/lib${DIRSUFFIX}/guile
     rm -rf "$2"/usr/share/icons/HighContrast
     # Nor these datacenter NIC firmwares and drivers:
     rm -rf "$2"/lib/firmware/{bnx*,cxgb4,libertas,liquidio,mellanox,netronome,qed}
