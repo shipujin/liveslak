@@ -149,6 +149,7 @@ libevdev
 libfakekey
 libfontenc
 libglade
+libglvnd
 libgnome-keyring
 libgsf
 libidl
