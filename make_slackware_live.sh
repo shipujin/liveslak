@@ -1734,6 +1734,20 @@ sed -i "s/@LIBDIR@/lib${DIRSUFFIX}/g" ${LIVE_ROOTDIR}/etc/X11/xdm/liveslak-xdm/x
 # missing modules:
 echo "mode:           blank" > ${LIVE_ROOTDIR}/home/${LIVEUID}/.xscreensaver
 
+# Make the EmojiOne TTF font universally available:
+mkdir -p ${LIVE_ROOTDIR}/etc/fonts
+cat << EOT > ${LIVE_ROOTDIR}/etc/fonts/local.conf
+<?xml version="1.0"?>
+<!DOCTYPE fontconfig SYSTEM "fonts.dtd">
+<!-- /etc/fonts/local.conf file to customize system font access -->
+<fontconfig>
+<!-- Contains the EmojiOne TTF font: -->
+<dir>/usr/lib${DIRSUFFIX}/firefox/fonts</dir>
+</fontconfig>
+EOT
+chroot ${LIVE_ROOTDIR} fc-cache -f
+
+
 # -------------------------------------------------------------------------- #
 echo "-- Configuring XFCE."
 # -------------------------------------------------------------------------- #
