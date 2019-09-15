@@ -485,7 +485,7 @@ function install_pkgs() {
     # Move cups documentation back in place:
     mv "${2}"/usr/cups-* "${2}"/usr/doc/ 2>/dev/null
   fi
-  if [ "$TRIM" = "mandoc" ]; then
+  if [ "$TRIM" = "mandoc" -o "$LIVEDE" = "XFCE" ]; then
     # Also remove man pages:
     rm -rf "$2"/usr/man
   fi
