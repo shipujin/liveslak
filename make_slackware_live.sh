@@ -320,18 +320,22 @@ uncompressfs () {
 #
 full_pkgname() {
   PACK=$1
-  TOPDIR=$2
-  # Perhaps I will use this more readable code in future:
-  #for FL in $(find ${TOPDIR} -name "${PACK}-*.t?z" 2>/dev/null) ; do
-  #  # Weed out package names starting with "$PACK"; we want exactly "$PACK":
-  #  if [ "$(echo $FL |rev |cut -d- -f4- |cut -d/ -f1 |rev)" != "$PACK" ]; then
-  #    continue
-  #  else
-  #    break
-  #  fi
-  #done
-  #echo "$FL"
-  echo "$(find ${TOPDIR} -name "${PACK}-*.t?z" 2>/dev/null |grep -E "\<${PACK//+/\\+}-[^-]+-[^-]+-[^-]+.t?z" |head -1)"
+  if [ -e $2 ]; then
+    TOPDIR=$2
+    # Perhaps I will use this more readable code in future:
+    #for FL in $(find ${TOPDIR} -name "${PACK}-*.t?z" 2>/dev/null) ; do
+    #  # Weed out package names starting with "$PACK"; we want exactly "$PACK":
+    #  if [ "$(echo $FL |rev|cut -d- -f4-|cut -d/ -f1|rev)" != "$PACK" ]; then
+    #    continue
+    #  else
+    #    break
+    #  fi
+    #done
+    #echo "$FL"
+    echo "$(find ${TOPDIR}/ -name "${PACK}-*.t?z" 2>/dev/null |grep -E "\<${PACK//+/\\+}-[^-]+-[^-]+-[^-]+.t?z" |head -1)"
+  else
+    echo ""
+  fi
 }
 
 #
@@ -385,7 +389,7 @@ function install_pkgs() {
     else
       SELECTION=""
     fi
-    if [ ! -d ${SL_REPO} -o -z "$(find ${SL_PKGROOT} -type f 2>/dev/null)" ]; then
+    if [ ! -d ${SL_REPO} -o -z "$(find ${SL_PKGROOT}/ -type f 2>/dev/null)" ]; then
       # Oops... empty local repository. Let's see if we can rsync from remote:
       echo "** Slackware package repository root '${SL_REPO}' does not exist or is empty!"
       RRES=1
