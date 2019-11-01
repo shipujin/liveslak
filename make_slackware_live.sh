@@ -643,6 +643,8 @@ EOL
     cat ${LIVE_TOOLDIR}/menu.tpl | sed \
       -e "s/@KBD@/$KBD/g" \
       -e "s/@LANG@/$LANCOD/g" \
+      -e "s/@ULANG@/${DEF_LANG^^}/g" \
+      -e "s,@LOCALE@,${DEF_LOCALE},g" \
       -e "s/@CONSFONT@/$CONSFONT/g" \
       -e "s/@DIRSUFFIX@/$DIRSUFFIX/g" \
       -e "s/@DISTRO@/$DISTRO/g" \
