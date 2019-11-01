@@ -32,6 +32,7 @@ eudev
 file
 findutils
 floppy
+fuse3
 gawk
 gc
 #ghostscript

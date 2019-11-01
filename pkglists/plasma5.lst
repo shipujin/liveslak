@@ -295,6 +295,7 @@ kscreen2
 kscreenlocker
 ksshaskpass
 ksysguard
+kwallet-pam
 kwayland
 kwayland-integration
 kwin
