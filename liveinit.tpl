@@ -292,7 +292,7 @@ if [ -x /sbin/udevd -a -x /sbin/udevadm ]; then
   if [ -n "$NFSHOST" ]; then
     # We also need network devices if NFS root is requested:
     if [ -z "$(/sbin/udevadm trigger --subsystem-match=net --action=add -v -n |rev |cut -d/ -f1 |rev |grep -v lo)" ]; then
-      /sbin/udevadm trigger $DEBUGV
+      /sbin/udevadm trigger --action=add $DEBUGV
     else
       /sbin/udevadm trigger --subsystem-match=net --action=add $DEBUGV
     fi
