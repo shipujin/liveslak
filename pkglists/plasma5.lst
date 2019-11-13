@@ -3,6 +3,7 @@
 #
 # deps:
 ConsoleKit2
+LibRaw
 OpenAL
 PyQt
 PyQt5
@@ -20,6 +21,7 @@ drumstick
 dvdauthor
 elogind
 espeak-ng
+exiv2
 flite
 freecell-solver
 frei0r-plugins
@@ -65,7 +67,6 @@ qca-qt5
 qrencode
 qt-gstreamer
 qt5
-qt5-speech
 qt5-webkit
 qtav
 rttr
@@ -148,11 +149,13 @@ kapidox
 karchive
 kauth
 kbookmarks
+kcalendarcore
 kcmutils
 kcodecs
 kcompletion
 kconfig
 kconfigwidgets
+kcontacts
 kcoreaddons
 kcrash
 kdbusaddons
@@ -236,9 +239,7 @@ kaddressbook
 kalarm
 kalarmcal
 kblog
-kcalcore
 kcalutils
-kcontacts
 kdav
 kdepim-addons
 kdepim-apps-libs
@@ -449,7 +450,7 @@ ksystemlog
 kteatime
 ktimer
 ktouch
-ktuberling
+#ktuberling
 kturtle
 kubrick
 kwalletmanager
@@ -496,11 +497,11 @@ digikam
 falkon
 kaudiocreator
 krita
-kdev-php
-kdev-python
-kdevelop
-kdevelop-pg-qt
-kdevplatform
+#kdev-php
+#kdev-python
+#kdevelop
+#kdevelop-pg-qt
+#kdevplatform
 kdiagram
 kile
 kjots
@@ -509,7 +510,7 @@ kpmcore
 krename
 krusader
 kstars
-ktorrent
+#ktorrent
 kuser
 kwebkitpart
 libktorrent
