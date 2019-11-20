@@ -247,7 +247,7 @@ update_initrd() {
   echo "--- Extracting Slackware initrd and adding rootdelay for USB..."
   cd ${IMGDIR}
     uncompressfs ${IMGFILE} \
-      | cpio -i -d -H newc --no-absolute-filenames
+      | cpio -i -d -m -H newc
     
     if [ $REFRESH -eq 1 ]; then
       echo "--- Refreshing Slackware initrd..."

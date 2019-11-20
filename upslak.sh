@@ -411,7 +411,7 @@ extract_initrd() {
 
   cd ${IMGDIR}
     uncompressfs ${IMGFILE} \
-      | cpio -i -d -H newc --no-absolute-filenames
+      | cpio -i -d -m -H newc
 } # End of extract_initrd()
     
 # Modify the extracted initrd and re-pack it:

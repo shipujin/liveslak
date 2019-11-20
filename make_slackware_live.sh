@@ -1587,7 +1587,7 @@ if ls ${LIVE_ROOTDIR}/boot/vmlinuz-huge-* 1>/dev/null 2>/dev/null; then
   # and move them to a single directory in the ISO:
   mkdir -p  ${LIVE_ROOTDIR}/usr/share/${LIVEMAIN}
   cd  ${LIVE_ROOTDIR}/usr/share/${LIVEMAIN}
-    uncompressfs ${DEF_SL_PKGROOT}/../isolinux/initrd.img | cpio -i -d -H newc --no-absolute-filenames usr/lib/setup/* sbin/probe sbin/fixdate
+    uncompressfs ${DEF_SL_PKGROOT}/../isolinux/initrd.img | cpio -i -d -m -H newc usr/lib/setup/* sbin/probe sbin/fixdate
     mv -i usr/lib/setup/* sbin/probe sbin/fixdate .
     rm -r usr sbin
     rm -f setup
