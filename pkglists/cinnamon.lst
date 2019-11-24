@@ -24,6 +24,7 @@ libgee
 libgnomekbd
 libgtop
 libgusb
+libtimezonemap
 metacity
 mint-y-icons
 mint-y-theme
@@ -40,6 +41,7 @@ py3cairo
 pygobject3-python3
 python-pam
 python3
+pytz
 setproctitle
 speex
 tinycss
