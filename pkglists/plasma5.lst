@@ -48,7 +48,7 @@ lmdb
 mesa
 mlt
 ninja
-#noto-cjk-font-ttf
+noto-cjk-font-ttf
 noto-font-ttf
 opencv
 pcaudiolib
@@ -194,6 +194,7 @@ kparts
 kpeople
 kplotting
 kpty
+kquickcharts
 kross
 krunner
 kservice
@@ -323,6 +324,8 @@ xdg-desktop-portal-kde
 
 # plasma-extra:
 #kde-wallpapers
+pulseaudio-qt
+kpeoplevcard
 kdeconnect-framework
 latte-dock
 oxygen-fonts
@@ -344,6 +347,7 @@ cervisia
 dolphin
 dolphin-plugins
 dragon
+elisa
 ffmpegthumbs
 filelight
 granatier
@@ -450,7 +454,7 @@ ksystemlog
 kteatime
 ktimer
 ktouch
-#ktuberling
+ktuberling
 kturtle
 kubrick
 kwalletmanager
@@ -491,17 +495,17 @@ zeroconf-ioslave
 
 # applications-extra:
 alkimia
-#calligra
-#calligraplan
+calligra
+calligraplan
 digikam
 falkon
 kaudiocreator
 krita
-#kdev-php
-#kdev-python
-#kdevelop
-#kdevelop-pg-qt
-#kdevplatform
+kdev-php
+kdev-python
+kdevelop
+kdevelop-pg-qt
+kdevplatform
 kdiagram
 kile
 kjots
@@ -510,7 +514,7 @@ kpmcore
 krename
 krusader
 kstars
-#ktorrent
+ktorrent
 kuser
 kwebkitpart
 libktorrent
