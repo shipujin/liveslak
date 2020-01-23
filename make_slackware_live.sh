@@ -216,7 +216,7 @@ KAPPEND_PLASMA5="threadirqs"
 KAPPEND_STUDIOWARE="threadirqs"
 
 # Add CACert root certificates yes/no?
-ADD_CACERT=${ADD_CACERT:-"YES"}
+ADD_CACERT=${ADD_CACERT:-"NO"}
 
 # Default language selection for the Live OS; this can be changed with the
 # coomandline switch "-l":
