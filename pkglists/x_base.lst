@@ -197,6 +197,7 @@ pycairo
 pygobject
 pygobject3
 pygtk
+python-distro
 randrproto
 recordproto
 rendercheck
