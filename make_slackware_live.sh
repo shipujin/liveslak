@@ -94,10 +94,10 @@ DISTRO=${DISTRO:-"slackware"}
 LIVE_HOSTNAME=${LIVE_HOSTNAME:-"darkstar"}
 
 # What type of Live image?
-# Choices are: SLACKWARE, XFCE, KDE4, PLASMA5, MATE, CINNAMON, DLACK, STUDIOWARE
+# Choices are: SLACKWARE, XFCE, DAW, PLASMA5, MATE, CINNAMON, DLACK, STUDIOWARE
 LIVEDE=${LIVEDE:-"SLACKWARE"}
 
-# What runlevel to use if adding a DE like: XFCE, KDE4, PLASMA5 etc...
+# What runlevel to use if adding a DE like: XFCE, DAW, PLASMA5 etc...
 RUNLEVEL=${RUNLEVEL:-4}
 
 # Use the graphical syslinux menu (YES or NO)?
@@ -170,9 +170,9 @@ SEQ_SLACKWARE="tagfile:a,ap,d,e,f,k,kde,kdei,l,n,t,tcl,x,xap,xfce,y pkglist:slac
 # - each series will become a squashfs module:
 SEQ_XFCEBASE="${MINLIST},noxbase,x_base,xapbase,xfcebase"
 
-# Stripped-down Slackware with KDE4 as the Desktop Environment:
+# Stripped-down Slackware with Plasma5 as the Desktop Environment:
 # - each series will become a squashfs module:
-SEQ_KDE4BASE="pkglist:${MINLIST},noxbase,x_base,xapbase,kde4base"
+SEQ_DAW="pkglist:${MINLIST},noxbase,x_base,xapbase,plasma5base,slackextra,slackpkgplus,alien4daw,daw"
 
 # List of Slackware package series with Plasma5 instead of KDE 4 (full install):
 # - each will become a squashfs module:
@@ -213,6 +213,7 @@ NETFIRMWARE="3com acenic adaptec bnx tigon e100 sun kaweth tr_smctr cxgb3"
 # either using a variable name 'KAPPEND_<LIVEDE>', or by defining 'KAPPEND' in the .conf file:
 KAPPEND_SLACKWARE=""
 KAPPEND_PLASMA5="threadirqs"
+KAPPEND_DAW="threadirqs"
 KAPPEND_STUDIOWARE="threadirqs"
 
 # Add CACert root certificates yes/no?
@@ -919,7 +920,7 @@ do
         echo "                    Use i586 for a 32bit ISO, x86_64 for 64bit."
         echo " -c comp            Squashfs compression (default: ${SQ_COMP})."
         echo "                    Can be any of '${SQ_COMP_AVAIL}'."
-        echo " -d desktoptype     SLACKWARE (full Slack), KDE4 basic,"
+        echo " -d desktoptype     SLACKWARE (full Slack), DAW,"
         echo "                    XFCE basic, PLASMA5, MATE, CINNAMON, DLACK."
         echo " -e                 Use ISO boot-load-size of 32 for computers."
         echo "                    where the ISO won't boot otherwise."
@@ -1167,7 +1168,7 @@ echo "${THEDATE} (${BUILDER})" > ${LIVE_BOOT}/${MARKER}
 case "$LIVEDE" in
   SLACKWARE) MSEQ="${SEQ_SLACKWARE}" ;;
        XFCE) MSEQ="${SEQ_XFCEBASE}" ;;
-       KDE4) MSEQ="${SEQ_KDE4BASE}" ;;
+        DAW) MSEQ="${SEQ_DAW}" ;;
     PLASMA5) MSEQ="${SEQ_PLASMA5}" ;;
        MATE) MSEQ="${SEQ_MSB}" ;;
    CINNAMON) MSEQ="${SEQ_CIN}" ;;
@@ -2006,6 +2007,78 @@ if [ "$LIVEDE" = "DLACK" ]; then
 
 fi # End LIVEDE = DLACK  
 
+if [ "$LIVEDE" = "DAW" ]; then
+
+  # -------------------------------------------------------------------------- #
+  echo "-- Configuring DAW."
+  # -------------------------------------------------------------------------- #
+
+  # Stream ALSA through Pulse and all through Jack:
+  if [ -f ${LIVE_TOOLDIR}/daw/pajackconnect ]; then
+    install -m0755 ${LIVE_TOOLDIR}/daw/pajackconnect -t ${LIVE_ROOTDIR}/usr/bin/
+  else
+    wget https://raw.githubusercontent.com/brummer10/pajackconnect/master/pajackconnect -O ${LIVE_ROOTDIR}/usr/bin/pajackconnect
+    chmod 755 ${LIVE_ROOTDIR}/usr/bin/pajackconnect
+  fi
+
+  mkdir -p .config/rncbc.org
+  cat <<EOT > .config/rncbc.org/QjackCtl.conf
+[Options]
+DBusEnabled=true
+JackDBusEnabled=true
+KeepOnTop=false
+PostShutdownScript=true
+PostShutdownScriptShell=pajackconnect reset &
+PostStartupScript=true
+PostStartupScriptShell=pajackconnect start &
+ServerConfig=true
+ServerConfigName=.jackdrc
+ShutdownScript=true
+ShutdownScriptShell=pajackconnect stop &
+Singleton=true
+StartJack=true
+StartMinimized=true
+StartupScript=false
+StartupScriptShell=
+StopJack=true
+SystemTray=true
+SystemTrayQueryClose=true
+
+[Presets]
+DefPreset=(default)
+
+[Settings]
+Driver=alsa
+Frames=256
+Periods=2
+PortMax=256
+Priority=5
+Realtime=true
+SampleRate=44100
+Server=jackd
+StartDelay=2
+EOT
+
+  # Add a default jackd configuration:
+  cat <<EOT > ${LIVE_ROOTDIR}/home/${LIVEUID}/.jackdrc
+/usr/bin/jackd -dalsa -dhw:0 -r48000 -p1024 -n2
+EOT
+
+  # Autostart qjackctl:
+  mkdir -p ${LIVE_ROOTDIR}/home/${LIVEUID}/.config/autostart
+  cp -a ${LIVE_ROOTDIR}/usr/share/applications/qjackctl.desktop \
+    ${LIVE_ROOTDIR}/home/${LIVEUID}/.config/autostart
+
+  # If we added latte-dock then autostart it:
+  if [ -f ${LIVE_ROOTDIR}/usr/share/applications/org.kde.latte-dock.desktop ];
+  then
+    mkdir -p ${LIVE_ROOTDIR}/home/${LIVEUID}/.config/autostart
+    cp -a ${LIVE_ROOTDIR}/usr/share/applications/org.kde.latte-dock.desktop \
+      ${LIVE_ROOTDIR}/home/${LIVEUID}/.config/autostart
+  fi
+
+fi # End LIVEDE = DAW
+
 if [ "$LIVEDE" = "STUDIOWARE" ]; then
 
   # -------------------------------------------------------------------------- #
@@ -2017,9 +2090,10 @@ if [ "$LIVEDE" = "STUDIOWARE" ]; then
   chroot ${LIVE_ROOTDIR} /usr/sbin/useradd -c "Avahi Service Account" -u 214 -g 214 -d /dev/null -s /bin/false avahi
   echo "avahi:$(openssl rand -base64 12)" | chroot ${LIVE_ROOTDIR} /usr/sbin/chpasswd
 
-fi # End LIVEDE = STUDIOWARE  
+fi # End LIVEDE = STUDIOWARE
 
-if [ "$LIVEDE" = "PLASMA5" -o "$LIVEDE" = "STUDIOWARE" ]; then
+if [ "$LIVEDE" = "PLASMA5" -o "$LIVEDE" = "DAW" -o "$LIVEDE" = "STUDIOWARE" ];
+then
 
   # -------------------------------------------------------------------------- #
   echo "-- Configuring $LIVEDE (RT beaviour)."
@@ -2040,7 +2114,7 @@ ulimit -r 65
 eval exec "$4"
 EOT
 
-fi # End LIVEDE = PLASMA5/STUDIOWARE  
+fi # End LIVEDE = PLASMA5/DAW/STUDIOWARE
 
 # You can define the function 'custom_config()' by uncommenting it in
 # the configuration file 'make_slackware_live.conf'.
@@ -2155,8 +2229,8 @@ echo "-- Tweaking system startup."
 # Configure the default DE when running startx:
 if [ "$LIVEDE" = "SLACKWARE" ]; then
   ln -sf xinitrc.kde ${LIVE_ROOTDIR}/etc/X11/xinit/xinitrc
-elif [ "$LIVEDE" = "KDE4" ]; then
-  ln -sf xinitrc.kde ${LIVE_ROOTDIR}/etc/X11/xinit/xinitrc
+elif [ "$LIVEDE" = "DAW" ]; then
+  ln -sf xinitrc.plasma ${LIVE_ROOTDIR}/etc/X11/xinit/xinitrc
 elif [ "$LIVEDE" = "PLASMA5" ]; then
   ln -sf xinitrc.plasma ${LIVE_ROOTDIR}/etc/X11/xinit/xinitrc
 elif [ "$LIVEDE" = "MATE" ]; then

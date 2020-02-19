@@ -1,4 +1,5 @@
 # A collection of packages for the digital musician.
+OpenBLAS
 a2jmidid
 alsa-plugins-jack
 amsynth
@@ -7,6 +8,7 @@ aubio
 avldrums.lv2
 calf
 capnproto
+cecilia5
 cuetools
 drumkit
 drumstick
@@ -35,6 +37,9 @@ ntk
 portaudio
 portmidi
 pulseaudio-jack
+python-numpy
+python-pathlib2
+python-pyo
 qjackctl
 qsampler
 qsynth
@@ -50,6 +55,7 @@ vamp-aubio-plugins
 vamp-plugin-sdk
 vmpk
 wxGTK3
+wxpython
 yaml-cpp
 zynaddsubfx
 zyn-fusion
