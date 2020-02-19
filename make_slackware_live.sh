@@ -1455,6 +1455,73 @@ chmod 640 ${LIVE_ROOTDIR}/etc/sudoers
 sed -i ${LIVE_ROOTDIR}/etc/sudoers -e 's/# *\(%wheel\sALL=(ALL)\sALL\)/\1/'
 chmod 440 ${LIVE_ROOTDIR}/etc/sudoers
 
+# Add some convenience to the bash shell:
+mkdir -p  ${LIVE_ROOTDIR}/etc/skel/
+cat << "EOT" > ${LIVE_ROOTDIR}/etc/skel/.profile
+# Source a .bashrc if it exists:
+[[ -r ~/.bashrc ]] && . ~/.bashrc
+
+# Define some useful aliases:
+alias ll="ls -la $LS_OPTIONS"
+lsp() { basename $(ls -1 "/var/log/packages/$@"*) ; }
+alias md="mkdir"
+alias tarview="tar -tvf"
+# GREP_OPTIONS="--color=auto" is deprecated, use alias to enable colored output:
+alias grep="grep --color=auto"
+alias fgrep="fgrep --color=auto"
+alias egrep="egrep --color=auto"
+
+# Ctrl-D should not log us off immediately; now it needs 10 times:
+set -o ignoreeof
+EOT
+
+# Do the root account the same favor:
+cat ${LIVE_ROOTDIR}/etc/skel/.profile > ${LIVE_ROOTDIR}/root/.profile
+chown root:root ${LIVE_ROOTDIR}/root/.profile
+
+# If the 'vi' symlink doees not exist, add it:
+if [ ! -e ${LIVE_ROOTDIR}/usr/bin/vi ]; then
+  if [ -x ${LIVE_ROOTDIR}/usr/bin/elvis ]; then
+    ln -s elvis ${LIVE_ROOTDIR}/usr/bin/vi
+  else
+    ln -s vim ${LIVE_ROOTDIR}/usr/bin/vi
+  fi
+fi
+
+if [ -f ${LIVE_ROOTDIR}/etc/rc.d/rc.networkmanager ]; then
+  # Enable NetworkManager if present:
+  chmod +x ${LIVE_ROOTDIR}/etc/rc.d/rc.networkmanager
+  # And disable Slackware's own way of configuring eth0:
+  cat <<EOT > ${LIVE_ROOTDIR}/etc/rc.d/rc.inet1.conf
+IFNAME[0]="eth0"
+IPADDR[0]=""
+NETMASK[0]=""
+USE_DHCP[0]=""
+DHCP_HOSTNAME[0]=""
+
+GATEWAY=""
+DEBUG_ETH_UP="no"
+EOT
+
+  # Ensure that NetworkManager uses its internal DHCP client - seems to give
+  # better compliancy:
+  sed -e "s/^dhcp=dhcpcd/#&/" -e "s/^#\(dhcp=internal\)/\1/" \
+      -i ${LIVE_ROOTDIR}/etc/NetworkManager/NetworkManager.conf
+
+else
+  # Use Slackware's own network configurion routing for eth0 in the base image:
+  cat <<EOT > ${LIVE_ROOTDIR}/etc/rc.d/rc.inet1.conf
+IFNAME[0]="eth0"
+IPADDR[0]=""
+NETMASK[0]=""
+USE_DHCP[0]="yes"
+DHCP_HOSTNAME[0]="${LIVE_HOSTNAME}"
+
+GATEWAY=""
+DEBUG_ETH_UP="no"
+EOT
+fi
+
 # Enable a Slackware mirror for slackpkg:
 cat <<EOT >> ${LIVE_ROOTDIR}/etc/slackpkg/mirrors
 #http://mirrors.slackware.com/slackware/slackware${DIRSUFFIX}-${SL_VERSION}/
@@ -1518,40 +1585,6 @@ ARCH=${SL_ARCH} /usr/sbin/slackpkg -batch=on update
 yes o | ARCH=${SL_ARCH} /usr/sbin/slackpkg new-config
 
 EOSL
-
-if [ -f ${LIVE_ROOTDIR}/etc/rc.d/rc.networkmanager ]; then
-  # Enable NetworkManager if present:
-  chmod +x ${LIVE_ROOTDIR}/etc/rc.d/rc.networkmanager
-  # And disable Slackware's own way of configuring eth0:
-  cat <<EOT > ${LIVE_ROOTDIR}/etc/rc.d/rc.inet1.conf
-IFNAME[0]="eth0"
-IPADDR[0]=""
-NETMASK[0]=""
-USE_DHCP[0]=""
-DHCP_HOSTNAME[0]=""
-
-GATEWAY=""
-DEBUG_ETH_UP="no"
-EOT
-
-  # Ensure that NetworkManager uses its internal DHCP client - seems to give
-  # better compliancy:
-  sed -e "s/^dhcp=dhcpcd/#&/" -e "s/^#\(dhcp=internal\)/\1/" \
-      -i ${LIVE_ROOTDIR}/etc/NetworkManager/NetworkManager.conf
-
-else
-  # Use Slackware's own network configurion routing for eth0 in the base image:
-  cat <<EOT > ${LIVE_ROOTDIR}/etc/rc.d/rc.inet1.conf
-IFNAME[0]="eth0"
-IPADDR[0]=""
-NETMASK[0]=""
-USE_DHCP[0]="yes"
-DHCP_HOSTNAME[0]="${LIVE_HOSTNAME}"
-
-GATEWAY=""
-DEBUG_ETH_UP="no"
-EOT
-fi
 
 # Add our scripts to the Live OS:
 mkdir -p  ${LIVE_ROOTDIR}/usr/local/sbin
@@ -1704,30 +1737,6 @@ chown --reference=${LIVE_ROOTDIR}/home/${LIVEUID} ${LIVE_ROOTDIR}/home/${LIVEUID
 ( cd ${LIVE_ROOTDIR}/home/${LIVEUID}/ ; ln .face.icon .face )
 mkdir -p ${LIVE_ROOTDIR}/usr/share/apps/kdm/pics/users
 cp ${LIVE_TOOLDIR}/blueSW-64px.png ${LIVE_ROOTDIR}/usr/share/apps/kdm/pics/users/blues.icon
-
-# Add some convenience to the bash shell:
-mkdir -p  ${LIVE_ROOTDIR}/etc/skel/
-cat << "EOT" > ${LIVE_ROOTDIR}/etc/skel/.profile
-# Source a .bashrc if it exists:
-[[ -r ~/.bashrc ]] && . ~/.bashrc
-
-# Define some useful aliases:
-alias ll="ls -la $LS_OPTIONS"
-lsp() { basename $(ls -1 "/var/log/packages/$@"*) ; }
-alias md="mkdir"
-alias tarview="tar -tvf"
-# GREP_OPTIONS="--color=auto" is deprecated, use alias to enable colored output:
-alias grep="grep --color=auto"
-alias fgrep="fgrep --color=auto"
-alias egrep="egrep --color=auto"
-
-# Ctrl-D should not log us off immediately; now it needs 10 times:
-set -o ignoreeof
-EOT
-
-# Do the root account the same favor:
-cat ${LIVE_ROOTDIR}/etc/skel/.profile > ${LIVE_ROOTDIR}/root/.profile
-chown root:root ${LIVE_ROOTDIR}/root/.profile
 
 # Give XDM a nicer look:
 mkdir -p ${LIVE_ROOTDIR}/etc/X11/xdm/liveslak-xdm
