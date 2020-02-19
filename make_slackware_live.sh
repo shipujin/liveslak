@@ -1672,7 +1672,17 @@ if ls ${LIVE_ROOTDIR}/boot/vmlinuz-huge-* 1>/dev/null 2>/dev/null; then
   fi
   # Fix some occurrences of '/usr/lib/setup/' that are covered by $PATH:
   sed -i -e 's,/usr/lib/setup/,,g' -e 's,:/usr/lib/setup,:/usr/share/${LIVEMAIN},g' ${LIVE_ROOTDIR}/usr/share/${LIVEMAIN}/*
-  # Add the Slackware Live HD installer:
+  # Add the Slackware Live HD installer scripts:
+  for USCRIPT in SeTuacct SeTudiskpart SeTupass ; do
+    cat ${LIVE_TOOLDIR}/${USCRIPT}.tpl | sed \
+      -e "s/@DISTRO@/$DISTRO/g" \
+      -e "s/@CDISTRO@/${DISTRO^}/g" \
+      -e "s/@UDISTRO@/${DISTRO^^}/g" \
+      -e "s/@LIVEDE@/$LIVEDE/g" \
+      -e "s/@SL_VERSION@/$SL_VERSION/g" \
+      > ${LIVE_ROOTDIR}/usr/share/${LIVEMAIN}/${USCRIPT}
+    chmod 755 ${LIVE_ROOTDIR}/usr/share/${LIVEMAIN}/${USCRIPT}
+  done
   mkdir -p ${LIVE_ROOTDIR}/usr/local/sbin
   cat ${LIVE_TOOLDIR}/setup2hd.tpl | sed \
     -e "s/@DIRSUFFIX@/$DIRSUFFIX/g" \
