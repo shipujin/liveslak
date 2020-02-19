@@ -26,7 +26,7 @@ dmidecode
 dnsmasq
 e2fsprogs
 ed
-#elvis
+elvis
 etc
 eudev
 file
@@ -62,6 +62,7 @@ kernel-firmware
 kernel-headers
 kernel-modules
 kmod
+krb5
 less
 libassuan
 libedit

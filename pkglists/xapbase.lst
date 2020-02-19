@@ -35,8 +35,8 @@ rxvt-unicode
 sane
 seamonkey-solibs
 tigervnc
-vim
-vim-gvim
+#vim
+#vim-gvim
 x11-ssh-askpass
 x3270
 #xaos
