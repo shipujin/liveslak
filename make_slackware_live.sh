@@ -1763,6 +1763,12 @@ cat << EOT > ${LIVE_ROOTDIR}/etc/fonts/local.conf
 EOT
 chroot ${LIVE_ROOTDIR} fc-cache -f
 
+# Allow direct scanning via xsane (no temporary intermediate files) in Gimp:
+if [ ! -L ${LIVE_ROOTDIR}/usr/lib${DIRSUFFIX}/gimp/2.0/plug-ins/xsane  ]; then
+  mkdir -p ${LIVE_ROOTDIR}/usr/lib${DIRSUFFIX}/gimp/2.0/plug-ins
+  ln -s /usr/bin/xsane \
+    ${LIVE_ROOTDIR}/usr/lib${DIRSUFFIX}/gimp/2.0/plug-ins/xsane
+fi
 
 # -------------------------------------------------------------------------- #
 echo "-- Configuring XFCE."
