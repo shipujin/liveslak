@@ -83,6 +83,9 @@ THEDATE=$(date +%Y%m%d)
 # The live username of the image:
 LIVEUID=${LIVEUID:-"live"}
 
+# The number of the live account in the image:
+LIVEUIDNR=${LIVEUIDNR:-"1000"}
+
 # The root and live user passwords of the image:
 ROOTPW=${ROOTPW:-"root"}
 LIVEPW=${LIVEPW:-"live"}
@@ -1440,7 +1443,7 @@ EOL
 echo "root:${ROOTPW}" | chroot ${LIVE_ROOTDIR} /usr/sbin/chpasswd
 
 # Create a nonprivileged user account (called "live" by default):
-chroot ${LIVE_ROOTDIR} /usr/sbin/useradd -c "Slackware Live User" -g users -G wheel,audio,cdrom,floppy,plugdev,video,power,netdev,lp,scanner,kmem,dialout,games,disk,input -u 1000 -d /home/${LIVEUID} -m -s /bin/bash ${LIVEUID}
+chroot ${LIVE_ROOTDIR} /usr/sbin/useradd -c "Slackware Live User" -g users -G wheel,audio,cdrom,floppy,plugdev,video,power,netdev,lp,scanner,kmem,dialout,games,disk,input -u ${LIVEUIDNR} -d /home/${LIVEUID} -m -s /bin/bash ${LIVEUID}
 echo "${LIVEUID}:${LIVEPW}" | chroot ${LIVE_ROOTDIR} /usr/sbin/chpasswd
 
 # Configure suauth:
