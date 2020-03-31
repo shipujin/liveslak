@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright 2015, 2016, 2017, 2019  Eric Hameleers, Eindhoven, NL
+# Copyright 2015, 2016, 2017, 2019, 2020  Eric Hameleers, Eindhoven, NL
 # All rights reserved.
 #
 # Redistribution and use of this script, with or without modification, is
@@ -28,6 +28,14 @@ export PATH="/usr/sbin:/sbin:/usr/bin:/bin"
 
 # Set to '1' if you want to ignore all warnings:
 FORCE=0
+
+# The default layout of the USB stick is:
+#   partition 1 (1MB),
+#   partition 2 (100 MB)
+#   partition 3 (claim all free space - specified as 0 MB).
+# The script allows for an amount of free space to be left at the end
+# (partition 4, unused by liveslak) in case you need this:
+DEF_LAYOUT="1,100,-1,"
 
 # By default, we use 'slhome.img' as the name of the LUKS home containerfile.
 DEF_SLHOME="slhome"
@@ -165,7 +173,13 @@ cat <<EOT
 #                              providing a devicename (using option '-o').
 #   -u|--unattended            Do not ask any questions.
 #   -v|--verbose               Show verbose messages.
-#   -w|--wait<number>          Add <number> seconds wait time to initialize USB.
+#   -w|--wait <number>         Add <number> seconds wait time to initialize USB.
+#   -y|--layout <x,x,x,x>      Specify partition layout and sizes (in MB).
+#                              Default values: '$DEF_LAYOUT' for 3 partitions,
+#                              the '-1' value for partition 3 meaning
+#                              'use all remaining space',
+#                              and an empty 4th value means 'do not reserve
+#                              free space for a custom 4th partition'.
 #   -C|--cryptpersistfile size|perc
 #                              Use a LUKS-encrypted 'persistence' file instead
 #                              of a directory (for use on FAT filesystem).
@@ -176,6 +190,7 @@ cat <<EOT
 #
 # $(basename $0) -i ~/download/slackware64-live-14.2.iso -o /dev/sdX
 # $(basename $0) -i slackware64-live-xfce-current.iso -o /dev/mmcblkX -c 750M -w 15
+# $(basename $0) -i slackware-live-current.iso -o /dev/sdX -y 1,200,-1,4096
 #
 EOT
 }
@@ -474,6 +489,10 @@ while [ ! -z "$1" ]; do
       WAIT="$2"
       shift 2
       ;;
+    -y|--layout)
+      LAYOUT="$2"
+      shift 2
+      ;;
     -C|--cryptpersistfile)
       DOLUKS=1
       PLUKSSIZE="$2"
@@ -618,12 +637,51 @@ if [ $REFRESH -eq 0 ]; then
   # - Make the Linux partition "legacy BIOS bootable"
   # Make sure that there is no MBR nor a partition table anymore:
   dd if=/dev/zero of=$TARGET bs=512 count=1 conv=notrunc
-  # The first sgdisk command is allowed to have non-zero exit code:
+
+  # The sgdisk wipe command is allowed to have non-zero exit code:
   sgdisk -og $TARGET || true
+
+  # After the wipe, get the value of the last usable sector:
+  ENDSECT=$(sgdisk -E $TARGET)
+
+  # Calculate partition layout in MB.
+  # User may specify custom non-zero sizes, also for keeping some free space:
+  if [ -z "$LAYOUT" ]; then LAYOUT=${DEF_LAYOUT}; fi
+
+  # Let's first determine whether the user wanted space for a 4th partition:
+  LP4=$(echo $LAYOUT |cut -d, -f4)
+  if [ -z "$LP4" ]; then LP4=$(echo $DEF_LAYOUT |cut -d, -f4) ; fi
+
+  LP1=$(echo $LAYOUT |cut -d, -f1)
+  if [ -z "$LP1" ]; then LP1=$(echo $DEF_LAYOUT |cut -d, -f1) ; fi
+  LP1_START=2048
+  LP1_END=$(( ${LP1_START} + ( ${LP1} *2048 ) - 1 ))
+
+  LP2=$(echo $LAYOUT |cut -d, -f2)
+  if [ -z "$LP2" ]; then LP2=$(echo $DEF_LAYOUT |cut -d, -f2) ; fi
+  LP2_START=$(( ${LP1_END} + 1 ))
+  LP2_END=$(( ${LP2_START} + ( $LP2 *2048 ) - 1 ))
+
+  LP3=$(echo $LAYOUT |cut -d, -f3)
+  if [ -z "$LP3" ]; then LP3=$(echo $DEF_LAYOUT |cut -d, -f3) ; fi
+  LP3_START=$(( ${LP2_END} + 1 ))
+  # The end of partition 3 depends on both values of LP3 and LP4:
+  if [ -n "${LP4}" -a ${LP4} -gt 0 ]; then
+    LP3_END=$(( $ENDSECT - ( $LP4 * 2048 ) -1 ))
+  elif [ -n "${LP3}" -a ${LP3} -gt 0 ]; then
+    LP3_END=$(( ${LP3_START} + ( $LP3 *2048 ) - 1 ))
+  else
+    # Give all remaining space to partition 3:
+    LP3_END=0
+  fi
+
+  # END calculating partition layout in MB.
+
+  # Setup the disk partitions:
   sgdisk \
-    -n 1:2048:4095 -c 1:"BIOS Boot Partition" -t 1:ef02 \
-    -n 2:4096:208895 -c 2:"EFI System Partition" -t 2:ef00 \
-    -n 3:208896:0 -c 3:"Slackware Linux" -t 3:8300 \
+    -n 1:${LP1_START}:${LP1_END} -c 1:"BIOS Boot Partition" -t 1:ef02 \
+    -n 2:${LP2_START}:${LP2_END} -c 2:"EFI System Partition" -t 2:ef00 \
+    -n 3:${LP3_START}:${LP3_END} -c 3:"Slackware Linux" -t 3:8300 \
     $TARGET
   sgdisk -A 3:set:2 $TARGET
   # Show what we did to the USB stick:
