@@ -4,7 +4,7 @@ ui vesamenu.c32
 default live
 font @CONSFONT@
 menu background swlogov.png
-menu title @CDISTRO@@DIRSUFFIX@-@SL_VERSION@ Live @VERSION@
+menu title @CDISTRO@@DIRSUFFIX@-@SL_VERSION@ liveslak-@VERSION@
 menu clear
 f2 f2.txt #00000000
 f3 f3.txt #00000000
