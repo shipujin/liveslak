@@ -2142,6 +2142,15 @@ ulimit -r 65
 eval exec "$4"
 EOT
 
+# For PAM based system, allow user in 'audio' group to invoke rt capability:
+mkdir -p ${LIVE_ROOTDIR}/etc/security/limits.d
+cat <<EOT > ${LIVE_ROOTDIR}/etc/security/limits.d/rt_audio.conf
+# Realtime capability allowed for user in the 'audio' group:
+@audio   -  rtprio     65
+@audio   -  memlock    unlimited
+@audio   -  nice       -19
+EOT
+
 fi # End LIVEDE = PLASMA5/DAW/STUDIOWARE
 
 # You can define the function 'custom_config()' by uncommenting it in
