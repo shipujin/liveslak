@@ -7,6 +7,7 @@ calibre
 chromium
 chromium-pepperflash-plugin
 chromium-widevine-plugin
+#cmark
 dropbox-client
 #ffmpeg
 freerdp
