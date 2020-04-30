@@ -2065,13 +2065,8 @@ if [ "$LIVEDE" = "DAW" ]; then
   echo "-- Configuring DAW."
   # -------------------------------------------------------------------------- #
 
-  # Stream ALSA through Pulse and all through Jack:
-  if [ -f ${LIVE_TOOLDIR}/daw/pajackconnect ]; then
-    install -m0755 ${LIVE_TOOLDIR}/daw/pajackconnect -t ${LIVE_ROOTDIR}/usr/bin/
-  else
-    wget https://raw.githubusercontent.com/brummer10/pajackconnect/master/pajackconnect -O ${LIVE_ROOTDIR}/usr/bin/pajackconnect
-    chmod 755 ${LIVE_ROOTDIR}/usr/bin/pajackconnect
-  fi
+  # Stream ALSA through Pulse and all through Jack. This is achieved by
+  # having pulseaudio-jack module installed and starting jack-dbus:
 
   mkdir -p .config/rncbc.org
   cat <<EOT > .config/rncbc.org/QjackCtl.conf
@@ -2079,14 +2074,14 @@ if [ "$LIVEDE" = "DAW" ]; then
 DBusEnabled=true
 JackDBusEnabled=true
 KeepOnTop=false
-PostShutdownScript=true
-PostShutdownScriptShell=pajackconnect reset &
-PostStartupScript=true
-PostStartupScriptShell=pajackconnect start &
+PostShutdownScript=false
+PostShutdownScriptShell=
+PostStartupScript=false
+PostStartupScriptShell=
 ServerConfig=true
 ServerConfigName=.jackdrc
-ShutdownScript=true
-ShutdownScriptShell=pajackconnect stop &
+ShutdownScript=false
+ShutdownScriptShell=
 Singleton=true
 StartJack=true
 StartMinimized=true
@@ -2094,7 +2089,8 @@ StartupScript=false
 StartupScriptShell=
 StopJack=true
 SystemTray=true
-SystemTrayQueryClose=true
+SystemTrayQueryClose=false
+XrunRegex=xrun of at least ([0-9|\\.]+) msecs
 
 [Presets]
 DefPreset=(default)
@@ -2106,7 +2102,7 @@ Periods=2
 PortMax=256
 Priority=5
 Realtime=true
-SampleRate=44100
+SampleRate=48000
 Server=jackd
 StartDelay=2
 EOT
@@ -2148,11 +2144,23 @@ if [ "$LIVEDE" = "PLASMA5" -o "$LIVEDE" = "DAW" -o "$LIVEDE" = "STUDIOWARE" ];
 then
 
   # -------------------------------------------------------------------------- #
-  echo "-- Configuring $LIVEDE (RT beaviour)."
+  echo "-- Configuring $LIVEDE (RT behaviour)."
   # -------------------------------------------------------------------------- #
 
   # RT Scheduling and Locked Memory:
-  cat << "EOT" > ${LIVE_ROOTDIR}/etc/initscript
+  # Implementation depends on whether PAM is installed:
+  if [ -L ${LIVE_ROOTDIR}/lib${LIBDIRSUFFIX}/libpam.so.? ]; then
+    # For PAM based system, allow user in 'audio' group to invoke rt capability:
+    mkdir -p ${LIVE_ROOTDIR}/etc/security/limits.d
+    cat <<EOT > ${LIVE_ROOTDIR}/etc/security/limits.d/rt_audio.conf
+# Realtime capability allowed for user in the 'audio' group:
+# Use 'unlimited' with care, you can lock up your system when app misbehaves:
+#@audio   -  memlock    2097152
+@audio   -  memlock    unlimited
+@audio   -  rtprio     95
+EOT
+  else
+    cat << "EOT" > ${LIVE_ROOTDIR}/etc/initscript
 # Set umask to safe level:
 umask 022
 # Disable core dumps:
@@ -2160,20 +2168,37 @@ ulimit -c 0
 # Allow unlimited size to be locked into memory:
 ulimit -l unlimited
 # Address issue of jackd failing to start with realtime scheduling:
-ulimit -r 65
+ulimit -r 95
 
 # Execute the program.
 eval exec "$4"
 EOT
+    chmod +x ${LIVE_ROOTDIR}/etc/initscript
+  fi
 
-# For PAM based system, allow user in 'audio' group to invoke rt capability:
-mkdir -p ${LIVE_ROOTDIR}/etc/security/limits.d
-cat <<EOT > ${LIVE_ROOTDIR}/etc/security/limits.d/rt_audio.conf
-# Realtime capability allowed for user in the 'audio' group:
-@audio   -  rtprio     65
-@audio   -  memlock    unlimited
-@audio   -  nice       -19
+  # Allow access for 'audio' group to the high precision event timer,
+  # which may benefit a DAW which relies on ALSA MIDI:
+  mkdir -p ${LIVE_ROOTDIR}/etc/udev/rules.d
+  cat <<EOT > ${LIVE_ROOTDIR}/etc/udev/rules.d/40-timer-permissions.rules
+KERNEL=="rtc0", GROUP="audio"
+KERNEL=="hpet", GROUP="audio"
 EOT
+
+  # Audio related sysctl settings for better realtime performance:
+  mkdir -p ${LIVE_ROOTDIR}/etc/sysctl.d
+  cat <<EOT > ${LIVE_ROOTDIR}/etc/sysctl.d/daw.conf
+# https://wiki.linuxaudio.org/wiki/system_configuration
+dev.hpet.max-user-freq = 3072
+fs.inotify.max_user_watches = 524288
+vm.swappiness = 10
+EOT
+
+  #  # This would benefit a DAW, but if the user runs the Live OS on a laptop,
+  #  # she might want to decide about this herself:
+  #  mkdir -p ${LIVE_ROOTDIR}/etc/default
+  #cat <<EOT > ${LIVE_ROOTDIR}/etc/default/cpufreq
+  #SCALING_GOVERNOR=performance
+  #EOT
 
 fi # End LIVEDE = PLASMA5/DAW/STUDIOWARE
 
