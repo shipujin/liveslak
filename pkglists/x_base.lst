@@ -18,6 +18,7 @@ bdftopcf
 bigreqsproto
 bluez
 boost
+brotli
 cairo
 cdrtools
 compositeproto
@@ -169,6 +170,7 @@ libwacom
 libwebp
 libwmf
 libwnck
+libxkbcommon
 libxkbfile
 libxklavier
 libxshmfence
@@ -184,6 +186,7 @@ mypaint-brushes
 neon
 net-snmp
 ocl-icd
+openal-soft
 opus
 pamixer
 pango
@@ -225,6 +228,7 @@ ttf-indic-fonts
 videoproto
 viewres
 vte
+wayland
 wqy-zenhei-font-ttf
 x11-skel
 x11perf

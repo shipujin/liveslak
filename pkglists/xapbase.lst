@@ -3,8 +3,9 @@ LibRaw
 MPlayer
 aspell
 atkmm
-audacious
-audacious-plugins
+# requires qt5 now:
+#audacious
+#audacious-plugins
 blueman
 cairomm
 fltk
@@ -20,9 +21,10 @@ gv
 hexchat
 imagemagick
 jansson
+libcue
 libnma
 libsigc++
-lftp
+#lftp
 mozilla-firefox
 #mozilla-thunderbird
 network-manager-applet
@@ -39,7 +41,7 @@ tigervnc
 #vim
 #vim-gvim
 x11-ssh-askpass
-x3270
+#x3270
 #xaos
 #xfractint
 xgames

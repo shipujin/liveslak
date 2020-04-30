@@ -32,6 +32,7 @@ hack-font-ttf
 hyphen
 id3lib
 json-glib
+kdsoap
 lensfun
 libappindicator
 libburn
@@ -380,6 +381,7 @@ kde-dev-scripts
 kde-dev-utils
 kde-runtime
 kdebugsettings
+kdeconnect-kde
 kdeedu-data
 kdegraphics-mobipocket
 kdegraphics-strigi-analyzer
