@@ -90,6 +90,12 @@ LIVEUIDNR=${LIVEUIDNR:-"1000"}
 ROOTPW=${ROOTPW:-"root"}
 LIVEPW=${LIVEPW:-"live"}
 
+# The nvidia persistence account:
+NVUID=${NVUID:-"nvidia"}
+NVUIDNR=${NVUIDNR:-"365"}
+NVGRP=${NVFRP:-"nvidia"}
+NVGRPNR=${NVUIDNR:-"365"}
+
 # Distribution name:
 DISTRO=${DISTRO:-"slackware"}
 
@@ -1442,6 +1448,14 @@ EOL
 # Set a root password.
 echo "root:${ROOTPW}" | chroot ${LIVE_ROOTDIR} /usr/sbin/chpasswd
 
+# Create group and user for the nvidia persistence daemon:
+if ! chroot ${LIVE_ROOTDIR} /usr/bin/getent passwd ${NVUID} > /dev/null 2>&1 ;
+then
+  chroot ${LIVE_ROOTDIR} /usr/sbin/groupadd -g ${NVGRPNR} ${NVGRP}
+  chroot ${LIVE_ROOTDIR} /usr/sbin/useradd -c "Nvidia persistence" -u ${NVUIDNR} -g ${NVGRPNR} -d /dev/null -s /bin/false ${NVUID}
+  echo "${NVUID}:$(openssl rand -base64 12)" | chroot ${LIVE_ROOTDIR} /usr/sbin/chpasswd
+fi
+
 # Create a nonprivileged user account (called "live" by default):
 chroot ${LIVE_ROOTDIR} /usr/sbin/useradd -c "Slackware Live User" -g users -G wheel,audio,cdrom,floppy,plugdev,video,power,netdev,lp,scanner,kmem,dialout,games,disk,input -u ${LIVEUIDNR} -d /home/${LIVEUID} -m -s /bin/bash ${LIVEUID}
 echo "${LIVEUID}:${LIVEPW}" | chroot ${LIVE_ROOTDIR} /usr/sbin/chpasswd
@@ -2397,37 +2411,32 @@ sed -e "s% /usr/bin/update.*verbose%#&%" -i ${LIVE_ROOTDIR}/etc/rc.d/rc.M
 sed -e '/^ *\/usr\/bin\/glib-c/ s, /usr/bin/glib-c,#&,' -i ${LIVE_ROOTDIR}/etc/rc.d/rc.M
 sed -e "s% /sbin/depmod -%#&%" -i ${LIVE_ROOTDIR}/etc/rc.d/rc.modules 
 
-# If we detect a NVIDIA driver, then run the nvidia install routine:
+# Start/stop the NVIDIA persistence daemon if a NVIDIA driver is loaded;
+# Note that this assumes the nvidia-driver and nvidia-kernel packages
+# from slackbuilds.org are being used:
 cat <<EOT >> ${LIVE_ROOTDIR}/etc/rc.d/rc.local
 
-# Deal with the presence of NVIDIA drivers:
-if [ -x /usr/sbin/nvidia-switch ]; then
-  if [ -f /usr/lib${DIRSUFFIX}/xorg/modules/extensions/libglx.so.*-nvidia -a -f /usr/lib${DIRSUFFIX}/xorg/modules/drivers/nvidia_drv.so ]; then
-    echo "-- Installing binary Nvidia drivers:  /usr/sbin/nvidia-switch --install"
-    /usr/sbin/nvidia-switch --install
-  fi
-  # For CUDA/OpenCL to work after reboot, create missing nvidia device nodes:
+# For CUDA/OpenCL to work after reboot, create missing nvidia device nodes:
+if [ -x /usr/bin/nvidia-modprobe ]; then
+  echo "Creating missing nvidia device nodes..."
   /usr/bin/nvidia-modprobe -c 0 -u
-else
-  # Take care of a reboot where nvidia drivers disappeared
-  # afer being used earlier, by restoring the original libraries:
-  if ls /usr/lib${DIRSUFFIX}/xorg/modules/extensions/libglx.so-xorg 1>/dev/null 2>/dev/null ; then
-    mv /usr/lib${DIRSUFFIX}/xorg/modules/extensions/libglx.so{-xorg,} 2>/dev/null
-    mv /usr/lib${DIRSUFFIX}/xorg/modules/extensions/libglx.la{-xorg,} 2>/dev/null
-  fi
-  if ls /usr/lib${DIRSUFFIX}/libGL.so.*-xorg 1>/dev/null 2>/dev/null ; then
-    LIBGL=\$(ls -1 /usr/lib${DIRSUFFIX}/libGL.so.*-xorg |rev |cut -d/ -f1 |cut -d- -f2- |rev)
-    mv /usr/lib${DIRSUFFIX}/\${LIBGL}-xorg /usr/lib${DIRSUFFIX}/\${LIBGL} 2>/dev/null
-    ln -sf \${LIBGL} /usr/lib${DIRSUFFIX}/libGL.so.1 2>/dev/null
-    ln -sf \${LIBGL} /usr/lib${DIRSUFFIX}/libGL.so 2>/dev/null
-    mv /usr/lib${DIRSUFFIX}/libGL.la-xorg /usr/lib${DIRSUFFIX}/libGL.la 2>/dev/null
-  fi
-  if ls /usr/lib${DIRSUFFIX}/libEGL.so.*-xorg 1>/dev/null 2>/dev/null   ; then
-    LIBEGL=\$(ls -1 /usr/lib${DIRSUFFIX}/libEGL.so.*-xorg |rev |cut -d/ -f1 |cut -d- -f2- |rev)
-    mv /usr/lib${DIRSUFFIX}/\${LIBEGL}-xorg /usr/lib${DIRSUFFIX}/\${LIBEGL} 2>/dev/null
-    ln -sf \${LIBEGL} /usr/lib${DIRSUFFIX}/libEGL.so.1 2>/dev/null
-    ln -sf \${LIBEGL} /usr/lib${DIRSUFFIX}/libEGL.so 2>/dev/null
-  fi
+fi
+
+# Start the nvidia-persistenced daemon:
+if  [ -x /etc/rc.d/rc.nvidia-persistenced ] && [ -d /var/run/nvidia-persistenced ]; then
+  echo "Starting nvidia persistence daemon..."
+  sed -e "s/NVPD_USER=.*/NVPD_USER=${NVUID}/" -i /etc/rc.d/rc.nvidia-persistenced
+  chown ${NVUID}:${NVGRP} /var/run/nvidia-persistenced 2>/dev/null
+  /etc/rc.d/rc.nvidia-persistenced start
+fi
+EOT
+
+cat <<EOT >> ${LIVE_ROOTDIR}/etc/rc.d/rc.local_shutdown
+
+# Stop the nvidia-persistenced daemon:
+if  [ -x /etc/rc.d/rc.nvidia-persistenced ]; then
+  echo "Stopping nvidia persistence daemon..."
+  /etc/rc.d/rc.nvidia-persistenced stop
 fi
 EOT
 
@@ -2701,6 +2710,9 @@ if [ "$LIVEDE" != "XFCE" -a "$LIVEDE" != "SLACKWARE" ]; then
     # Add custom (proprietary) graphics drivers:
     echo "-- Adding binary GPU drivers supporting kernel ${KVER}."
     cp ${LIVE_TOOLDIR}/graphics/*${KVER}-${SL_VERSION}-${SL_ARCH}.sxz ${LIVE_MOD_OPT}/
+    if ls ${LIVE_TOOLDIR}/graphics/nvidia-*xx.ids 1>/dev/null 2>&1 ; then
+      cp ${LIVE_TOOLDIR}/graphics/nvidia-*xx.ids ${LIVE_MOD_OPT}/
+    fi
   fi
 fi
 

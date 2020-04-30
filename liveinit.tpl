@@ -825,6 +825,14 @@ if [ "$RESCUE" = "" ]; then
   load_modules addons
 
   # And finally any explicitly requested optionals (like nvidia drivers):
+  ## TODO:
+  ## Automatically load the nvidia driver if we find a supported GPU:
+  # NVPCIID=$(lspci -nn|grep NVIDIA|grep VGA|rev|cut -d'[' -f1|rev|cut -d']' -f1|tr -d ':'|tr [a-z] [A-Z])
+  # if cat /mnt/media/${LIVEMAIN}/optional/nvidia-*xx.ids |grep -wq $NVPCIID ;
+  # then
+  #   LOAD="nvidia,${LOAD}"
+  # fi
+  ## END TODO:
   # Remember, module name must adhere to convention: "NNNN-modname-*.sxz"
   # where 'N' is a digit and 'modname' must not contain a dash '-'.
   load_modules optional
