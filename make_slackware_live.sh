@@ -508,12 +508,20 @@ function install_pkgs() {
     # we make room for packages we would otherwise not be able to add.
     # MySQL embedded is only used by Amarok:
     rm -f "$2"/usr/bin/mysql*embedded*
-    # I am against torture:
-    rm -f "$2"/usr/bin/smbtorture
     # Also remove the big unused/esoteric static libraries:
     rm -f "$2"/usr/lib${DIRSUFFIX}/*.a
     # This was inadvertantly left in the gcc package:
     rm -f "$2"/usr/libexec/gcc/*/*/cc1objplus
+    # From samba we mostly want the shared runtime libraries:
+    rm -rf "$2"/usr/share/samba
+    rm -rf "$2"/usr/lib${DIRSUFFIX}/python*/site-packages/samba
+    # Guile library is all we need to satisfy make:
+    rm -f "$2"/usr/bin/guil*
+    rm -rf "$2"/usr/include/guile
+    rm -rf "$2"/usr/lib64/guile
+    rm -rf "$2"/usr/share/guile
+    # I am against torture:
+    rm -f "$2"/usr/bin/smbtorture
     # From llvm we only want the shared runtime libraries so wipe the rest:
     rm -f "$2"/usr/lib${DIRSUFFIX}/lib{LLVM,lldb}*.a
     rm -rf "$2"/usr/lib${DIRSUFFIX}/libclang*
@@ -540,10 +548,12 @@ function install_pkgs() {
     rm -rf "$2"/lib/modules/*/kernel/drivers/net/wireless/marvell
     # Mediatek ARM firmware:
     rm -rf "$2"/lib/firmware/vpu*.bin
+    # Firmware for Data Path Acceleration Architecture NICs:
+    rm -rf "$2"/lib/firmware/dpaa2
     # Not needed:
     rm -rf "$2"/boot/System.map*
     # Depends on Qt:
-    rm -f /usr/bin/wpa_gui /usr/share/applications/wpa_gui.desktop
+    rm -f "$2"/usr/bin/wpa_gui "$2"/usr/share/applications/wpa_gui.desktop
     # Replace 3.2 MB splash with a symlink to a 33 kB file:
     if [ -e "$2"/usr/share/gimp/2.0/images/gimp-splash.png -a ! -L "$2"/usr/share/gimp/2.0/images/gimp-splash.png ]; then
       rm -rf "$2"/usr/share/gimp/2.0/images/gimp-splash.png
