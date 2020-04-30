@@ -2117,14 +2117,6 @@ EOT
   cp -a ${LIVE_ROOTDIR}/usr/share/applications/qjackctl.desktop \
     ${LIVE_ROOTDIR}/home/${LIVEUID}/.config/autostart
 
-  # If we added latte-dock then autostart it:
-  if [ -f ${LIVE_ROOTDIR}/usr/share/applications/org.kde.latte-dock.desktop ];
-  then
-    mkdir -p ${LIVE_ROOTDIR}/home/${LIVEUID}/.config/autostart
-    cp -a ${LIVE_ROOTDIR}/usr/share/applications/org.kde.latte-dock.desktop \
-      ${LIVE_ROOTDIR}/home/${LIVEUID}/.config/autostart
-  fi
-
 fi # End LIVEDE = DAW
 
 if [ "$LIVEDE" = "STUDIOWARE" ]; then
