@@ -147,6 +147,13 @@ Examples:
 You might have noticed that the "-P" parameter does not accept a size parameter.  This is because the unencrypted container file is created as a 'sparse' file that starts at zero size and is allowed to grow dynmically to a maximum of 90% of the initial free space on the Linux partition of the USB stick.
 
 
+==== Using the Live OS to install Slackware to hard disk ====
+
+
+All variants of Slackware Live Edition with the exception of the XFCE variant contain a script "setup2hd", a tweaked version of the regular Slackware setup program.
+The "setup2hd" script allows you to install the Slackware release on which the Live OS is based, to the computer's local hard disk.  You must boot the Live OS first, and then start "setup2hd" either in an X Terminal in your graphical Desktop Environment (aka Runlevel 4), or from the console in Runlevel 3.  The fact that you can start "setup2hd" from a graphical terminal means that during installation, you can continue browsing, listening to music, watching video, reading an e-book or whatever else makes you pass the time.
+
+
 ==== Updating the kernel (and more) on a USB stick ====
 
 
@@ -540,7 +547,7 @@ You can copy the module you just created (minding the filename conventions for a
 
 The fourth script:
 
-The "setup2hd" script enables you to install the running Live OS to the computer's local hard disk.  The "setup2hd" is a modified Slackware installer, so you will be comfortable with the process.  There is no 'SOURCE' selection because the script knows where to find the squashfs modules.  After you select the target partition(s), every active module of the Live OS variant (SLACKWARE, PLASMA5, MATE, ...) is extracted to the hard drive.  After extraction has completed, the script summarizes how many modules have been extracted.  It will also show an example command to extract any remaining inactive or disabled modules manually.  The final step in the installation is again the stock Slackware installer which kicks off the Slackware configuration scripts.
+The "setup2hd" script is a modified Slackware installer, so you will be comfortable with the process.  There is no 'SOURCE' selection because the script knows where to find the squashfs modules.  After you select the target partition(s), every active module of the Live OS variant (SLACKWARE, PLASMA5, MATE, ...) is extracted to the hard drive.  After extraction has completed, the script summarizes how many modules have been extracted.  It will also show an example command to extract any remaining inactive or disabled modules manually.  The final step in the installation is again the stock Slackware installer which kicks off the Slackware configuration scripts.
 
 
 === pxeserver ===
@@ -891,5 +898,5 @@ Slackware Live Edition is created by the 'liveslak' scripts developed and mainta
   * Git repository: %%git://slackware.nl/liveslak.git%%
   * Git repository (browsable): http://git.slackware.nl/liveslak/
   * Download mirror: http://www.slackware.com/~alien/liveslak/
-
+  * Project landing page: https://alien.slackbook.org/blog/slackware-live-edition/
 
