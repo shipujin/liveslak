@@ -180,8 +180,9 @@ SEQ_SLACKWARE="tagfile:a,ap,d,e,f,k,kde,kdei,l,n,t,tcl,x,xap,xfce,y pkglist:slac
 SEQ_XFCEBASE="${MINLIST},noxbase,x_base,xapbase,xfcebase"
 
 # Stripped-down Slackware with Plasma5 as the Desktop Environment:
-# - each series will become a squashfs module:
-SEQ_DAW="pkglist:${MINLIST},noxbase,x_base,xapbase,plasma5base,slackextra,slackpkgplus,alien4daw,daw"
+# - each series will become a squashfs module.
+# Note that loading the modules needs a specific order, which we force:
+SEQ_DAW="pkglist:${MINLIST},noxbase,x_base,xapbase,slackextra,slackpkgplus,z00_slk4daw,z01_plasma5base,z02_alien4daw,z03_daw"
 
 # List of Slackware package series with Plasma5 instead of KDE 4 (full install):
 # - each will become a squashfs module:
@@ -1923,10 +1924,10 @@ Zonetab=/usr/share/zoneinfo/zone.tab
 ZonetabCache=
 EOT
 
-if [ "$LIVEDE" = "PLASMA5" ]; then
+if [ "$LIVEDE" = "PLASMA5" -o "$LIVEDE" = "DAW" ]; then
 
   # -------------------------------------------------------------------------- #
-  echo "-- Configuring PLASMA5."
+  echo "-- Configuring PLASMA5/DAW."
   # -------------------------------------------------------------------------- #
 
   # Remove the confusing openbox session if present:
@@ -2034,7 +2035,7 @@ text/html=kwebkitpart.desktop;
 EOT
   fi
 
-fi # End LIVEDE = PLASMA5
+fi # End LIVEDE = PLASMA5/DAW
 
 if [ "$LIVEDE" = "DLACK" ]; then
 
@@ -2068,8 +2069,8 @@ if [ "$LIVEDE" = "DAW" ]; then
   # Stream ALSA through Pulse and all through Jack. This is achieved by
   # having pulseaudio-jack module installed and starting jack-dbus:
 
-  mkdir -p .config/rncbc.org
-  cat <<EOT > .config/rncbc.org/QjackCtl.conf
+  mkdir -p ${LIVE_ROOTDIR}/home/${LIVEUID}/.config/rncbc.org
+  cat <<EOT > ${LIVE_ROOTDIR}/home/${LIVEUID}/.config/rncbc.org/QjackCtl.conf
 [Options]
 DBusEnabled=true
 JackDBusEnabled=true
