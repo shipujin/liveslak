@@ -1471,12 +1471,14 @@ fi
 chroot ${LIVE_ROOTDIR} /usr/sbin/useradd -c "Slackware Live User" -g users -G wheel,audio,cdrom,floppy,plugdev,video,power,netdev,lp,scanner,kmem,dialout,games,disk,input -u ${LIVEUIDNR} -d /home/${LIVEUID} -m -s /bin/bash ${LIVEUID}
 echo "${LIVEUID}:${LIVEPW}" | chroot ${LIVE_ROOTDIR} /usr/sbin/chpasswd
 
-# Configure suauth:
-cat <<EOT >${LIVE_ROOTDIR}/etc/suauth
+# Configure suauth if we are not on a PAM system (where this does not work):
+if [ ! -L ${LIVE_ROOTDIR}/lib${LIBDIRSUFFIX}/libpam.so.? ]; then
+  cat <<EOT >${LIVE_ROOTDIR}/etc/suauth
 root:${LIVEUID}:OWNPASS
 root:ALL EXCEPT GROUP wheel:DENY
 EOT
-chmod 600 ${LIVE_ROOTDIR}/etc/suauth
+  chmod 600 ${LIVE_ROOTDIR}/etc/suauth
+fi
 
 # Configure sudoers:
 chmod 640 ${LIVE_ROOTDIR}/etc/sudoers
