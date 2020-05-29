@@ -23,6 +23,7 @@ dbus-compat32
 e2fsprogs-compat32
 eudev-compat32
 libgudev-compat32
+libpwquality-compat32
 lzlib-compat32
 openssl10-solibs-compat32
 openssl-solibs-compat32
@@ -57,6 +58,7 @@ at-spi2-atk-compat32
 at-spi2-core-compat32
 atk-compat32
 audiofile-compat32
+brotli-compat32
 cairo-compat32
 dbus-glib-compat32
 elfutils-compat32
@@ -166,6 +168,7 @@ startup-notification-compat32
 svgalib-compat32
 v4l-utils-compat32
 wavpack-compat32
+woff2-compat32
 zlib-compat32
 zstd-compat32
 # The N/ series:
@@ -178,6 +181,7 @@ libgpg-error-compat32
 libtirpc-compat32
 nettle-compat32
 openldap-client-compat32
+openldap-compat32
 openssl-compat32
 p11-kit-compat32
 samba-compat32
