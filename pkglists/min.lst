@@ -13,6 +13,7 @@ bzip2
 ca-certificates
 coreutils
 cpio
+cracklib
 cryptsetup
 cxxlibs
 cyrus-sasl
@@ -74,6 +75,7 @@ libidn2
 libksba
 libmnl
 libmpc
+libpwquality
 libtermcap
 libunistring
 libuv
@@ -100,10 +102,12 @@ netkit-ftp
 netkit-routed
 network-scripts
 npth
+openldap
 openldap-client
 openssh
 openssl
 openssl10-solibs
+pam
 parted
 pciutils
 perl
@@ -114,6 +118,7 @@ procps-ng
 pth
 python
 python2
+python2-module-collection
 python3
 quota
 rsync

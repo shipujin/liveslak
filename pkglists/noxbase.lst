@@ -1,5 +1,6 @@
 ModemManager
 NetworkManager
+NetworkManager-openvpn
 a52dec
 alsa-lib
 alsa-oss

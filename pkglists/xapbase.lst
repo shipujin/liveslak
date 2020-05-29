@@ -11,7 +11,7 @@ cairomm
 fltk
 geeqie
 #gftp
-gimp
+#gimp
 gkrellm
 glibmm
 #gnuchess
@@ -35,7 +35,7 @@ pavucontrol
 rdesktop
 rxvt
 rxvt-unicode
-sane
+#sane
 seamonkey-solibs
 tigervnc
 #vim
@@ -50,4 +50,4 @@ xgames
 #xpaint
 # Now needs qt:
 #xpdf
-xsane
+#xsane

@@ -103,6 +103,7 @@ json-c
 json-glib
 kbproto
 keybinder
+keybinder3
 lame
 lcms
 libFS
@@ -324,6 +325,7 @@ xset
 xsetroot
 xsm
 xstdcmap
+xterm
 xtrans
 xvidtune
 xvinfo
