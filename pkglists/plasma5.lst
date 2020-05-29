@@ -42,6 +42,7 @@ libdmtx
 libindicator
 libinput
 libpwquality
+libqalculate
 libsass
 libwacom
 libxkbcommon
@@ -509,6 +510,7 @@ kdevelop
 kdevelop-pg-qt
 kdevplatform
 kdiagram
+kid3
 kile
 kjots
 kmymoney
