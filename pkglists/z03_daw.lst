@@ -5,16 +5,17 @@ alsa-plugins-jack
 amsynth
 ardour
 aubio
+audacity
 avldrums.lv2
 calf
 capnproto
 cecilia5
 cuetools
-drumkit
 drumstick
 dssi
 eq10q
 helm
+hydrogen
 jack2
 ladspa_sdk
 lash
@@ -57,6 +58,6 @@ vmpk
 wxGTK3
 wxpython
 yaml-cpp
-zynaddsubfx
+#zynaddsubfx
 zyn-fusion
 

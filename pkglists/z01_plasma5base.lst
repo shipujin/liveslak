@@ -1,25 +1,17 @@
 # Create a rough version of this file using:
-# cd current/testing/x86_64 ; find -name *.t?z |rev |cut -d- -f4- |rev |sort
+# cd current/latest/x86_64 ; find -name *.t?z |rev |cut -d- -f4- |rev |sort
 # --------------------------------------------------------------------------
 # This file tries to define a lean 'base' setup of Plasma5
 #
 # deps:
-ConsoleKit2
 LibRaw
-OpenAL
-PyQt
-PyQt5
-#QScintilla
-SDL_sound
 accountsservice
-brotli
 cfitsio
-cracklib
 cryfs
 cryptopp
 ddcutil
 dotconf
-drumstick
+#drumstick
 #dvdauthor
 elogind
 #espeak-ng
@@ -42,15 +34,10 @@ libdbusmenu-gtk
 libdbusmenu-qt5
 libdmtx
 libindicator
-libinput
-libpwquality
+#libqalculate
 #libsass
-libwacom
-libxkbcommon
 lmdb
-mesa
 #mlt
-ninja
 #noto-cjk-font-ttf
 noto-font-ttf
 #opencv
@@ -62,26 +49,18 @@ phonon-gstreamer
 phonon-vlc
 polkit-qt5-1
 poppler
-python-enum34
 python3-random2
 #pyxdg
 #quazip
 qca-qt5
 qrencode
 qt-gstreamer
-qt5
-#qt5-webkit
 #qtav
 #rttr
 #sassc
-sip
 sni-qt
 #speech-dispatcher
 #vid.stab
-wayland
-wayland-protocols
-#woff2
-xorg-server
 
 # frameworks:
 attica-framework
@@ -273,10 +252,8 @@ xdg-desktop-portal-kde
 #kde-wallpapers
 pulseaudio-qt
 #kpeoplevcard
-kdeconnect-framework
 latte-dock
 #oxygen-fonts
-polkit-kde-kcmodules-framework
 sddm-qt5
 wacomtablet
 
@@ -294,7 +271,7 @@ baloo5-widgets
 dolphin
 dolphin-plugins
 #dragon
-#elisa
+elisa
 ffmpegthumbs
 #filelight
 #granatier
@@ -379,7 +356,7 @@ kmousetool
 #kolourpaint
 #kommander
 kompare
-konqueror
+#konqueror
 #konquest
 konsole
 #kopete
@@ -446,7 +423,7 @@ zeroconf-ioslave
 #calligra
 #calligraplan
 #digikam
-#falkon
+falkon
 #kaudiocreator
 #krita
 #kdev-php
@@ -455,6 +432,7 @@ zeroconf-ioslave
 #kdevelop-pg-qt
 #kdevplatform
 #kdiagram
+#kid3
 #kile
 #kjots
 #kmymoney
