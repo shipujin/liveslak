@@ -504,7 +504,7 @@ function install_pkgs() {
     # Also remove man pages:
     rm -rf "$2"/usr/man
   fi
-  if [ "$LIVEDE" = "XFCE"  ]; then
+  if [ "$LIVEDE" = "XFCE" ]; then
     # By pruning stuff that no one likely needs anyway,
     # we make room for packages we would otherwise not be able to add.
     # MySQL embedded is only used by Amarok:
