@@ -14,6 +14,7 @@ cuetools
 drumstick
 dssi
 eq10q
+guitarix
 helm
 hydrogen
 jack2
@@ -26,6 +27,7 @@ liblo
 liblrdf
 liblscp
 libmpdclient
+libsass
 lilv
 linuxsampler
 lsp-plugins
@@ -34,6 +36,7 @@ mac
 mpc
 musescore
 mxml
+non-daw
 ntk
 portaudio
 portmidi
@@ -45,6 +48,7 @@ qjackctl
 qsampler
 qsynth
 rubberband
+sassc
 serd
 shntool
 sonic-visualiser
