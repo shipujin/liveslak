@@ -83,6 +83,7 @@ libuv
 links
 logrotate
 lvm2
+lz4
 lzlib
 #man
 #man-db
@@ -146,6 +147,7 @@ wget
 which
 whois
 zstd
+xxHash
 xz
 # Bind needs to run at the end:
 python-ply
