@@ -550,7 +550,12 @@ function install_pkgs() {
     # Old wireless cards that eat space:
     rm -rf "$2"/lib/firmware/mrvl
     rm -rf "$2"/lib/modules/*/kernel/drivers/net/wireless/marvell
+    # Qualcomm GPU firmware (Android phone/tablet)
+    rm -rf "$2"/lib/firmware/qcom
+    # Texas Instruments ARM firmware:
+    rm -rf "$2"/lib/firmware/ti-connectivity
     # Mediatek ARM firmware:
+    rm -rf "$2"/lib/firmware/mediatek
     rm -rf "$2"/lib/firmware/vpu*.bin
     # Firmware for Data Path Acceleration Architecture NICs:
     rm -rf "$2"/lib/firmware/dpaa2
