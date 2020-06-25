@@ -110,8 +110,9 @@ The USB stick will be erased and re-formatted when running this script (except w
 This script, called 'iso2usb.sh', accepts the following parameters: <code>
   -c|--crypt size|perc       Add a LUKS encrypted /home ; parameter is the
                              requested size of the container in kB, MB, GB,
-                             or as a percentage of free space.
-                             Examples: '-c 125M', '-c 1.3G', '-c 20%'.
+                             or as a percentage of free space
+                             (integer numbers only).
+                             Examples: '-c 125M', '-c 2G', '-c 20%'.
   -d|--devices               List removable devices on this computer.
   -f|--force                 Ignore most warnings (except the back-out).
   -h|--help                  This help.
@@ -128,6 +129,8 @@ This script, called 'iso2usb.sh', accepts the following parameters: <code>
   -C|--cryptpersistfile size|perc
                              Use a LUKS-encrypted 'persistence' file instead
                              of a directory (for use on FAT filesystem).
+                             Format for size/percentage is the same
+                             as for the '-c' parameter.
   -P|--persistfile           Use an unencrypted 'persistence' file instead
                              of a directory (for use on FAT filesystem).
 </code>
