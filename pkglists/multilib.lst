@@ -140,6 +140,7 @@ libxkbcommon-compat32
 libxml2-compat32
 libxslt-compat32
 lmdb-compat32
+lz4-compat32
 lzo-compat32
 mozilla-nss-compat32
 ncurses-compat32
@@ -169,6 +170,7 @@ svgalib-compat32
 v4l-utils-compat32
 wavpack-compat32
 woff2-compat32
+xxHash-compat32
 zlib-compat32
 zstd-compat32
 # The N/ series:
