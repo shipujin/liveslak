@@ -2,7 +2,6 @@
 # cd current/testing/x86_64 ; find -name *.t?z |rev |cut -d- -f4- |rev |sort
 #
 # deps:
-ConsoleKit2
 LibRaw
 OpenAL
 PyQt
@@ -10,16 +9,18 @@ PyQt5
 QScintilla
 SDL_sound
 accountsservice
+autoconf-archive
 brotli
 cfitsio
 cracklib
 cryfs
 cryptopp
+dbus
 ddcutil
 dotconf
 drumstick
 dvdauthor
-elogind
+ConsoleKit2%elogind
 espeak-ng
 exiv2
 flite
@@ -59,6 +60,7 @@ perl-template-toolkit
 phonon
 phonon-gstreamer
 phonon-vlc
+polkit
 polkit-qt5-1
 poppler
 python-enum34
@@ -76,6 +78,7 @@ sassc
 sip
 sni-qt
 speech-dispatcher
+util-linux
 vid.stab
 wayland
 wayland-protocols
@@ -302,6 +305,7 @@ ksysguard
 kwallet-pam
 kwayland
 kwayland-integration
+kwayland-server
 kwin
 kwrited
 libkscreen2
@@ -331,6 +335,7 @@ kpeoplevcard
 kdeconnect-framework
 latte-dock
 oxygen-fonts
+plasma-wayland-protocols
 polkit-kde-kcmodules-framework
 sddm-qt5
 wacomtablet
