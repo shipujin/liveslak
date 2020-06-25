@@ -80,11 +80,17 @@ THEDATE=$(date +%Y%m%d)
 # ---------------------------------------------------------------------------
 #
 
+# Distribution name:
+DISTRO=${DISTRO:-"slackware"}
+
 # The live username of the image:
 LIVEUID=${LIVEUID:-"live"}
 
 # The number of the live account in the image:
 LIVEUIDNR=${LIVEUIDNR:-"1000"}
+
+# The full name of the live account in the image:
+LIVEUIDFN=${LIVEUIDFN:-"${DISTRO^} Live User"}
 
 # The root and live user passwords of the image:
 ROOTPW=${ROOTPW:-"root"}
@@ -95,9 +101,6 @@ NVUID=${NVUID:-"nvidia"}
 NVUIDNR=${NVUIDNR:-"365"}
 NVGRP=${NVFRP:-"nvidia"}
 NVGRPNR=${NVUIDNR:-"365"}
-
-# Distribution name:
-DISTRO=${DISTRO:-"slackware"}
 
 # Custom name for the host:
 LIVE_HOSTNAME=${LIVE_HOSTNAME:-"darkstar"}
@@ -1468,7 +1471,7 @@ then
 fi
 
 # Create a nonprivileged user account (called "live" by default):
-chroot ${LIVE_ROOTDIR} /usr/sbin/useradd -c "Slackware Live User" -g users -G wheel,audio,cdrom,floppy,plugdev,video,power,netdev,lp,scanner,kmem,dialout,games,disk,input -u ${LIVEUIDNR} -d /home/${LIVEUID} -m -s /bin/bash ${LIVEUID}
+chroot ${LIVE_ROOTDIR} /usr/sbin/useradd -c "${LIVEUIDFN}" -g users -G wheel,audio,cdrom,floppy,plugdev,video,power,netdev,lp,scanner,kmem,dialout,games,disk,input -u ${LIVEUIDNR} -d /home/${LIVEUID} -m -s /bin/bash ${LIVEUID}
 echo "${LIVEUID}:${LIVEPW}" | chroot ${LIVE_ROOTDIR} /usr/sbin/chpasswd
 
 # Configure suauth if we are not on a PAM system (where this does not work):
