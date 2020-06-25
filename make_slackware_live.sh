@@ -2079,6 +2079,19 @@ if [ "$LIVEDE" = "DAW" ]; then
   # Stream ALSA through Pulse and all through Jack. This is achieved by
   # having pulseaudio-jack module installed and starting jack-dbus:
 
+  # We default to using a 48000 Hz sample rate throughout, assuming that
+  # modern sound hardware will support this, and it lowers the latency:
+  if [ -f ${LIVE_ROOTDIR}/etc/pulse/daemon.conf ]; then
+    cat <<EOT >> ${LIVE_ROOTDIR}/etc/pulse/daemon.conf
+; Run 'pulseaudio --dump-resample-methods' for all possible options.
+; We want higher-quality resampling than the default:
+resample-method = speex-float-9
+; Jack is configured for 48KHz so let's make pulseaudio use it too:
+default-sample-rate = 48000
+alternate-sample-rate = 44100
+EOT
+  fi
+
   mkdir -p ${LIVE_ROOTDIR}/home/${LIVEUID}/.config/rncbc.org
   cat <<EOT > ${LIVE_ROOTDIR}/home/${LIVEUID}/.config/rncbc.org/QjackCtl.conf
 [Options]
