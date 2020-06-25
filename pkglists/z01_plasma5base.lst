@@ -5,15 +5,17 @@
 #
 # deps:
 LibRaw
+#autoconf-archive
 accountsservice
 cfitsio
 cryfs
 cryptopp
+dbus
 ddcutil
 dotconf
 #drumstick
 #dvdauthor
-elogind
+ConsoleKit2%elogind
 #espeak-ng
 exiv2
 #flite
@@ -34,7 +36,7 @@ libdbusmenu-gtk
 libdbusmenu-qt5
 libdmtx
 libindicator
-#libqalculate
+libqalculate
 #libsass
 lmdb
 #mlt
@@ -47,6 +49,7 @@ perl-template-toolkit
 phonon
 phonon-gstreamer
 phonon-vlc
+polkit
 polkit-qt5-1
 poppler
 python3-random2
@@ -60,6 +63,7 @@ qt-gstreamer
 #sassc
 sni-qt
 #speech-dispatcher
+util-linux
 #vid.stab
 
 # frameworks:
@@ -226,6 +230,7 @@ ksysguard
 kwallet-pam
 kwayland
 kwayland-integration
+kwayland-server
 kwin
 kwrited
 libkscreen2
@@ -254,6 +259,7 @@ pulseaudio-qt
 #kpeoplevcard
 latte-dock
 #oxygen-fonts
+plasma-wayland-protocols
 sddm-qt5
 wacomtablet
 
@@ -394,7 +400,7 @@ libkdcraw
 libkexiv2
 #libkface
 #libkgeomap
-#libkipi
+libkipi
 #libkmahjongg
 libkomparediff2
 libksane
