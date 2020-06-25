@@ -80,7 +80,7 @@ DOLUKS=0
 REFRESH=0
 
 # These tools are required by the script, we will check for their existence:
-REQTOOLS="blkid cpio extlinux fdisk gdisk isoinfo lsblk mkdosfs sgdisk syslinux"
+REQTOOLS="blkid cpio extlinux fdisk gdisk isoinfo lsblk mkdosfs sgdisk syslinux wipefs"
 
 # Path to syslinux files:
 if [ -d /usr/share/syslinux ]; then
@@ -156,8 +156,9 @@ cat <<EOT
 # $(basename $0) accepts the following parameters:
 #   -c|--crypt size|perc       Add LUKS encrypted /home ; parameter is the
 #                              requested size of the container in kB, MB, GB,
-#                              or as a percentage of free space.
-#                              Examples: '-c 125M', '-c 1.3G', '-c 20%'.
+#                              or as a percentage of free space
+#                              (integer numbers only).
+#                              Examples: '-c 125M', '-c 2G', '-c 20%'.
 #   -d|--devices               List removable devices on this computer.
 #   -f|--force                 Ignore most warnings (except the back-out).
 #   -h|--help                  This help.
@@ -182,7 +183,9 @@ cat <<EOT
 #                              free space for a custom 4th partition'.
 #   -C|--cryptpersistfile size|perc
 #                              Use a LUKS-encrypted 'persistence' file instead
-#                              of a directory (for use on FAT filesystem).
+#                              of a directory (for use on FAT filesystem)
+#                              Format for size/percentage is the same
+#                              as for the '-c' parameter.
 #   -P|--persistfile           Use a 'persistence' container file instead of
 #                              a directory (for use on FAT filesystem).
 #
@@ -638,7 +641,10 @@ if [ $REFRESH -eq 0 ]; then
   # Make sure that there is no MBR nor a partition table anymore:
   dd if=/dev/zero of=$TARGET bs=512 count=1 conv=notrunc
 
+  # We have to use wipefs before sgdisk or else traces of an old 'cp' or 'dd'
+  # of a Live ISO image to the device will not be erased.
   # The sgdisk wipe command is allowed to have non-zero exit code:
+  wipefs -af $TARGET
   sgdisk -og $TARGET || true
 
   # After the wipe, get the value of the last usable sector:
