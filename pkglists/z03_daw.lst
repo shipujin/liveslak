@@ -7,6 +7,7 @@ ardour
 aubio
 audacity
 avldrums.lv2
+cadence
 calf
 capnproto
 cecilia5
@@ -17,6 +18,7 @@ eq10q
 guitarix
 helm
 hydrogen
+jack_capture
 jack2
 ladspa_sdk
 lash
@@ -33,6 +35,7 @@ linuxsampler
 lsp-plugins
 lv2
 mac
+meterbridge
 mpc
 musescore
 mxml
@@ -62,6 +65,9 @@ vmpk
 wxGTK3
 wxpython
 yaml-cpp
+zita-ajbridge
+zita-alsa-pcmi
+zita-resampler
 #zynaddsubfx
 zyn-fusion
 
