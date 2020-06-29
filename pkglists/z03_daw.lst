@@ -11,12 +11,15 @@ cadence
 calf
 capnproto
 cecilia5
+chromaprint
 cuetools
 drumstick
 dssi
 eq10q
+faad2
 guitarix
 helm
+hidapi
 hydrogen
 jack_capture
 jack2
@@ -28,6 +31,8 @@ libgig
 liblo
 liblrdf
 liblscp
+libmodplug
+libmp4v2
 libmpdclient
 libsass
 lilv
@@ -36,6 +41,7 @@ lsp-plugins
 lv2
 mac
 meterbridge
+mixxx
 mpc
 musescore
 mxml
@@ -43,6 +49,7 @@ non-daw
 ntk
 portaudio
 portmidi
+protobuf
 pulseaudio-jack
 python-numpy
 python-pathlib2
@@ -50,8 +57,10 @@ python-pyo
 qjackctl
 qsampler
 qsynth
+qtkeychain
 rubberband
 sassc
+sc3-plugins
 serd
 shntool
 sonic-visualiser
