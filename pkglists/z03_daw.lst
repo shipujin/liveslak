@@ -10,6 +10,7 @@ avldrums.lv2
 cadence
 calf
 capnproto
+carla
 cecilia5
 chromaprint
 cuetools
@@ -53,6 +54,7 @@ protobuf
 pulseaudio-jack
 python-numpy
 python-pathlib2
+python-pyliblo
 python-pyo
 qjackctl
 qsampler
