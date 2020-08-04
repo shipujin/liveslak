@@ -2096,12 +2096,13 @@ EOT
   cat <<EOT > ${LIVE_ROOTDIR}/home/${LIVEUID}/.config/rncbc.org/QjackCtl.conf
 [Options]
 DBusEnabled=true
+GraphButton=true
 JackDBusEnabled=true
 KeepOnTop=false
-PostShutdownScript=false
-PostShutdownScriptShell=
-PostStartupScript=false
-PostStartupScriptShell=
+PostShutdownScript=true
+PostShutdownScriptShell=killall a2jmidid &
+PostStartupScript=true
+PostStartupScriptShell=/usr/bin/a2jmidid -e &
 ServerConfig=true
 ServerConfigName=.jackdrc
 ShutdownScript=false
@@ -2122,6 +2123,7 @@ DefPreset=(default)
 [Settings]
 Driver=alsa
 Frames=256
+MidiDriver=seq
 Periods=2
 PortMax=256
 Priority=5
@@ -2129,6 +2131,7 @@ Realtime=true
 SampleRate=48000
 Server=jackd
 StartDelay=2
+Sync=true
 EOT
 
   # Add a default jackd configuration:
