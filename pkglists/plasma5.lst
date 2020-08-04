@@ -60,6 +60,7 @@ perl-template-toolkit
 phonon
 phonon-gstreamer
 phonon-vlc
+pipewire
 polkit
 polkit-qt5-1
 poppler
