@@ -3,6 +3,7 @@ QScintilla
 cdparanoia
 djvulibre
 ebook-tools
+farstream
 font-bh-ttf
 font-bitstream-type1
 font-xfree86-type1
@@ -11,6 +12,7 @@ gcc-gfortran
 ghostscript
 ghostscript-fonts-std
 gimp
+gmp
 groff
 gtkmm2
 hyphen
@@ -18,11 +20,13 @@ id3lib
 libXcm
 liberation-fonts-ttf
 libid3tag
+libnice
 liboggz
 libraw1394
 libspectre
 libva-utils
 libvncserver
+libyaml
 libzip
 man
 man-db
@@ -35,6 +39,7 @@ pyxdg
 qt5
 qt5-webkit
 raptor2
+ruby
 sane
 sazanami-fonts-ttf
 sip

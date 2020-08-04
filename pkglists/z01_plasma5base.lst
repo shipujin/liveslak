@@ -49,6 +49,7 @@ perl-template-toolkit
 phonon
 phonon-gstreamer
 phonon-vlc
+pipewire
 polkit
 polkit-qt5-1
 poppler
@@ -289,7 +290,7 @@ k3b
 #kalgebra
 #kalzium
 kamera
-kamoso
+#kamoso
 #kanagram
 #kapman
 #kapptemplate

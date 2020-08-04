@@ -19,6 +19,7 @@ dssi
 eq10q
 faad2
 guitarix
+gxplugins.lv2
 helm
 hidapi
 hydrogen
@@ -32,6 +33,7 @@ libgig
 liblo
 liblrdf
 liblscp
+libltc
 libmodplug
 libmp4v2
 libmpdclient
@@ -65,6 +67,7 @@ sassc
 sc3-plugins
 serd
 shntool
+sonic-pi
 sonic-visualiser
 sord
 sratom
@@ -75,9 +78,11 @@ vamp-plugin-sdk
 vmpk
 wxGTK3
 wxpython
+x42-plugins
 yaml-cpp
 zita-ajbridge
 zita-alsa-pcmi
+zita-convolver
 zita-resampler
 #zynaddsubfx
 zyn-fusion
