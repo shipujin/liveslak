@@ -54,6 +54,7 @@ haveged
 hostname
 idnkit
 infozip
+inotify-tools
 iproute2
 iptables
 iputils
