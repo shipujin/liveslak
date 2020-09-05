@@ -143,9 +143,18 @@ for ARG in $(cat /proc/cmdline); do
     dhcpwait=*)
       DHCPWAIT=$(echo $ARG | cut -f2 -d=)
     ;;
+    domain=*)
+      # generic syntax: sub.domain.some
+      LIVE_DOMAIN=$(echo $ARG | cut -f2 -d=)
+    ;;
     hostname=*)
       # generic syntax: hostname=newname[,qualifier]
       LIVE_HOSTNAME=$(echo $ARG | cut -f2 -d= | cut -f1 -d,)
+      # Allow for the user to (mistakenly) add a domain component:
+      if [ $(echo $LIVE_HOSTNAME |cut -d. -f1- --output-delimiter ' '|wc -w) -gt 1 ]; then
+        LIVE_DOMAIN=$(echo $LIVE_HOSTNAME |cut -d. -f2-)
+        LIVE_HOSTNAME=$(echo $LIVE_HOSTNAME |cut -d. -f1)
+      fi
       if [ "$(echo $ARG | cut -f2 -d= | cut -f2 -d,)" = "fixed" ]; then
         Keep hostname fixed i.e. never add a MAC address suffix:
         HNMAC_ALLOWED="NO"
@@ -1133,15 +1142,20 @@ EOPW
     fi
   fi
 
+  if [ -z "$LIVE_DOMAIN" ]; then
+    # No custom domain on the boot commandline:
+    LIVE_DOMAIN="example.net"
+  fi
+
   if [ ! -z "$LIVE_HOSTNAME" ]; then
     # User entered a custom hostname on the boot commandline:
     echo "${MARKER}:  Changing hostname to '$LIVE_HOSTNAME'."
-    echo "${LIVE_HOSTNAME}.example.net" > /mnt/overlay/etc/HOSTNAME
+    echo "${LIVE_HOSTNAME}.${LIVE_DOMAIN}" > /mnt/overlay/etc/HOSTNAME
     if [ -f /mnt/overlay/etc/NetworkManager/NetworkManager.conf ]; then
       sed -i -e "s/^hostname=.*/hostname=${LIVE_HOSTNAME}/" \
         /mnt/overlay/etc/NetworkManager/NetworkManager.conf
     fi
-    sed -i -e "s/^\(127.0.0.1\t*\)@DARKSTAR@.*/\1${LIVE_HOSTNAME}.example.net ${LIVE_HOSTNAME}/" /mnt/overlay/etc/hosts
+    sed -i -e "s/^\(127.0.0.1\t*\)@DARKSTAR@.*/\1${LIVE_HOSTNAME}.${LIVE_DOMAIN} ${LIVE_HOSTNAME}/" /mnt/overlay/etc/hosts
   fi
 
   if [ -n "$NFSHOST" ]; then

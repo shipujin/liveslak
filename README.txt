@@ -345,6 +345,9 @@ cfg=[skip|write] =>
   OS parameters; or specify 'write' to write current OS parameters
   to disk.
 
+domain=your_custom_domain =>
+  Specify a custom domain name.  Defaults to 'example.net'.
+
 hostname=your_custom_hostname[,qualifier] =>
   Specify a custom hostname.  A qualifier 'fixed' can be appended
   to prohibit hostname modification in  case of network boot.
