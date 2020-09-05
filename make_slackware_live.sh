@@ -83,14 +83,20 @@ THEDATE=$(date +%Y%m%d)
 # Distribution name:
 DISTRO=${DISTRO:-"slackware"}
 
+# What type of Live image?
+# Choices are: SLACKWARE, XFCE, DAW, PLASMA5, MATE, CINNAMON, DLACK, STUDIOWARE
+LIVEDE=${LIVEDE:-"SLACKWARE"}
+
 # The live username of the image:
 LIVEUID=${LIVEUID:-"live"}
 
 # The number of the live account in the image:
 LIVEUIDNR=${LIVEUIDNR:-"1000"}
 
-# The full name of the live account in the image:
-LIVEUIDFN=${LIVEUIDFN:-"${DISTRO^} Live User"}
+# The full name of the live account in the image can be set per Live variant,
+# and will always be overridden by a LIVEUIDFN definition in the .conf file.
+# The LIVEUIDFN defaults to '${DISTRO^} Live User' if not set explicitly:
+LIVEUIDFN_DAW=""${DISTRO^} Live Musician"
 
 # The root and live user passwords of the image:
 ROOTPW=${ROOTPW:-"root"}
@@ -104,10 +110,6 @@ NVGRPNR=${NVUIDNR:-"365"}
 
 # Custom name for the host:
 LIVE_HOSTNAME=${LIVE_HOSTNAME:-"darkstar"}
-
-# What type of Live image?
-# Choices are: SLACKWARE, XFCE, DAW, PLASMA5, MATE, CINNAMON, DLACK, STUDIOWARE
-LIVEDE=${LIVEDE:-"SLACKWARE"}
 
 # What runlevel to use if adding a DE like: XFCE, DAW, PLASMA5 etc...
 RUNLEVEL=${RUNLEVEL:-4}
@@ -1473,6 +1475,14 @@ then
   chroot ${LIVE_ROOTDIR} /usr/sbin/groupadd -g ${NVGRPNR} ${NVGRP}
   chroot ${LIVE_ROOTDIR} /usr/sbin/useradd -c "Nvidia persistence" -u ${NVUIDNR} -g ${NVGRPNR} -d /dev/null -s /bin/false ${NVUID}
   echo "${NVUID}:$(openssl rand -base64 12)" | chroot ${LIVE_ROOTDIR} /usr/sbin/chpasswd
+fi
+
+# Determine the full name of the live account in the image:
+if [ -z ${LIVEUIDFN} ]; then
+  eval LIVEUIDFN=\$LIVEUIDFN_${LIVEDE}
+  if [ -z ${LIVEUIDFN} ]; then
+    LIVEUIDFN="${DISTRO^} Live User"
+  fi
 fi
 
 # Create a nonprivileged user account (called "live" by default):
