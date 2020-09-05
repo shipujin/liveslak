@@ -386,6 +386,11 @@ persistence=name => Use this if you are using a different
 toram => copy the OS from the media to to RAM before running it.
   You can remove the boot media after booting.
 
+toram=all => Prevent writes to disk since we are supposed to run from RAM;
+  equivalent to parameter "toram".
+
+toram=os => Load OS modules into RAM, but write persistent data to USB.
+
 === Troubleshooting ===
 
 blacklist=mod1[,mod2[...]]  => Add one or more kernel modules

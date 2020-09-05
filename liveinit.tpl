@@ -61,7 +61,7 @@ DEF_LOCALE=@DEF_LOCALE@
 DEF_TZ=@DEF_TZ@
 
 # By default, let the media determine if we can write persistent changes:
-# However, if we define TORAM=1, we will also set VIRGIN=1 since we want
+# However, if we define TORAM=1, we will also set VIRGIN=1 when we want
 # to avoid anything that writes to disk after we copy the OS to RAM.
 VIRGIN=0
 
@@ -235,6 +235,14 @@ for ARG in $(cat /proc/cmdline); do
     toram)
       TORAM=1
       VIRGIN=1 # prevent writes to disk since we are supposed to run from RAM
+    ;;
+    toram=*)
+      TORAM=1
+      if [ "$(echo $ARG | cut -f2 -d=)" = "os" ]; then
+        VIRGIN=0 # load OS modules into RAM, write persistent data to disk
+      elif [ "$(echo $ARG | cut -f2 -d=)" = "all" ]; then
+        VIRGIN=1 # prevent writes to disk since we are supposed to run from RAM
+      fi
     ;;
     tweaks=*)
       # Comma-separated set of usability tweaks.
@@ -851,7 +859,12 @@ if [ "$RESCUE" = "" ]; then
   FS2HD=$(echo $FS2HD |cut -c2-)
 
   if [ $TORAM -ne 0 ]; then
-    echo "${MARKER}:  Live OS copied to RAM, you can remove the Live medium."
+    echo "${MARKER}:  Live OS has been copied to RAM."
+    # Inform user in case we won't do persistent writes and the medium
+    # does not contain LUKS-encrypted containers to mount:
+    if [ $VIRGIN -ne 0 -a -z "$LUKSVOL" ]; then
+      echo "${MARKER}:  You can now safely remove the live medium."
+    fi
     if [ "LIVEFS" = "iso9660" ]; then
       eject ${LIVEMEDIA}
     fi
@@ -865,7 +878,7 @@ if [ "$RESCUE" = "" ]; then
   # Assume the default to be a readonly media - we write to RAM:
   UPPERDIR=/mnt/live/changes
   OVLWORK=/mnt/live/.ovlwork
-  if [ "$VIRGIN" = "0" ]; then
+  if [ $VIRGIN -eq 0 ]; then
     if [ "LIVEFS" != "iso9660" -a -d /mnt/media/${PERSISTENCE} ]; then
       # Looks OK, but we need to remount the media in order to write
       # to the persistence directory:
@@ -943,7 +956,7 @@ if [ "$RESCUE" = "" ]; then
   # And this is the actual Live overlay:
   mount -t overlay -o workdir=${OVLWORK},upperdir=${UPPERDIR},lowerdir=${RODIRS} overlay /mnt/overlay
   MNTSTAT=$?
-  if [ "$VIRGIN" = "0" ]; then
+  if [ $VIRGIN -eq 0 ]; then
     if [ $MNTSTAT -ne 0 ]; then
       # Failed to create the persistent overlay - try without persistence:
       echo "${MARKER}:  Failed to create persistent overlay, attempting to continue in RAM."
