@@ -2196,11 +2196,14 @@ EOT
   fi
 
   # Allow access for 'audio' group to the high precision event timer,
-  # which may benefit a DAW which relies on ALSA MIDI:
+  # which may benefit a DAW which relies on ALSA MIDI;
+  # Also grant write access to /dev/cpu_dma_latency to prevent CPU's
+  # from going into idle state:
   mkdir -p ${LIVE_ROOTDIR}/etc/udev/rules.d
   cat <<EOT > ${LIVE_ROOTDIR}/etc/udev/rules.d/40-timer-permissions.rules
 KERNEL=="rtc0", GROUP="audio"
 KERNEL=="hpet", GROUP="audio"
+KERNEL=="cpu_dma_latency", GROUP="audio"
 EOT
 
   # Audio related sysctl settings for better realtime performance:
