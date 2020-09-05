@@ -25,6 +25,7 @@ hidapi
 hydrogen
 jack_capture
 jack2
+jamulus
 ladspa_sdk
 lash
 libconfig
