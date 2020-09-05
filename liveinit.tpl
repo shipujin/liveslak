@@ -905,7 +905,7 @@ if [ "$RESCUE" = "" ]; then
       losetup $prdev /mnt/media/${PERSISTENCE}.img
       # Check if the persistence container is LUKS encrypted:
       if cryptsetup isLuks $prdev 1>/dev/null 2>/dev/null ; then
-        echo "Unlocking LUKS encrypted persistence file '/${PERSISTENCE}.img'"
+        echo "${MARKER}:  Unlocking LUKS encrypted persistence file '/${PERSISTENCE}.img'"
         cryptsetup luksOpen $prdev $(basename ${PERSISTENCE}) </dev/tty0 >/dev/tty0 2>&1
         if [ $? -ne 0 ]; then
           echo "${MARKER}:  Failed to unlock persistence file '/${PERSISTENCE}.img'."
