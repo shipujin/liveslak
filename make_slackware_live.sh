@@ -96,7 +96,7 @@ LIVEUIDNR=${LIVEUIDNR:-"1000"}
 # The full name of the live account in the image can be set per Live variant,
 # and will always be overridden by a LIVEUIDFN definition in the .conf file.
 # The LIVEUIDFN defaults to '${DISTRO^} Live User' if not set explicitly:
-LIVEUIDFN_DAW=""${DISTRO^} Live Musician"
+LIVEUIDFN_DAW="${DISTRO^} Live Musician"
 
 # The root and live user passwords of the image:
 ROOTPW=${ROOTPW:-"root"}
