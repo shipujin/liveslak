@@ -1478,9 +1478,9 @@ then
 fi
 
 # Determine the full name of the live account in the image:
-if [ -z ${LIVEUIDFN} ]; then
+if [ -z "${LIVEUIDFN}" ]; then
   eval LIVEUIDFN=\$LIVEUIDFN_${LIVEDE}
-  if [ -z ${LIVEUIDFN} ]; then
+  if [ -z "${LIVEUIDFN}" ]; then
     LIVEUIDFN="${DISTRO^} Live User"
   fi
 fi
