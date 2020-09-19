@@ -50,6 +50,7 @@ libxkbcommon
 lmdb
 mesa
 mlt
+mozjs68
 ninja
 noto-cjk-font-ttf
 noto-font-ttf

@@ -36,6 +36,7 @@ opusfile
 pidgin
 python-six
 pyxdg
+qca-qt5
 qt5
 qt5-webkit
 raptor2
@@ -43,6 +44,7 @@ ruby
 sane
 sazanami-fonts-ttf
 sip
+ssr
 taglib
 taglib-extras
 #tibmachuni-font-ttf

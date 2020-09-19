@@ -47,6 +47,7 @@ mac
 meterbridge
 mixxx
 mpc
+muse
 musescore
 mxml
 non-daw
@@ -63,6 +64,8 @@ qjackctl
 qsampler
 qsynth
 qtkeychain
+rtaudio
+rtmidi
 rubberband
 sassc
 sc3-plugins
@@ -71,6 +74,7 @@ shntool
 sonic-pi
 sonic-visualiser
 sord
+soundtouch
 sratom
 suil
 supercollider
