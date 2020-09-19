@@ -2154,6 +2154,37 @@ EOT
   cp -a ${LIVE_ROOTDIR}/usr/share/applications/qjackctl.desktop \
     ${LIVE_ROOTDIR}/home/${LIVEUID}/.config/autostart
 
+  # Add all our programs into their own submenu Applications>Multimedia>DAW
+  # to avoid clutter in the Multimedia menu. We will use a custom category
+  # "X-DAW" to decide what goes into the new submenu.
+  # Also move the existing X42-Plugins submenu below the new DAW submenu.
+  # see https://specifications.freedesktop.org/menu-spec/menu-spec-1.0.html
+  install -Dm 644 ${LIVE_TOOLDIR}/${LIVEDE,,}/liveslak-daw.menu \
+    -t $LIVE_ROOTDIR/etc/xdg/menus/applications-merged/
+  install -Dm 644 ${LIVE_TOOLDIR}/${LIVEDE,,}/liveslak-daw.directory \
+    -t $LIVE_ROOTDIR/usr/share/desktop-directories/
+  install -Dm 644 ${LIVE_TOOLDIR}/${LIVEDE,,}/liveslak-daw.png \
+    -t $LIVE_ROOTDIR/usr/share/icons/hicolor/256x256/apps/
+
+  # Any menu entry that does not yet have a Category "X-DAW" will now have to
+  # get that added so that our mew submenu will be populated:
+  for DAWPKG in $(cat ${LIVE_TOOLDIR}/pkglists/z03_daw.lst |grep -v x42 |grep -Ev '(^ *#)' ) ; do
+    # Find the installed full package name belonging to the DAW package:
+    PKGINST=$( ls -1 ${LIVE_ROOTDIR}/var/log/packages/${DAWPKG}* 2>/dev/null |grep -E "/var/log/packages/${DAWPKG}-[^-]+-[^-]+-[^-]+" || true)
+    if [ -n "${PKGINST}" ]; then
+      for DESKTOPF in $(grep 'usr/share/applications/.*.desktop' ${PKGINST})
+      do
+        if ! grep -q X-DAW ${LIVE_ROOTDIR}/${DESKTOPF} ; then
+          sed -i ${LIVE_ROOTDIR}/${DESKTOPF} \
+            -e "s/^Categories=\(.*\)/Categories=X-DAW;\1/"
+        fi
+        # Hide the application in Multimedia (which is based on the AudioVideo
+        # category) to prevent them from getting listed twice:
+        sed -i ${LIVE_ROOTDIR}/${DESKTOPF} -e "/^Categories=/s/AudioVideo;//"
+      done
+    fi
+  done
+
 fi # End LIVEDE = DAW
 
 if [ "$LIVEDE" = "STUDIOWARE" ]; then
