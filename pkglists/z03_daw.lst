@@ -61,9 +61,11 @@ python-pathlib2
 python-pyliblo
 python-pyo
 qjackctl
+qmidiarp
 qsampler
 qsynth
 qtkeychain
+qtractor
 rtaudio
 rtmidi
 rubberband
