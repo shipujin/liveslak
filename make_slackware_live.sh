@@ -1230,8 +1230,10 @@ fi
 # Do we need to include multilib?
 # Add these last so we can easily distribute the module separately.
 if [ "$MULTILIB" = "YES" ]; then
-  echo "-- Adding multilib."
-  MSEQ="${MSEQ} pkglist:multilib"
+  if ! echo ${MSEQ} |grep -qw multilib ; then
+    echo "-- Adding multilib."
+    MSEQ="${MSEQ} pkglist:multilib"
+  fi
 fi
 
 echo "-- Creating liveslak ${VERSION} '${LIVEDE}' image (based on ${DISTRO^}-${SL_VERSION} ${SL_ARCH})."
