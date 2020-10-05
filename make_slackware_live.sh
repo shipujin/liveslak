@@ -2166,11 +2166,12 @@ EOT
   # "X-DAW" to decide what goes into the new submenu.
   # Also move the existing X42-Plugins submenu below the new DAW submenu.
   # see https://specifications.freedesktop.org/menu-spec/menu-spec-1.0.html
-  install -Dm 644 ${LIVE_TOOLDIR}/${LIVEDE,,}/liveslak-daw.menu \
+  install -Dm 644 ${LIVE_TOOLDIR}/media/${LIVEDE,,}/menu/liveslak-daw.menu \
     -t $LIVE_ROOTDIR/etc/xdg/menus/applications-merged/
-  install -Dm 644 ${LIVE_TOOLDIR}/${LIVEDE,,}/liveslak-daw.directory \
+  install -Dm 644 \
+    ${LIVE_TOOLDIR}/media/${LIVEDE,,}/menu/liveslak-daw.directory \
     -t $LIVE_ROOTDIR/usr/share/desktop-directories/
-  install -Dm 644 ${LIVE_TOOLDIR}/${LIVEDE,,}/liveslak-daw.png \
+  install -Dm 644 ${LIVE_TOOLDIR}/media/${LIVEDE,,}/menu/liveslak-daw.png \
     -t $LIVE_ROOTDIR/usr/share/icons/hicolor/256x256/apps/
 
   # Any menu entry that does not yet have a Category "X-DAW" will now have to
