@@ -1,7 +1,11 @@
+#FAudio
+#MinGW-w64
 boost-compat
 dropbox-client
 gst-plugins-ffmpeg0
 openjdk
 openconnect
 unrar
+#vkd3d
 vlc
+#wine

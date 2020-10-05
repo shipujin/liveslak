@@ -230,7 +230,7 @@ videoproto
 viewres
 vte
 wayland
-wqy-zenhei-font-ttf
+#wqy-zenhei-font-ttf
 x11-skel
 x11perf
 xauth

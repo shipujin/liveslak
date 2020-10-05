@@ -18,6 +18,7 @@ drumstick
 dssi
 eq10q
 faad2
+geonkick
 guitarix
 gxplugins.lv2
 helm
@@ -66,6 +67,8 @@ qsampler
 qsynth
 qtkeychain
 qtractor
+rapidjson
+redkite
 rtaudio
 rtmidi
 rubberband

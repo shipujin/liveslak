@@ -17,6 +17,7 @@ groff
 gtkmm2
 hyphen
 id3lib
+kernel-huge
 libXcm
 liberation-fonts-ttf
 libid3tag
@@ -28,6 +29,7 @@ libva-utils
 libvncserver
 libyaml
 libzip
+lilo
 man
 man-db
 mariadb
