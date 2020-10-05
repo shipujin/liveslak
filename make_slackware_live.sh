@@ -932,6 +932,99 @@ function create_iso() {
 
 } # End of create_iso()
 
+#
+# Configure a custom background image in Plasma5:
+#
+function plasma5_custom_bg() {
+  # The function expects a background image file of JPG or PNG format.
+  # The bitmap must be present in the liveslak source tree as:
+  # media/<variant>/bg/background.png or media/<variant>/bg/background.jpg ,
+  # where <variant> is the lowercase name of the liveslak varriant (such as
+  # cinnamon, daw, slackware, etc).
+  # The file background.{jpg,png} can be a symlink to an actual JPG or PNG.
+  # Aspect ratio of the image *must* be 16:9 (1920x1080 px or higher res).
+
+  # Exit immediately if the image file is not found:
+  if ! readlink -f ${LIVE_TOOLDIR}/media/${LIVEDE,,}/bg/background.* 1>/dev/null 2>&1 ; then
+    return 1
+  fi
+
+  echo "-- Configuring custom background image."
+  # First convert our image into a JPG in the liveslak directory:
+  mkdir -p ${LIVE_ROOTDIR}/usr/share/${LIVEMAIN}/${LIVEDE,,}
+  convert ${LIVE_TOOLDIR}/media/${LIVEDE,,}/bg/background.* ${LIVE_ROOTDIR}/usr/share/${LIVEMAIN}/${LIVEDE,,}/background.jpg
+
+  # Create a Plasma5 desktop wallpaper set with a lowercase LIVEDE name:
+  mkdir -p ${LIVE_ROOTDIR}/usr/share/wallpapers/${LIVEDE,,}/contents/images
+
+  # Create set of images for common aspect ratios like 16:9, 16:10 and 4:3:
+  # Aspect Ratio 16:9 :
+  convert ${LIVE_ROOTDIR}/usr/share/${LIVEMAIN}/${LIVEDE,,}/background.jpg \
+    -resize 1920x1080 \
+    ${LIVE_ROOTDIR}/usr/share/wallpapers/${LIVEDE,,}/contents/images/1920x1080.jpg
+  convert ${LIVE_ROOTDIR}/usr/share/${LIVEMAIN}/${LIVEDE,,}/background.jpg \
+    -resize 5120x2880 \
+    ${LIVE_ROOTDIR}/usr/share/wallpapers/${LIVEDE,,}/contents/images/5120x2880.jpg
+  # Aspect Ratio 16:10 :
+  convert  ${LIVE_ROOTDIR}/usr/share/${LIVEMAIN}/${LIVEDE,,}/background.jpg \
+    -resize 5120x - | \
+    convert - -geometry 1920x1200^ -gravity center -crop 1920x1200+0+0 \
+    ${LIVE_ROOTDIR}/usr/share/wallpapers/${LIVEDE,,}/contents/images/1920x1200.jpg
+  convert  ${LIVE_ROOTDIR}/usr/share/${LIVEMAIN}/${LIVEDE,,}/background.jpg \
+    -resize 5120x - | \
+    convert - -geometry 1280x800^ -gravity center -crop 1280x800+0+0 \
+    ${LIVE_ROOTDIR}/usr/share/wallpapers/${LIVEDE,,}/contents/images/1280x800.jpg
+  # Aspect Ratio 4:3 :
+  convert  ${LIVE_ROOTDIR}/usr/share/${LIVEMAIN}/${LIVEDE,,}/background.jpg \
+    -resize 5120x - | \
+    convert - -geometry 1024x768^ -gravity center -crop 1024x768+0+0 \
+    ${LIVE_ROOTDIR}/usr/share/wallpapers/${LIVEDE,,}/contents/images/1024x768.jpg
+
+  # Create the required wallpaper screenshot of 400x225 px (16:9 aspect ratio):
+  convert ${LIVE_ROOTDIR}/usr/share/${LIVEMAIN}/${LIVEDE,,}/background.jpg \
+    -resize 400x225 \
+    ${LIVE_ROOTDIR}/usr/share/wallpapers/${LIVEDE,,}/contents/screenshot.png
+
+  # Add wallpaper description:
+  cat <<EOT >${LIVE_ROOTDIR}/usr/share/wallpapers/${LIVEDE,,}/metadata.desktop
+[Desktop Entry]
+Name=${DISTRO^} Live
+
+X-KDE-PluginInfo-Name=${LIVEDE,,}
+X-KDE-PluginInfo-Author=Eric Hameleers
+X-KDE-PluginInfo-Email=alien@slackware.com
+X-KDE-PluginInfo-License=CC-BY-SA-4.0
+EOT
+
+  # Now set our wallpaper to be the default. For this to work, we need to link
+  # the name of the default theme to ours, so find out what the default is:
+  DEF_THEME="$(grep ^defaultWallpaperTheme ${LIVE_ROOTDIR}/usr/share/plasma/desktoptheme/default/metadata.desktop |cut -d= -f2-)"
+  mv ${LIVE_ROOTDIR}/usr/share/wallpapers/${DEF_THEME}{,.orig}
+  ln -s ${LIVEDE,,} ${LIVE_ROOTDIR}/usr/share/wallpapers/${DEF_THEME}
+
+  # Custom background for the SDDM login greeter:
+  mkdir -p ${LIVE_ROOTDIR}/usr/share/sddm/themes/breeze
+  cp ${LIVE_ROOTDIR}/usr/share/${LIVEMAIN}/${LIVEDE,,}/background.jpg ${LIVE_ROOTDIR}/usr/share/sddm/themes/breeze/${LIVEDE,,}_background.jpg
+  cat <<EOT > ${LIVE_ROOTDIR}/usr/share/sddm/themes/breeze/theme.conf.user
+[General]
+background=${LIVEDE,,}_background.jpg
+EOT
+
+  # Screenlocker:
+  mkdir -p ${LIVE_ROOTDIR}/home/${LIVEUID}/.config
+cat <<EOT > ${LIVE_ROOTDIR}/home/${LIVEUID}/.config/kscreenlockerrc 
+[$Version]
+update_info=kscreenlocker.upd:0.1-autolock
+
+[Greeter]
+WallpaperPlugin=org.kde.image
+[Greeter][Wallpaper][org.kde.image][General]
+FillMode=2
+Image=file:///usr/share/${LIVEMAIN}/${LIVEDE,,}/background.jpg
+EOT
+
+} # End of plasma5_custom_bg()
+
 # ---------------------------------------------------------------------------
 # Action!
 # ---------------------------------------------------------------------------
@@ -1964,6 +2057,11 @@ if [ "$LIVEDE" = "PLASMA5" -o "$LIVEDE" = "DAW" ]; then
   # -------------------------------------------------------------------------- #
   echo "-- Configuring PLASMA5/DAW."
   # -------------------------------------------------------------------------- #
+
+  # This section is for any Plasma5 based variant.
+
+  # Install a custom login/desktop/lock background if an image is present:
+  plasma5_custom_bg
 
   # Remove the confusing openbox session if present:
   rm -f ${LIVE_ROOTDIR}/usr/share/xsessions/openbox-session.desktop || true
