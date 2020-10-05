@@ -946,10 +946,11 @@ function plasma5_custom_bg() {
 
   # Exit immediately if the image file is not found:
   if ! readlink -f ${LIVE_TOOLDIR}/media/${LIVEDE,,}/bg/background.* 1>/dev/null 2>&1 ; then
-    return 1
+    echo "-- No ${LIVEDE} custom wallpaper image."
+    return
   fi
 
-  echo "-- Configuring custom background image."
+  echo "-- Configuring ${LIVEDE} custom background image."
   # First convert our image into a JPG in the liveslak directory:
   mkdir -p ${LIVE_ROOTDIR}/usr/share/${LIVEMAIN}/${LIVEDE,,}
   convert ${LIVE_TOOLDIR}/media/${LIVEDE,,}/bg/background.* ${LIVE_ROOTDIR}/usr/share/${LIVEMAIN}/${LIVEDE,,}/background.jpg
