@@ -304,7 +304,7 @@ LIVE_MOD_OPT=${LIVE_MOD_OPT:-"${LIVE_STAGING}/${LIVEMAIN}/optional"}
 # ---------------------------------------------------------------------------
 
 # Clean up in case of failure:
-cleanup() {
+function cleanup() {
   # Clean up by unmounting our loopmounts, deleting tempfiles:
   echo "--- Cleaning up the staging area..."
   sync
@@ -319,22 +319,23 @@ cleanup() {
   rmdir ${LIVE_WORK}/*_$$ 2>${DBGOUT}
   rm ${LIVE_MOD_OPT}/* 2>${DBGOUT} || true
   rm ${LIVE_MOD_ADD}/* 2>${DBGOUT} || true
-}
+} # End of cleanup()
+
 trap 'echo "*** $0 FAILED at line $LINENO ***"; cleanup; exit 1' ERR INT TERM
 
 # Uncompress the initrd based on the compression algorithm used:
-uncompressfs () {
+function uncompressfs() {
   if $(file "${1}" | grep -qi ": gzip"); then
     gzip -cd "${1}"
   elif $(file "${1}" | grep -qi ": XZ"); then
     xz -cd "${1}"
   fi
-}
+} # End of uncompressfs()
 
 #
 # Return the full pathname of first package found below $2 matching exactly $1:
 #
-full_pkgname() {
+function full_pkgname() {
   PACK=$1
   if [ -e $2 ]; then
     TOPDIR=$2
@@ -352,7 +353,7 @@ full_pkgname() {
   else
     echo ""
   fi
-}
+} # End of full_pkgname()
 
 #
 # Find packages and install them into the temporary root:
@@ -614,8 +615,7 @@ function install_pkgs() {
     done
   fi
 
-  # End install_pkgs
-}
+} # End install_pkgs()
 
 
 #
@@ -708,7 +708,8 @@ EOL
     done
 
   done
-}
+
+} # End of gen_bootmenu()
 
 #
 # Create the grub menu file for UEFI boot:
@@ -833,12 +834,13 @@ EOL
   rm -f $TZLIST
 
   done
-}
+
+} # End of gen_uefimenu()
 
 #
 # Create an ISO file from a directory's content:
 #
-create_iso() {
+function create_iso() {
   TOPDIR=${1:-"${LIVE_STAGING}"}
 
   cd "$TOPDIR"
