@@ -613,6 +613,12 @@ function install_pkgs() {
         cd - 1>/dev/null
       fi
     done
+    # Remove big old ICU libraries that are not needed for the XFCE image:
+    if [ -e "$2"/var/log/packages/aaa_elflibs-[0-9]* ]; then
+      for ICUFILE in $(grep /libicu "$2"/var/log/packages/aaa_elflibs-[0-9]*) ; do
+         rm -f "$2"/$ICUFILE ;
+      done
+    fi
   fi
 
 } # End install_pkgs()
