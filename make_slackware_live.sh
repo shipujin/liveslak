@@ -1660,14 +1660,15 @@ cat ${LIVE_TOOLDIR}/pxeserver.tpl | sed \
   > ${LIVE_ROOTDIR}/usr/local/sbin/pxeserver
 chmod 755 ${LIVE_ROOTDIR}/usr/local/sbin/pxeserver
 
-# Only when we find a huge kernel, we will add a harddisk installer
-# to the ISO.  The huge kernel does not require an initrd and installation
-# to the hard drive will not be complicated.
-if ls ${LIVE_ROOTDIR}/boot/vmlinuz-huge-* 1>/dev/null 2>/dev/null; then
- if [ -f ${DEF_SL_PKGROOT}/../isolinux/initrd.img ]; then
+# Add a harddisk installer to the ISO.
+# The huge kernel does not require an initrd and installation to the
+# hard drive will not be complicated, so a liveslak install is recommended
+# for newbies only if the ISO contains huge kernel...
+if [ -f ${DEF_SL_PKGROOT}/../isolinux/initrd.img ]; then
+  echo "-- Adding 'setup2hd' hard disk installer to /usr/share/${LIVEMAIN}/."
   # Extract the 'setup' files we need from the Slackware installer
   # and move them to a single directory in the ISO:
-  mkdir -p  ${LIVE_ROOTDIR}/usr/share/${LIVEMAIN}
+  mkdir -p ${LIVE_ROOTDIR}/usr/share/${LIVEMAIN}
   cd  ${LIVE_ROOTDIR}/usr/share/${LIVEMAIN}
     uncompressfs ${DEF_SL_PKGROOT}/../isolinux/initrd.img | cpio -i -d -m -H newc usr/lib/setup/* sbin/probe sbin/fixdate
     mv -i usr/lib/setup/* sbin/probe sbin/fixdate .
@@ -1721,13 +1722,18 @@ if ls ${LIVE_ROOTDIR}/boot/vmlinuz-huge-* 1>/dev/null 2>/dev/null; then
   # Fix some occurrences of '/usr/lib/setup/' that are covered by $PATH:
   sed -i -e 's,/usr/lib/setup/,,g' -e 's,:/usr/lib/setup,:/usr/share/${LIVEMAIN},g' ${LIVE_ROOTDIR}/usr/share/${LIVEMAIN}/*
   # Add the Slackware Live HD installer scripts:
-  for USCRIPT in SeTuacct SeTudiskpart SeTupass ; do
-    cat ${LIVE_TOOLDIR}/${USCRIPT}.tpl | sed \
+  for USCRIPT in SeTuacct SeTudiskpart SeTumedia SeTupass setup.liveslak setup.slackware ; do
+    cat ${LIVE_TOOLDIR}/setup2hd/${USCRIPT}.tpl | sed \
+      -e "s/@DIRSUFFIX@/$DIRSUFFIX/g" \
       -e "s/@DISTRO@/$DISTRO/g" \
       -e "s/@CDISTRO@/${DISTRO^}/g" \
       -e "s/@UDISTRO@/${DISTRO^^}/g" \
+      -e "s/@KVER@/$KVER/g" \
       -e "s/@LIVEDE@/$LIVEDE/g" \
+      -e "s/@LIVEMAIN@/$LIVEMAIN/g" \
+      -e "s/@MARKER@/$MARKER/g" \
       -e "s/@SL_VERSION@/$SL_VERSION/g" \
+      -e "s/@VERSION@/$VERSION/g" \
       > ${LIVE_ROOTDIR}/usr/share/${LIVEMAIN}/${USCRIPT}
     chmod 755 ${LIVE_ROOTDIR}/usr/share/${LIVEMAIN}/${USCRIPT}
   done
@@ -1746,9 +1752,9 @@ if ls ${LIVE_ROOTDIR}/boot/vmlinuz-huge-* 1>/dev/null 2>/dev/null; then
     > ${LIVE_ROOTDIR}/usr/local/sbin/setup2hd
   chmod 755 ${LIVE_ROOTDIR}/usr/local/sbin/setup2hd
   # Slackware Live HD post-install customization hook:
-  if [ -f ${LIVE_TOOLDIR}/setup2hd.local ]; then
+  if [ -f ${LIVE_TOOLDIR}/setup2hd.local.tpl ]; then
     # The '.local' suffix means: install it as a sample file only:
-    HOOK_SRC="${LIVE_TOOLDIR}/setup2hd.local"
+    HOOK_SRC="${LIVE_TOOLDIR}/setup2hd.local.tpl"
     HOOK_DST="${LIVE_ROOTDIR}/usr/share/${LIVEMAIN}/setup2hd.$DISTRO.sample"
   elif [ -f ${LIVE_TOOLDIR}/setup2hd.$DISTRO ]; then
     # Install the hook; the file will be sourced by "setup2hd".
@@ -1770,7 +1776,6 @@ if ls ${LIVE_ROOTDIR}/boot/vmlinuz-huge-* 1>/dev/null 2>/dev/null; then
   chmod 644 ${HOOK_DST}
  else
   echo "-- Could not find ${DEF_SL_PKGROOT}/../isolinux/initrd.img - not adding 'setup2hd'!"
- fi
 fi
 
 # Add the documentation:

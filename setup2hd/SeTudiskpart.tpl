@@ -10,7 +10,7 @@ fi
      --title "NO HARD DRIVE DETECTED" \
      --msgbox "This machine appears not to have any hard drives installed.\
 This setup will not work. Please add a hard drive to the computer first." 10 64
-    exit
+    exit 1
   fi
 
   # Generate a list of local hard drives we can write to:
