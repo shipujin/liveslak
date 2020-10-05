@@ -47,6 +47,7 @@ The "liveslak" scripts can generate a variety of Slackware flavors:
 
 Common download locations are:
   * Primary site: http://slackware.nl/slackware-live/ (%%rsync://slackware.nl/mirrors/slackware-live/%%)
+  * DAW site: https://martin.alienbase.nl/mirrors/slackware-live/pilot/ (%%rsync://martin.alienbase.nl/mirrors/slackware-live/pilot/%%)
   * Darren's http://slackware.uk/people/alien-slacklive/ (%%rsync://slackware.uk/people/alien-slacklive/%%)
   * Willy's http://repo.ukdw.ac.id/slackware-live/
   * Ryan's https://seattleslack.ryanpcmcquen.org/mirrors/slackware-live/
