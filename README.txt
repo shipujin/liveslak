@@ -31,10 +31,11 @@ The reasons I had for creating the Slackware Live Edition are as follows:
 
 
 The "liveslak" scripts can generate a variety of Slackware flavors:
-  - a complete 64bit Slackware-current Live Edition (in a 3.1 GB ISO);
+  - a complete 64bit Slackware-current Live Edition (in a 4.0 GB ISO);
   - a slimmed-down XFCE ISO (700 MB) with XDM as the graphical login manager.  It fits on a CDROM medium or a 1 GB USB stick;
-  -  a ISO image (4.6 GB) of Slackware64-current containing Plasma 5 instead of KDE 4, with an addition of several other packages from the alienBOB repositories: vlc, libreoffice, calibre, qbittorrent, ffmpeg, chromium, openjdk, veracrypt.
-  - a Mate variant (2.1 GB) where KDE 4 has been replaced by Mate (a Gnome 2 fork);
+  -  a ISO image (4.3 GB) of Slackware64-current containing Plasma 5 instead of KDE 4.
+  - A Digital Audio Workstation (DAW) based on a custom Slackware package set plus Plasma5, containing a rich software collection for musicians, producers and live performance artists.
+  - a Mate variant (3.2 GB) where KDE 4 has been replaced by Mate (a Gnome 2 fork);
   - a Cinnamon flavour (a fork of the Gnome 3 Shell replacing Slackware's KDE 4).
   - a Dlackware variant, which is Gnome3 + PAM + systemd on top of Slackware and stripped of KDE4.
   - a StudioWare edition containing all the project's audio, video and photo editing software packages.
@@ -153,8 +154,8 @@ You might have noticed that the "-P" parameter does not accept a size parameter.
 ==== Using the Live OS to install Slackware to hard disk ====
 
 
-All variants of Slackware Live Edition with the exception of the XFCE variant contain a script "setup2hd", a tweaked version of the regular Slackware setup program.
-The "setup2hd" script allows you to install the Slackware release on which the Live OS is based, to the computer's local hard disk.  You must boot the Live OS first, and then start "setup2hd" either in an X Terminal in your graphical Desktop Environment (aka Runlevel 4), or from the console in Runlevel 3.  The fact that you can start "setup2hd" from a graphical terminal means that during installation, you can continue browsing, listening to music, watching video, reading an e-book or whatever else makes you pass the time.
+All variants of Slackware Live Edition contain a script "setup2hd", a tweaked version of the regular Slackware setup program.
+The "setup2hd" script supports regular Slackware network installations. In addition it allows you to install the Slackware release on which the Live OS is based, to the computer's local hard disk - with the exception of the XFCE variant which does not contain the required huge kernel.  You must boot the Live OS first, and then start ''setup2hd'' either in an X Terminal in your graphical Desktop Environment (aka Runlevel 4), or from the console in Runlevel 3.  The fact that you can start "setup2hd" from a graphical terminal means that during installation, you can continue browsing, listening to music, watching video, reading an e-book or whatever else makes you pass the time.
 
 
 ==== Updating the kernel (and more) on a USB stick ====
@@ -470,7 +471,7 @@ Stage two:
     * an initial environment for the accounts is configured,
     * the desktop environment is pre-configured for first use,
     * the liveslak scripts "makemod", "iso2usb.sh" and "upslak.sh" are copied to "/usr/local/sbin/" in the ISO for your convenience,
-    * if the Live system contains a huge kernel (all ISO variants except XFCE) then the "setup2hd" script and the Slackware installer files are copied to "/usr/local/sbin" and "/usr/share/liveslak" respectively,
+    * The "setup2hd" script and the Slackware installer files are copied to "/usr/local/sbin" and "/usr/share/liveslak" respectively.
     * slackpkg is configured,
     * a locate database is created,
     * etc...
@@ -558,7 +559,9 @@ You can copy the module you just created (minding the filename conventions for a
 
 The fourth script:
 
-The "setup2hd" script is a modified Slackware installer, so you will be comfortable with the process.  There is no 'SOURCE' selection because the script knows where to find the squashfs modules.  After you select the target partition(s), every active module of the Live OS variant (SLACKWARE, PLASMA5, MATE, ...) is extracted to the hard drive.  After extraction has completed, the script summarizes how many modules have been extracted.  It will also show an example command to extract any remaining inactive or disabled modules manually.  The final step in the installation is again the stock Slackware installer which kicks off the Slackware configuration scripts.
+The "setup2hd" script is a modified Slackware installer, so you will be comfortable with the process.  The 'SOURCE' section offers two types of choices:  a regular Slackware network installation using a NFS, HTTP, FTP or Samba server, as well as a choice of installing the Live OS which you are running. The script knows where to find the squashfs modules, so the "Install Live OS" selection will not prompt further inputs.
+  * The Slackware network installation is identical to that of the official Slackware installation medium.
+  * If you chose to install the Live OS, then after you select the target partition(s), every active module of the Live OS variant (SLACKWARE, PLASMA5, MATE, ...) is extracted to the hard drive.  After extraction has completed, the script summarizes how many modules have been extracted.  It will also show an example command to extract any remaining inactive or disabled modules manually.  The final step in the installation is again the stock Slackware installer which kicks off the Slackware configuration scripts.
 
 
 === pxeserver ===
@@ -647,10 +650,14 @@ The toplevel 'liveslak' directory contains the following subdirectories:
   * EFI/ - contains the skeleton for boot support on UEFI computers.  Some of the UEFI configuration files are dynamically generated by the "make_slackware_live.sh" script.
   * README.txt - this documentation.
   * addons/ - squashfs modules placed in this directory will be loaded into the Live filesystem when the OS boots.
+  * contrib/ - contributed scripts that are not used directly for the creation and usage of a Live ISO.
   * graphics/ - squashfs modules for proprietary GPU support (Nvidia) can be placed here. The module(s) will be copied to addons/ by the "make_slackware_live.sh" script for any Live Desktop Environment (except pure Slackware) that might profit from proprietary driver support.
   * local64/ , local/ - these directories can contain Slackware packages considered 'local' i.e. not belonging to any repository.  The package(s) will be converted to squashfs module(s) by the "make_slackware_live.sh" script, copied to the "addons/" subdirectory in the ISO and loaded into the Live filesystem when the OS boots.
+  * media/ - scripts and images that are specific to a Live variant.
   * optional/ - squashfs modules placed in this directory will not automatically be loaded into the Live filesystem when the OS boots.  You need to pass "load=[mod]" boot parameter to load any of these.
+  * patches/ - patches for Slackware scripts that need modifications to run inside a Live OS.
   * pkglists/ - definition files of 3rd party repositories (*.conf) and the package lists to be used from those repositories (*.lst) must be placed in this directory.
+  * setup2hd/ - script templates used by the ''setup2hd'' disk installer.
   * skel/ - contains compressed tarballs (whose filenames must match wildcard "skel*.txz"). These files will be extracted to the "/etc/skel" directory in the Live filesystem.
   * syslinux/  - contains the skeleton for boot support on BIOS computers.  Some of its files are dynamically generated by the "make_slackware_live.sh" script.
   * xdm/ - graphical Slackware theme for the XDM graphical session manager for those ISO variants which do not ship with GDM, KDM or SDDM.
@@ -673,7 +680,8 @@ The toplevel 'liveslak' directory contains the following files:
   * menu.tpl - template which is used to generate the syslinux boot menu for BIOS computers.
   * pxeserver.tpl - template to generate the script that starts a PXE server allowing other computers to boot Slackware Live over the network.
   * setup2hd.tpl - template to generate the script you use to install your Slackware Live to a harddisk.
-  * setup2hd.local - here a developer of a custom Live OS can override the default post-installation routine by (re-)defining the function "live_post_install()" in the ''setup2hd'' script.
+  * setup2hd.local.tpl - here a developer of a custom Live OS can override the default post-installation routine by (re-)defining the function "live_post_install()" in the ''setup2hd'' script.
+  * upslak.sh - a script which allows you to tweak the content of a USB Live stick.
 
 
 === Generate the ISO ===
@@ -728,11 +736,14 @@ for MATE, you will find:
 Which means that most of the Slackware package series (excepting kde and kdei) will be installed from their tagfiles, and on top of that two package lists are installed from the pkglists/ subdirectory: slackextra and mate.  Lastly, "slackpkg+" will be installed from a local directory.
 
  
-==== Using the Customization Feature of the Live OS ====
+==== Using the Customization Features of the Live OS ====
+
+
+=== Master configuration file ===
 
 You can create your own custom Live OS by changing its characteristics in the configuration file "make_slackware_live.conf". Among the things you can change are:
 
-  * The name of the Desktop variant (the script itself knows SLACKWARE, PLASMA5, XFCE, MATE, CINNAMON, STUDIOWARE and DLACK),
+  * The name of the Desktop variant (the script itself knows SLACKWARE, PLASMA5, DAW, XFCE, MATE, CINNAMON, STUDIOWARE and DLACK),
   * The list(s) of packages used for your custom distribution,
   * The name of the useraccount (by default that is "live"),
   * The name of the distribution (by default that is "slackware"),
@@ -781,6 +792,12 @@ This is the section in ''make_slackware_live.conf'' which deals with these custo
 #  # Add your own stuff here which is not covered in the main script:
 #}
 </code>
+
+=== Custom background images ===
+
+The Plasma5 based Live variants allow customization of the background image used for the login greeter, the desktop wallpaper and the lock screen. The image you want to use for this purpose, must have a 16:9 aspect ratio and its dimensions should at least be 1920x1080 pixels. You  must store the custom image inside the liveslak source tree: in the subdirectory ''./media/<variant>/bg/'' where "<variant>" is the lower-case name of the Live variant (variant 'PLASMA5' equals directory 'plasma5', 'DAW' becomes 'daw', etc).
+
+The "make_slackware_live.sh" script will look there for a file named either "background.jpg" or "background.png". If you want, that file can be a symlink to the actual bitmap file. The image will be converted into a set of wallpaper images of different aspect ratios and sizes. The different aspect ratios like 16:9, 16:10 and 4:3 will be achieved by cropping the images if needed, to avoid distortion. The image set will be installed as a Plasma5 wallpaper called "Slackware Live", and configured to be the default Live OS background.
 
 
 ==== Internals of Slackware Live Edition ====
