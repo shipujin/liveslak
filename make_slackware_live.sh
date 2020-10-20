@@ -1594,7 +1594,7 @@ chroot ${LIVE_ROOTDIR} /usr/sbin/useradd -c "${LIVEUIDFN}" -g users -G wheel,aud
 echo "${LIVEUID}:${LIVEPW}" | chroot ${LIVE_ROOTDIR} /usr/sbin/chpasswd
 
 # Configure suauth if we are not on a PAM system (where this does not work):
-if [ ! -L ${LIVE_ROOTDIR}/lib${LIBDIRSUFFIX}/libpam.so.? ]; then
+if [ ! -L ${LIVE_ROOTDIR}/lib${DIRSUFFIX}/libpam.so.? ]; then
   cat <<EOT >${LIVE_ROOTDIR}/etc/suauth
 root:${LIVEUID}:OWNPASS
 root:ALL EXCEPT GROUP wheel:DENY
@@ -2329,7 +2329,7 @@ then
 
   # RT Scheduling and Locked Memory:
   # Implementation depends on whether PAM is installed:
-  if [ -L ${LIVE_ROOTDIR}/lib${LIBDIRSUFFIX}/libpam.so.? ]; then
+  if [ -L ${LIVE_ROOTDIR}/lib${DIRSUFFIX}/libpam.so.? ]; then
     # For PAM based system, allow user in 'audio' group to invoke rt capability:
     mkdir -p ${LIVE_ROOTDIR}/etc/security/limits.d
     cat <<EOT > ${LIVE_ROOTDIR}/etc/security/limits.d/rt_audio.conf
