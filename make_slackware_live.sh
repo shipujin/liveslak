@@ -1904,11 +1904,18 @@ echo "-- Configuring the X base system."
 sed -i -e '/^c3\|^c4\|^c5\|^c6/s/^/# /' ${LIVE_ROOTDIR}/etc/inittab
 
 # Give the 'live' user a face:
-cp ${LIVE_TOOLDIR}/blueSW-64px.png ${LIVE_ROOTDIR}/home/${LIVEUID}/.face.icon
+if [ -f "${LIVE_TOOLDIR}/media/${LIVEDE,,}/icons/default.png" ]; then
+  # Use custom face icon if available for the Live variant:
+  FACE_ICON="${LIVE_TOOLDIR}/media/${LIVEDE,,}/icons/default.png"
+else
+  # Use the default Slackware blue 'S':
+  FACE_ICON="${LIVE_TOOLDIR}/blueSW-64px.png"
+fi
+convert ${FACE_ICON} -resize 64x64 - >${LIVE_ROOTDIR}/home/${LIVEUID}/.face.icon
 chown --reference=${LIVE_ROOTDIR}/home/${LIVEUID} ${LIVE_ROOTDIR}/home/${LIVEUID}/.face.icon
 ( cd ${LIVE_ROOTDIR}/home/${LIVEUID}/ ; ln .face.icon .face )
 mkdir -p ${LIVE_ROOTDIR}/usr/share/apps/kdm/pics/users
-cp ${LIVE_TOOLDIR}/blueSW-64px.png ${LIVE_ROOTDIR}/usr/share/apps/kdm/pics/users/blues.icon
+convert ${FACE_ICON} -resize 64x64 - >${LIVE_ROOTDIR}/usr/share/apps/kdm/pics/users/blues.icon
 
 # Give XDM a nicer look:
 mkdir -p ${LIVE_ROOTDIR}/etc/X11/xdm/liveslak-xdm
