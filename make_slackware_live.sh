@@ -1961,6 +1961,16 @@ for SKEL in ${LIVE_TOOLDIR}/skel/skel*.txz ; do
   tar -xf ${SKEL} -C ${LIVE_ROOTDIR}/etc/skel/
 done
 
+if [ "$LIVEDE" = "XFCE" ]; then
+  # Since the XFCE ISO no longer has xpdf, use Firefox as the PDF viewer:
+  mkdir -p ${LIVE_ROOTDIR}/etc/skel/.config
+  cat << EOF > ${LIVE_ROOTDIR}/etc/skel/.config/mimeapps.list
+[Default Applications]
+application/pdf=mozilla-firefox.desktop
+EOF
+fi
+
+
 # -------------------------------------------------------------------------- #
 echo "-- Configuring KDE4."
 # -------------------------------------------------------------------------- #
