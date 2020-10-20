@@ -63,61 +63,36 @@ Press ENTER to return to the main menu." 16 68
   #
 
   live_post_install () {
-    # Re-use some of the custom configuration from 0099-@DISTRO@_zzzconf-*.sxz
-    # (some of these may not be present but the command will not fail):
-    dialog --backtitle "@CDISTRO@ Linux Setup (Live Edition)" \
-     --title "POST-INSTALL @UDISTRO@ LIVE (@LIVEDE@) DATA" --infobox \
-     "\nCopying Live modifications to hard disk ..." 5 65
-    sleep 1 # It's too fast...
-    # Do not overwrite a custom keymap:
-    if [ ! -f $T_PX/etc/rc.d/rc.keymap ]; then
-      unsquashfs -f -dest $T_PX \
-        /mnt/livemedia/@LIVEMAIN@/system/0099*zzzconf*.sxz \
-        /etc/rc.d/rc.keymap
-    fi
-    unsquashfs -f -dest $T_PX \
-      /mnt/livemedia/@LIVEMAIN@/system/0099*zzzconf*.sxz \
-      /etc/X11/xdm/liveslak-xdm \
-      /etc/X11/xorg.conf.d/30-keyboard.conf \
-      /etc/inittab \
-      /etc/skel \
-      /etc/profile.d/lang.sh \
-      /etc/rc.d/rc.font \
-      /etc/rc.d/rc.gpm \
-      /etc/slackpkg \
-      /etc/vconsole.conf
-    # Point xdm to the custom /etc/X11/xdm/liveslak-xdm/xdm-config:
-    sed -i ${T_PX}/etc/rc.d/rc.4 -e 's,bin/xdm -nodaemon,& -config /etc/X11/xdm/liveslak-xdm/xdm-config,'
-    # Remove the marker file from the filesystem root:
-    rm -f ${T_PX}/@MARKER@
-
     # ---------------------
     # Set up a user account,
     dialog --title "@UDISTRO@ (@LIVEDE@) USER CREATION" \
      --backtitle "@CDISTRO@ Linux Setup (Live Edition)" \
      --msgbox "You will first get the chance to create your user account, \
 and set its password.\nYour account will be added to sudoers and suauth.\n\n\
-Next you will be asked to set root's password." 9 55
-    # This will set UFULLNAME, UACCOUNT and USHELL variables:
+After that, you will be asked to set the root password." 9 55
+    # This will set UFULLNAME, UACCOUNT, UACCTNR and USHELL variables:
     SeTuacct 2>&1 1> $TMP/tempresult
     if [ $? = 0 ]; then
       # User filled out the form, so let's get the results for
-      # UFULLNAME, UACCOUNT and USHELL:
+      # UFULLNAME, UACCOUNT, UACCTNR and USHELL:
       source $TMP/tempresult
       rm -f $TMP/tempresult
       # Set a password for the new account:
       UPASS=$(SeTupass $UACCOUNT)
       # Create the account and set the password:
-      chroot ${T_PX} /usr/sbin/useradd -c "$UFULLNAME" -g users -G wheel,audio,cdrom,floppy,plugdev,video,power,netdev,lp,scanner,kmem,dialout,games,disk,input -u 1000 -d /home/${UACCOUNT} -m -s ${USHELL} ${UACCOUNT}
+      chroot ${T_PX} /usr/sbin/useradd -c "$UFULLNAME" -g users -G wheel,audio,cdrom,floppy,plugdev,video,power,netdev,lp,scanner,dialout,games,disk,input -u ${UACCTNR} -d /home/${UACCOUNT} -m -s ${USHELL} ${UACCOUNT}
       echo "${UACCOUNT}:${UPASS}" | chroot ${T_PX} /usr/sbin/chpasswd
       unset UPASS
 
-      # Configure suauth:
-      cat <<EOT >${T_PX}/etc/suauth
+      # Configure suauth if we are not on a PAM system
+      # (where this does not work):
+      if [ ! -L ${T_PX}/lib@DIRSUFFIX@/libpam.so.? ]; then
+        cat <<EOT >${T_PX}/etc/suauth
 root:${UACCOUNT}:OWNPASS
 root:ALL EXCEPT GROUP wheel:DENY
 EOT
-      chmod 600 ${LIVE_ROOTDIR}/etc/suauth
+        chmod 600 ${LIVE_ROOTDIR}/etc/suauth
+      fi
 
       # Configure sudoers:
       chmod 640 ${T_PX}/etc/sudoers
@@ -132,6 +107,93 @@ EOT
       echo "root:${UPASS}" | chroot ${T_PX} /usr/sbin/chpasswd
       unset UPASS
     fi
+
+    # Re-use some of the custom configuration from 0099-@DISTRO@_zzzconf-*.sxz
+    # (some of these may not be present but the command will not fail):
+    dialog --backtitle "@CDISTRO@ Linux Setup (Live Edition)" \
+     --title "POST-INSTALL @UDISTRO@ LIVE (@LIVEDE@) DATA" --infobox \
+     "\nCopying Live modifications to hard disk ..." 5 65
+    sleep 1 # It's too fast...
+    # Do not overwrite a custom keymap:
+    if [ ! -f $T_PX/etc/rc.d/rc.keymap ]; then
+      unsquashfs -f -dest $T_PX \
+        /mnt/livemedia/@LIVEMAIN@/system/0099*zzzconf*.sxz \
+        /etc/rc.d/rc.keymap
+    fi
+    unsquashfs -f -dest $T_PX \
+      /mnt/livemedia/@LIVEMAIN@/system/0099*zzzconf*.sxz \
+      /etc/X11/xinit/xinitrc \
+      /etc/X11/xdm/liveslak-xdm \
+      /etc/X11/xorg.conf.d/30-keyboard.conf \
+      /etc/inittab \
+      /etc/skel \
+      /etc/profile.d/lang.sh \
+      /etc/rc.d/rc.font \
+      /etc/rc.d/rc.gpm \
+      /etc/slackpkg \
+      /etc/vconsole.conf
+    # Point xdm to the custom /etc/X11/xdm/liveslak-xdm/xdm-config:
+    sed -i ${T_PX}/etc/rc.d/rc.4 -e 's,bin/xdm -nodaemon,& -config /etc/X11/xdm/liveslak-xdm/xdm-config,'
+    # Prevent Slackware's SeTconfig from asking redundant questions later on:
+    sed -i ${T_PX}/usr/lib/setup/SeTconfig \
+      -e '/.\/var\/log\/setup\/$SCRIPT $T_PX $ROOT_DEVICE/i # Skip stuff that was taken care of by liveslak\nif echo $SCRIPT |grep -E "(make-bootdisk|mouse|setconsolefont|xwmconfig)"; then continue; fi'
+
+    # If a user account was created, we restore some of the user customization:
+    if [ -n "${UACCOUNT}" ] && [ -d "${T_PX}/home/${UACCOUNT}" ]; then
+      unsquashfs -f -dest $T_PX \
+        /mnt/livemedia/@LIVEMAIN@/system/0099*zzzconf*.sxz \
+        /home/@LIVEUID@/.face \
+        /home/@LIVEUID@/.face.icon
+      if [ "@LIVEUID@" != ${UACCOUNT} ]; then
+        rsync -a $T_PX/home/@LIVEUID@/ $T_PX/home/${UACCOUNT}/
+        rm -rf $T_PX/home/@LIVEUID@
+      fi
+    fi
+
+    # If the Live OS is real-time capable we need to apply that to the install:
+    if [ "@LIVEDE@" = "PLASMA5" -o "@LIVEDE@" = "DAW" -o "@LIVEDE@" = "STUDIOWARE" ];
+then
+      unsquashfs -f -dest $T_PX \
+        /mnt/livemedia/@LIVEMAIN@/system/0099*zzzconf*.sxz \
+        /etc/security/limits.d/rt_audio.conf \
+        /etc/initscript \
+        /etc/udev/rules.d/40-timer-permissions.rules \
+        /etc/sysctl.d/daw.conf
+    fi
+
+    # Copy relevant settings for Live DAW:
+    if [ "@LIVEDE@" = "DAW" ];
+then
+      LCLIVEDE=$(echo @LIVEDE@ |tr 'A-Z' 'a-z')
+      unsquashfs -f -dest $T_PX \
+        /mnt/livemedia/@LIVEMAIN@/system/0099*zzzconf*.sxz \
+        /etc/pulse/daemon.conf \
+        /etc/xdg/menus/applications-merged/liveslak-daw.menu \
+        /usr/share/desktop-directories/liveslak-daw.directory \
+        /usr/share/icons/hicolor/256x256/apps/liveslak-daw.png \
+        /usr/share/applications \
+        /usr/share/wallpapers/${LCLIVEDE} \
+        /usr/share/@LIVEMAIN@/${LCLIVEDE}/background.jpg \
+        /usr/share/sddm/themes/breeze/${LCLIVEDE}_background.jpg \
+        /usr/share/sddm/themes/breeze/theme.conf.user
+
+      # If a user account was created, we restore DAW user customization:
+      if [ -n "${UACCOUNT}" ] && [ -d "${T_PX}/home/${UACCOUNT}" ]; then
+        unsquashfs -f -dest $T_PX \
+          /mnt/livemedia/@LIVEMAIN@/system/0099*zzzconf*.sxz \
+          /home/@LIVEUID@/.jackdrc \
+          /home/${LIVEUID}/.config/autostart/qjackctl.desktop \
+          /home/${LIVEUID}/.config/rncbc.org/QjackCtl.conf \
+          /home/${LIVEUID}/.config/kscreenlockerrc
+        if [ "@LIVEUID@" != ${UACCOUNT} ]; then
+          rsync -a $T_PX/home/@LIVEUID@/ $T_PX/home/${UACCOUNT}/
+          rm -rf $T_PX/home/@LIVEUID@
+        fi
+      fi
+    fi
+
+    # Remove the marker file from the filesystem root:
+    rm -f ${T_PX}/@MARKER@
 
     cat << EOF > $TMP/tempmsg
 

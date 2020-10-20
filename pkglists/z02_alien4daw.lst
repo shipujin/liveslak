@@ -2,10 +2,13 @@
 #MinGW-w64
 boost-compat
 dropbox-client
+fdk-aac
 gst-plugins-ffmpeg0
+mbedtls
+obs-studio
 openjdk
 openconnect
 unrar
 #vkd3d
-vlc
 #wine
+x264

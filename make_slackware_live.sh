@@ -187,7 +187,7 @@ SEQ_XFCEBASE="${MINLIST},noxbase,x_base,xapbase,xfcebase"
 # Stripped-down Slackware with Plasma5 as the Desktop Environment:
 # - each series will become a squashfs module.
 # Note that loading the modules needs a specific order, which we force:
-SEQ_DAW="pkglist:${MINLIST},noxbase,x_base,xapbase,slackextra,slackpkgplus,z00_slk4daw,z01_plasma5base,z02_alien4daw,z03_daw"
+SEQ_DAW="pkglist:${MINLIST},noxbase,x_base,xapbase,slackextra,slackpkgplus,z00_slk4daw,z01_plasma5base,z02_alien4daw,z02_alienrest4daw,z03_daw"
 
 # List of Slackware package series with Plasma5 instead of KDE 4 (full install):
 # - each will become a squashfs module:
@@ -1825,6 +1825,9 @@ if [ -f ${DEF_SL_PKGROOT}/../isolinux/initrd.img ]; then
   fi
   # Fix some occurrences of '/usr/lib/setup/' that are covered by $PATH:
   sed -i -e 's,/usr/lib/setup/,,g' -e 's,:/usr/lib/setup,:/usr/share/${LIVEMAIN},g' ${LIVE_ROOTDIR}/usr/share/${LIVEMAIN}/*
+  # Overwrite Slackware's SeTpasswd script with our enhanceded version:
+  cat ${LIVE_TOOLDIR}/setup2hd/SeTpasswd \
+    > ${LIVE_ROOTDIR}/usr/share/${LIVEMAIN}/SeTpasswd
   # Add the Slackware Live HD installer scripts:
   for USCRIPT in SeTuacct SeTudiskpart SeTumedia SeTupass setup.liveslak setup.slackware ; do
     cat ${LIVE_TOOLDIR}/setup2hd/${USCRIPT}.tpl | sed \
@@ -1835,6 +1838,7 @@ if [ -f ${DEF_SL_PKGROOT}/../isolinux/initrd.img ]; then
       -e "s/@KVER@/$KVER/g" \
       -e "s/@LIVEDE@/$LIVEDE/g" \
       -e "s/@LIVEMAIN@/$LIVEMAIN/g" \
+      -e "s/@LIVEUID@/$LIVEUID/g" \
       -e "s/@MARKER@/$MARKER/g" \
       -e "s/@SL_VERSION@/$SL_VERSION/g" \
       -e "s/@VERSION@/$VERSION/g" \
@@ -1850,6 +1854,7 @@ if [ -f ${DEF_SL_PKGROOT}/../isolinux/initrd.img ]; then
     -e "s/@KVER@/$KVER/g" \
     -e "s/@LIVEDE@/$LIVEDE/g" \
     -e "s/@LIVEMAIN@/$LIVEMAIN/g" \
+    -e "s/@LIVEUID@/$LIVEUID/g" \
     -e "s/@MARKER@/$MARKER/g" \
     -e "s/@SL_VERSION@/$SL_VERSION/g" \
     -e "s/@VERSION@/$VERSION/g" \
@@ -2293,9 +2298,9 @@ EOT
           sed -i ${LIVE_ROOTDIR}/${DESKTOPF} \
             -e "s/^Categories=\(.*\)/Categories=X-DAW;\1/"
         fi
-        # Hide the application in Multimedia (which is based on the AudioVideo
-        # category) to prevent them from getting listed twice:
-        sed -i ${LIVE_ROOTDIR}/${DESKTOPF} -e "/^Categories=/s/AudioVideo;//"
+        ## Hide the application in Multimedia (which is based on the AudioVideo
+        ## category) to prevent them from getting listed twice:
+        #sed -i ${LIVE_ROOTDIR}/${DESKTOPF} -e "/^Categories=/s/AudioVideo;//"
       done
     fi
   done

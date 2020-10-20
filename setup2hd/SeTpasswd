@@ -1,0 +1,30 @@
+# Liveslak replacement for Slackware's SeTpassword script.
+
+# Set up a user account,
+dialog --title "@UDISTRO@ (@LIVEDE@) USER CREATION" \
+ --backtitle "@CDISTRO@ Linux Setup (Live Edition)" \
+ --msgbox "You will first get the chance to create your user account, \
+and set its password.\nYour account will be added to sudoers and suauth.\n\n\
+After that, you will be asked to set the root password." 9 55
+# This will set UFULLNAME, UACCOUNT and USHELL variables:
+SeTuacct 2>&1 1> $TMP/tempresult
+if [ $? = 0 ]; then
+  # User filled out the form, so let's get the results for
+  # UFULLNAME, UACCOUNT, UACCTNR and USHELL:
+  source $TMP/tempresult
+  rm -f $TMP/tempresult
+  # Set a password for the new account:
+  UPASS=$(SeTupass $UACCOUNT)
+  # Create the account and set the password:
+  chroot ${T_PX} /usr/sbin/useradd -c "$UFULLNAME" -g users -G wheel,audio,cdrom,floppy,plugdev,video,power,netdev,lp,scanner,dialout,games,disk,input -u ${UACCTNR} -d /home/${UACCOUNT} -m -s ${USHELL} ${UACCOUNT}
+  echo "${UACCOUNT}:${UPASS}" | chroot ${T_PX} /usr/sbin/chpasswd
+  unset UPASS
+fi # End user creation
+
+# Check for root password:
+if [ "$(cat $T_PX/etc/shadow | grep 'root:' | cut -f 2 -d :)" = "" ]; then
+  # There is no root password yet:
+  UPASS=$(SeTupass root)
+  echo "root:${UPASS}" | chroot ${T_PX} /usr/sbin/chpasswd
+  unset UPASS
+fi

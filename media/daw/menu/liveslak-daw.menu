@@ -3,6 +3,9 @@
   <Name>Applications</Name>
   <Menu>
     <Name>Multimedia</Name>
+      <Exclude>
+        <Category>X-DAW</Category>
+      </Exclude>
     <Move>
       <Old>X42 Plugins</Old>
       <New>Slackware Live Daw/X42 Plugins</New>

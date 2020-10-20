@@ -42,10 +42,12 @@ qca-qt5
 qt5
 qt5-webkit
 raptor2
+recordmydesktop
 ruby
 sane
 sazanami-fonts-ttf
 sip
+sox
 ssr
 taglib
 taglib-extras
@@ -62,6 +64,7 @@ xcb-util-wm
 xcm
 xconsole
 xdg-user-dirs
+xine-lib
 xedit
 xpdf
 xsane

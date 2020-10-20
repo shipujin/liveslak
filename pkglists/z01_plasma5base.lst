@@ -14,13 +14,13 @@ dbus
 ddcutil
 dotconf
 #drumstick
-#dvdauthor
+dvdauthor
 ConsoleKit2%elogind
 #espeak-ng
 exiv2
 #flite
 #freecell-solver
-#frei0r-plugins
+frei0r-plugins
 gpgme
 grantlee
 grantlee-qt4
@@ -39,11 +39,11 @@ libindicator
 libqalculate
 #libsass
 lmdb
-#mlt
+mlt
 mozjs68
 #noto-cjk-font-ttf
 noto-font-ttf
-#opencv
+opencv
 #pcaudiolib
 perl-path-tiny
 perl-template-toolkit
@@ -61,12 +61,12 @@ qca-qt5
 qrencode
 qt-gstreamer
 #qtav
-#rttr
+rttr
 #sassc
 sni-qt
 #speech-dispatcher
 util-linux
-#vid.stab
+vid.stab
 
 # frameworks:
 attica-framework
@@ -319,7 +319,7 @@ kdegraphics-strigi-analyzer
 kdegraphics-thumbnailers
 kdenetwork-filesharing
 kdenetwork-strigi-analyzers
-#kdenlive
+kdenlive
 #kdesdk-kioslaves
 #kdesdk-strigi-analyzers
 #kdesdk-thumbnailers
