@@ -28,5 +28,6 @@ elif [ "$SOURCE_MEDIA" = "3" ]; then
  INSSMB 
 elif [ "$SOURCE_MEDIA" = "4" ]; then
  touch $TMP/SeTlive
+ touch $TMP/SeTsource
 fi
 
