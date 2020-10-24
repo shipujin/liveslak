@@ -109,6 +109,7 @@ nfs-utils
 openexr
 openjpeg
 orc
+os-prober
 p11-kit
 pm-utils
 pulseaudio
