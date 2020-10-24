@@ -1825,11 +1825,12 @@ if [ -f ${DEF_SL_PKGROOT}/../isolinux/initrd.img ]; then
   fi
   # Fix some occurrences of '/usr/lib/setup/' that are covered by $PATH:
   sed -i -e 's,/usr/lib/setup/,,g' -e 's,:/usr/lib/setup,:/usr/share/${LIVEMAIN},g' ${LIVE_ROOTDIR}/usr/share/${LIVEMAIN}/*
-  # Overwrite Slackware's SeTpasswd script with our enhanceded version:
-  cat ${LIVE_TOOLDIR}/setup2hd/SeTpasswd \
-    > ${LIVE_ROOTDIR}/usr/share/${LIVEMAIN}/SeTpasswd
+  # Prevent SeTconfig from asking redundant questions after a Live OS install:
+  sed -i ${LIVE_ROOTDIR}/usr/share/${LIVEMAIN}/SeTconfig \
+    -e '/.\/var\/log\/setup\/$SCRIPT $T_PX $ROOT_DEVICE/i # Skip stuff that was taken care of by liveslak\nif [ -f $TMP/SeTlive ] && echo $SCRIPT |grep -qE "(make-bootdisk|mouse|setconsolefont|xwmconfig)"; then true; else' \
+    -e '/.\/var\/log\/setup\/$SCRIPT $T_PX $ROOT_DEVICE/a fi'
   # Add the Slackware Live HD installer scripts:
-  for USCRIPT in SeTuacct SeTudiskpart SeTumedia SeTupass setup.liveslak setup.slackware ; do
+  for USCRIPT in SeTuacct SeTudiskpart SeTumedia SeTupass SeTpasswd setup.liveslak setup.slackware ; do
     cat ${LIVE_TOOLDIR}/setup2hd/${USCRIPT}.tpl | sed \
       -e "s/@DIRSUFFIX@/$DIRSUFFIX/g" \
       -e "s/@DISTRO@/$DISTRO/g" \

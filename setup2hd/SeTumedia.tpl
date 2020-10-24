@@ -8,9 +8,9 @@ dialog --backtitle "Select Slackware installation source." \
 --title "SOURCE MEDIA SELECTION" --menu \
 "Please select the media from which to install Slackware Linux:" \
 14 70 7 \
-"1" "Install from NFS (Network File System)" \
-"2" "Install from FTP/HTTP server" \
-"3" "Install from Samba share" \
+"1" "Install Slackware from NFS (Network File System)" \
+"2" "Install Slackware from FTP/HTTP server" \
+"3" "Install Slackware from Samba share" \
 "4" "Install @UDISTRO@ (@LIVEDE@) Live OS to disk" \
 2> $TMP/media
 if [ ! $? = 0 ]; then

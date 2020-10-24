@@ -48,13 +48,12 @@ Press ENTER to return to the main menu." 16 68
 
   (
     # Install the Live OS by rsyncing the readonly overlay to the harddisk:
-    rsync -HAXav --whole-file --checksum-choice=none --inplace --progress --no-inc-recursive \
-      /mnt/@LIVEMAIN@fs/ $T_PX/ \
-      | awk '{ if (index($0, "to-chk=") > 0) { split($0, pieces, "to-chk="); split(pieces[2], term, ")"); split(term[1], division, "/"); print (1-(division[1]/division[2]))*100 };  fflush(); }' \
-      | sed --unbuffered 's/^\([0-9]*\).*/\1/'
+    rsync -HAXa --whole-file --checksum-choice=none --inplace \
+      --info=progress2 --no-inc-recursive \
+      /mnt/liveslakfs/ $T_PX/ ; echo DONE \
   ) | dialog --backtitle "@CDISTRO@ Linux Setup (Live Edition)" \
-       --title "INSTALLING @UDISTRO@ LIVE (@LIVEDE@) TO DISK" --gauge \
-       "\nProcessing ${TOT_MODS} @CDISTRO@ Live modules ($(( $DU_LIVE/1024 )) MB)" 8 65
+        --title "INSTALLING @UDISTRO@ LIVE (@LIVEDE@) TO DISK" --programbox \
+        "\nProcessing ${TOT_MODS} @CDISTRO@ Live modules ($(( $DU_LIVE/1024 )) MB)" 8 80
 
   #
   # Live OS Post Install routine. If you want, you can override this routine
@@ -69,14 +68,14 @@ Press ENTER to return to the main menu." 16 68
      --backtitle "@CDISTRO@ Linux Setup (Live Edition)" \
      --msgbox "You will first get the chance to create your user account, \
 and set its password.\nYour account will be added to sudoers and suauth.\n\n\
-After that, you will be asked to set the root password." 9 55
+After that, you will be asked to set the root password." 11 55
     # This will set UFULLNAME, UACCOUNT, UACCTNR and USHELL variables:
-    SeTuacct 2>&1 1> $TMP/tempresult
+    SeTuacct 2>&1 1> $TMP/uacctresult
     if [ $? = 0 ]; then
       # User filled out the form, so let's get the results for
       # UFULLNAME, UACCOUNT, UACCTNR and USHELL:
-      source $TMP/tempresult
-      rm -f $TMP/tempresult
+      source $TMP/uacctresult
+      rm -f $TMP/uacctresult
       # Set a password for the new account:
       UPASS=$(SeTupass $UACCOUNT)
       # Create the account and set the password:
@@ -116,11 +115,11 @@ EOT
     sleep 1 # It's too fast...
     # Do not overwrite a custom keymap:
     if [ ! -f $T_PX/etc/rc.d/rc.keymap ]; then
-      unsquashfs -f -dest $T_PX \
+      unsquashfs -n -f -dest $T_PX \
         /mnt/livemedia/@LIVEMAIN@/system/0099*zzzconf*.sxz \
         /etc/rc.d/rc.keymap
     fi
-    unsquashfs -f -dest $T_PX \
+    unsquashfs -n -f -dest $T_PX \
       /mnt/livemedia/@LIVEMAIN@/system/0099*zzzconf*.sxz \
       /etc/X11/xinit/xinitrc \
       /etc/X11/xdm/liveslak-xdm \
@@ -134,13 +133,13 @@ EOT
       /etc/vconsole.conf
     # Point xdm to the custom /etc/X11/xdm/liveslak-xdm/xdm-config:
     sed -i ${T_PX}/etc/rc.d/rc.4 -e 's,bin/xdm -nodaemon,& -config /etc/X11/xdm/liveslak-xdm/xdm-config,'
-    # Prevent Slackware's SeTconfig from asking redundant questions later on:
-    sed -i ${T_PX}/usr/lib/setup/SeTconfig \
+    # Prevent SeTconfig from asking redundant questions later on:
+    sed -i ${T_PX}/usr/share/@LIVEMAIN@/SeTconfig \
       -e '/.\/var\/log\/setup\/$SCRIPT $T_PX $ROOT_DEVICE/i # Skip stuff that was taken care of by liveslak\nif echo $SCRIPT |grep -E "(make-bootdisk|mouse|setconsolefont|xwmconfig)"; then continue; fi'
 
     # If a user account was created, we restore some of the user customization:
     if [ -n "${UACCOUNT}" ] && [ -d "${T_PX}/home/${UACCOUNT}" ]; then
-      unsquashfs -f -dest $T_PX \
+      unsquashfs -n -f -dest $T_PX \
         /mnt/livemedia/@LIVEMAIN@/system/0099*zzzconf*.sxz \
         /home/@LIVEUID@/.face \
         /home/@LIVEUID@/.face.icon
@@ -153,7 +152,7 @@ EOT
     # If the Live OS is real-time capable we need to apply that to the install:
     if [ "@LIVEDE@" = "PLASMA5" -o "@LIVEDE@" = "DAW" -o "@LIVEDE@" = "STUDIOWARE" ];
 then
-      unsquashfs -f -dest $T_PX \
+      unsquashfs -n -f -dest $T_PX \
         /mnt/livemedia/@LIVEMAIN@/system/0099*zzzconf*.sxz \
         /etc/security/limits.d/rt_audio.conf \
         /etc/initscript \
@@ -165,7 +164,7 @@ then
     if [ "@LIVEDE@" = "DAW" ];
 then
       LCLIVEDE=$(echo @LIVEDE@ |tr 'A-Z' 'a-z')
-      unsquashfs -f -dest $T_PX \
+      unsquashfs -n -f -dest $T_PX \
         /mnt/livemedia/@LIVEMAIN@/system/0099*zzzconf*.sxz \
         /etc/pulse/daemon.conf \
         /etc/xdg/menus/applications-merged/liveslak-daw.menu \
@@ -179,12 +178,12 @@ then
 
       # If a user account was created, we restore DAW user customization:
       if [ -n "${UACCOUNT}" ] && [ -d "${T_PX}/home/${UACCOUNT}" ]; then
-        unsquashfs -f -dest $T_PX \
+        unsquashfs -n -f -dest $T_PX \
           /mnt/livemedia/@LIVEMAIN@/system/0099*zzzconf*.sxz \
           /home/@LIVEUID@/.jackdrc \
-          /home/${LIVEUID}/.config/autostart/qjackctl.desktop \
-          /home/${LIVEUID}/.config/rncbc.org/QjackCtl.conf \
-          /home/${LIVEUID}/.config/kscreenlockerrc
+          /home/@LIVEUID@/.config/autostart/qjackctl.desktop \
+          /home/@LIVEUID@/.config/rncbc.org/QjackCtl.conf \
+          /home/@LIVEUID@/.config/kscreenlockerrc
         if [ "@LIVEUID@" != ${UACCOUNT} ]; then
           rsync -a $T_PX/home/@LIVEUID@/ $T_PX/home/${UACCOUNT}/
           rm -rf $T_PX/home/@LIVEUID@

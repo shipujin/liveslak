@@ -16,14 +16,14 @@ UACCOUNT="$1"
         9 64 0 \
           "Password:"        1 1 "$UPASS1" 1 18 40 0 \
           "Repeat password:" 2 1 "$UPASS2" 2 18 40 0 \
-        2>&1 1> $TMP/tempresult
+        2>&1 1> $TMP/tempupass
       iii=0
       declare -a USERATTR
       while read LINE ; do
         USERATTR[$iii]="$LINE"
         iii=$(expr $iii + 1)
-      done < $TMP/tempresult
-      rm -f $TMP/tempresult
+      done < $TMP/tempupass
+      rm -f $TMP/tempupass
       UPASS1="${USERATTR[0]}"
       UPASS2="${USERATTR[1]}"
       unset USERATTR

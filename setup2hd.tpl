@@ -164,11 +164,10 @@ while [ 0 ]; do
   --menu "Welcome to @CDISTRO@ Linux Setup (Live Edition).\n\
 Select an option below using the UP/DOWN keys and SPACE or ENTER.\n\
 Alternate keys may also be used: '+', '-', and TAB." 18 72 9 \
-"HELP" "Read the @CDISTRO@ Setup HELP file" \
 "KEYMAP" "Remap your keyboard if you're not using a US one" \
 "ADDSWAP" "Set up your swap partition(s)" \
 "TARGET" "Set up your target partitions" \
-"INSTALL" "Install @CDISTRO@ Live to disk" \
+"INSTALL" "Install @CDISTRO@ to disk" \
 "CONFIGURE" "Reconfigure your Linux system" \
 "EXIT" "Exit @CDISTRO@ Linux Setup" 2> $TMP/hdset
  if [ ! $? = 0 ]; then
@@ -180,10 +179,6 @@ Alternate keys may also be used: '+', '-', and TAB." 18 72 9 \
 
  # Start checking what to do. Some modules may reset MAINSELECT to run the
  # next item in line.
-
- if [ "$MAINSELECT" = "HELP" ]; then
-  SeTfdHELP
- fi
 
  if [ "$MAINSELECT" = "KEYMAP" ]; then
   SeTkeymap
@@ -339,23 +334,14 @@ if [ -f ${T_PX}/etc/fstab ]; then
      --title "@CDISTRO@ Linux Setup is complete" "$@" \
      --msgbox "\nPlease remove the installation disc.\n" 7 40
   fi
-  # Offer to reboot or drop to shell:
+  # Sign off to the user:
   dialog \
+     --clear \
      --title "@CDISTRO@ Linux Setup is complete" "$@" \
-     --yesno \
-     "\nWould you like to reboot your system?\n\n\n\
-If you choose \"No\", you will be dropped to a shell.\n" 11 50
-    retval=$?
-    if [ $retval = 1 ]; then
-      clear
-      echo
-      echo "You may now reboot your system once you are ready."
-      echo "You can issue the 'reboot' command; or if your system has"
-      echo "a keyboard attached, you can use the key combination: control+alt+delete"
-      echo
-    else
-      touch /reboot
-    fi
+     --msgbox "\nInstallation is complete.\n\n
+You can reboot your system whenever you like,\n
+but don't forget to remove this Live medium first.\n" 11 50
+
 fi
 
 # Fix the date:

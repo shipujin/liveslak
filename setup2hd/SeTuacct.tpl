@@ -1,21 +1,21 @@
 #!/bin/sh
-#TMP=/var/log/setup/tmp
-TMP=/tmp
+TMP=/var/log/setup/tmp
 if [ ! -d $TMP ]; then
   mkdir -p $TMP
 fi
+T_PX="$(cat $TMP/SeTT_PX)"
 
 freeuid() {
   # Get the first free UIDNumber after 999:
-  local UIDS=$( cat ${T_PX}/etc/passwd | cut -d: -f3 | sort -n )
-  local UID=999
+  local LUIDS=$( cat ${T_PX}/etc/passwd | cut -d: -f3 | sort -n )
+  local LUID=999
   while true; do
-    UID=$(( $UID + 1))
-    if ! echo $UIDS | grep -F -q -w "$UID"; then
+    LUID=$(( $LUID + 1))
+    if ! echo $LUIDS | grep -F -q -w "$LUID"; then
       break;
     fi
   done
-  echo $UID
+  echo $LUID
 }
 FREEUID="$(freeuid)"
 
@@ -33,14 +33,14 @@ while [ 0 ]; do
       "Logonname:"   2 1 "$UACCOUNT"  2 14 32 0 \
       "UIDNumber:"   3 1 "$UACCTNR"   3 14 12 0 \
       "Login Shell:" 4 1 "$USHELL"    4 14 12 0 \
-    2>&1 1> $TMP/tempresult
+    2>&1 1> $TMP/tempuacct
   iii=0
   declare -a USERATTR
   while read LINE ; do
     USERATTR[$iii]="$LINE"
     iii=$(expr $iii + 1)
-  done < $TMP/tempresult
-  rm -f $TMP/tempresult
+  done < $TMP/tempuacct
+  rm -f $TMP/tempuacct
   UFULLNAME="${USERATTR[0]}"
   UACCOUNT="${USERATTR[1]}"
   UACCTNR="${USERATTR[2]}"
