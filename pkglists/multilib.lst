@@ -119,6 +119,8 @@ libmng-compat32
 libmpc-compat32
 libnl3-compat32
 libnotify-compat32
+libnsl-compat32
+libnss_nis-compat32
 libogg-compat32
 libpcap-compat32
 libpng-compat32
@@ -159,6 +161,7 @@ python-six-compat32
 qt-compat32
 qt5-compat32
 readline-compat32
+rpcsvc-proto-compat32
 sbc-compat32
 sdl-compat32
 seamonkey-solibs-compat32
