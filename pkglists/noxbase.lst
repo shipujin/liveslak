@@ -46,6 +46,8 @@ libao
 libarchive
 libasyncns
 libatasmart
+libblockdev
+libbytesize
 libcddb
 libcdio
 libcdio-paranoia
@@ -103,6 +105,7 @@ make
 mozilla-nss
 mpg123
 mtdev
+ndctl
 nettle
 newt
 nfs-utils
@@ -129,6 +132,7 @@ usb_modeswitch
 util-macros
 v4l-utils
 vbetool
+volume_key
 vorbis-tools
 wavpack
 wireless-tools
