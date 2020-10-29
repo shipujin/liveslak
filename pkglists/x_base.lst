@@ -90,7 +90,7 @@ gtkspell
 gvfs
 harfbuzz
 hicolor-icon-theme
-hplip
+#hplip
 hunspell
 iceauth
 ico
