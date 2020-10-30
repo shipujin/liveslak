@@ -75,6 +75,7 @@ gnome-keyring
 gnome-themes-extra
 gnome-themes-standard
 gobject-introspection
+graphene
 graphite2
 gsettings-desktop-schemas
 gst-plugins-base
