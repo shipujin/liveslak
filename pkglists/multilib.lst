@@ -77,6 +77,7 @@ glib2-compat32
 gmp-compat32
 gnome-keyring-compat32
 gobject-introspection-compat32
+graphene-compat32
 graphite2-compat32
 gtk+2-compat32
 gtk+3-compat32
