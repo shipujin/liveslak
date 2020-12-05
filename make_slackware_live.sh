@@ -2877,6 +2877,12 @@ tar -C ${LIVE_ROOTDIR}/boot/initrd-tree/ -xf ${DHCPD_PKG} \
   var/lib/dhcpcd lib/dhcpcd sbin/dhcpcd usr/lib${DIRSUFFIX}/dhcpcd \
   etc/dhcpcd.conf.new
 mv ${LIVE_ROOTDIR}/boot/initrd-tree/etc/dhcpcd.conf{.new,}
+# Add getfattr to read extended attributes (even if we won't need it):
+ATTR_PKG=$(find ${DEF_SL_PKGROOT}/../ -name "attr-*.t?z" |head -1)
+tar --wildcards -C ${LIVE_ROOTDIR}/boot/initrd-tree/ -xf ${ATTR_PKG} \
+  lib${DIRSUFFIX}/libattr.so.* usr/bin/getfattr
+# Generate library symlinks for libattr (getfattr depends on them):
+( cd ${LIVE_ROOTDIR}/boot/initrd-tree/lib${DIRSUFFIX} ; ldconfig -n . )
 # Stamp the Slackware version into the initrd (at least dhcpcd needs this):
 mkdir -p ${LIVE_ROOTDIR}/boot/initrd-tree/etc/rc.d
 cp -a ${LIVE_ROOTDIR}/etc/slackware-version ${LIVE_ROOTDIR}/etc/os-release \
