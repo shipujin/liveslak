@@ -2231,7 +2231,7 @@ KDESU_EOF
 Driver=QSQLITE
 
 [QSQLITE]
-Name=/home/live/.local/share/akonadi/akonadi.db
+Name=/home/${LIVEUID}/.local/share/akonadi/akonadi.db
 AKONADI_EOF
 
   # Disable baloo:
