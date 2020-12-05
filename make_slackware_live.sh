@@ -2253,6 +2253,21 @@ alreadyMigrated=true
 
 KWALLET_EOL
 
+  # Start Konsole with a login shell:
+  mkdir -p ${LIVE_ROOTDIR}/etc/skel/.local/share/konsole
+  cat <<EOT > ${LIVE_ROOTDIR}/etc/skel/.local/share/konsole/Shell.profile
+[General]
+Command=/bin/bash -l
+Name=Shell
+Parent=FALLBACK/
+EOT
+  mkdir -p ${LIVE_ROOTDIR}/etc/skel/.config
+  cat <<EOT >> ${LIVE_ROOTDIR}/etc/skel/.config/konsolerc
+[Desktop Entry]
+DefaultProfile=Shell.profile
+
+EOT
+
   # Configure (default) UTC timezone so we can change it during boot:
   mkdir -p ${LIVE_ROOTDIR}/etc/skel/.config
   cat <<EOTZ > ${LIVE_ROOTDIR}/etc/skel/.config/ktimezonedrc
