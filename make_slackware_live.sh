@@ -1071,7 +1071,7 @@ do
         echo " -m pkglst[,pkglst] Add modules defined by pkglists/<pkglst>,..."
         echo " -r series[,series] Refresh only one or a few package series."
         echo " -s slackrepo_dir   Directory containing ${DISTRO^} repository."
-        echo " -t <doc|mandoc|bloat>"
+        echo " -t <none|doc|mandoc|bloat>"
         echo "                    Trim the ISO (remove man and/or doc and/or bloat)."
         echo " -v                 Show debug/error output."
         echo " -z version         Define your ${DISTRO^} version (default: $SL_VERSION)."
