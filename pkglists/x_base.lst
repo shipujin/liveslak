@@ -28,7 +28,7 @@ damageproto
 dbus-python
 dejavu-fonts-ttf
 desktop-file-utils
-#djvulibre
+djvulibre
 dmxproto
 dosfstools
 dri2proto
@@ -74,7 +74,7 @@ gmime
 gnome-keyring
 gnome-themes-extra
 gnome-themes-standard
-gobject-introspection
+##gobject-introspection
 graphene
 graphite2
 gsettings-desktop-schemas
@@ -87,6 +87,7 @@ gstreamer0
 #gtk+
 gtk+2
 gtk+3
+gtksourceview3
 gtkspell
 gvfs
 harfbuzz
@@ -172,6 +173,7 @@ libwacom
 libwebp
 libwmf
 libwnck
+libwnck3
 libxkbcommon
 libxkbfile
 libxklavier

@@ -1,0 +1,17 @@
+# min.lst:
+glibc
+gpm
+libmpc
+mpfr
+# x_base.lst:
+gobject-introspection
+# noxbase.lst:
+bison
+flex
+gcc
+gccmakedep
+guile
+intltool
+llvm
+make
+
