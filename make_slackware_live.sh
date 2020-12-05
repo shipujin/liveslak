@@ -37,6 +37,9 @@
 # Version of the Live OS generator:
 VERSION="1.3.7.2"
 
+# Timestamp:
+THEDATE=$(date +%Y%m%d)
+
 # Directory where our live tools are stored:
 LIVE_TOOLDIR=${LIVE_TOOLDIR:-"$(cd $(dirname $0); pwd)"}
 
@@ -70,11 +73,13 @@ SMP32=${SMP32:-"NO"}
 # Include support for NFS root (PXE boot), will increase size of the initrd:
 NFSROOTSUP=${NFSROOTSUP:-"YES"}
 
+# This variable can be set to a comma-separated list of package series.
+# The squashfs module(s) for these package series will then be re-generated.
+# Example commandline parameter: "-r l,kde,kdei"
+REFRESH=""
+
 # Use xorriso instead of mkisofs/isohybrid to create the ISO:
 USEXORR=${USEXORR:-"NO"}
-
-# Timestamp:
-THEDATE=$(date +%Y%m%d)
 
 #
 # ---------------------------------------------------------------------------
@@ -116,11 +121,6 @@ RUNLEVEL=${RUNLEVEL:-4}
 
 # Use the graphical syslinux menu (YES or NO)?
 SYSMENU=${SYSMENU:-"YES"}
-
-# This variable can be set to a comma-separated list of package series.
-# The squashfs module(s) for these package series will then be re-generated.
-# Example commandline parameter: "-r l,kde,kdei"
-REFRESH=""
 
 # The amount of seconds we want the init script to wait to give the kernel's
 # USB subsystem time to settle. The default value of mkinitrd is "1" which
@@ -939,7 +939,7 @@ function plasma5_custom_bg() {
   # The function expects a background image file of JPG or PNG format.
   # The bitmap must be present in the liveslak source tree as:
   # media/<variant>/bg/background.png or media/<variant>/bg/background.jpg ,
-  # where <variant> is the lowercase name of the liveslak varriant (such as
+  # where <variant> is the lowercase name of the liveslak variant (such as
   # cinnamon, daw, slackware, etc).
   # The file background.{jpg,png} can be a symlink to an actual JPG or PNG.
   # Aspect ratio of the image *must* be 16:9 (1920x1080 px or higher res).
