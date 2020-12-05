@@ -209,6 +209,9 @@ SEQ_DLACK="tagfile:a,ap,d,e,f,k,l,n,t,tcl,x,xap pkglist:dlackware,slackextra,sys
 # - each will become a squashfs module:
 SEQ_STUDW="tagfile:a,ap,d,e,f,k,kde,l,n,t,tcl,x,xap,xfce,y pkglist:slackextra,slackpkgplus,studioware"
 
+# Package blacklists for variants:
+BLACKLIST_PLASMA5="scim scim-tables scim-pinyin scim-m17n scim-hangul scim-anthy scim-input-pad"
+
 # -- START: Used verbatim in upslak.sh -- #
 # List of kernel modules required for a live medium to boot properly;
 # Lots of HID modules added to support keyboard input for LUKS password entry:
@@ -384,7 +387,7 @@ function install_pkgs() {
   if [ "$3" = "local" -a -d ${LIVE_TOOLDIR}/local${DIRSUFFIX}/$1 ]; then
     echo "-- Installing local packages from subdir 'local${DIRSUFFIX}/$1'."
     #installpkg --terse --root "$2" "${LIVE_TOOLDIR}/local${DIRSUFFIX}/$1/*.t?z"
-    ROOT="$2" upgradepkg --install-new --reinstall "${LIVE_TOOLDIR}/local${DIRSUFFIX}/$1/*.t?z"
+    ROOT="$2" upgradepkg --install-new --reinstall "${LIVE_TOOLDIR}"/local${DIRSUFFIX}/"$1"/*.t?z
   else
     # Load package list and (optional) custom repo info:
     if [ "$3" = "tagfile" ]; then
@@ -442,9 +445,19 @@ function install_pkgs() {
       #   REP equal to PKG.
       # - If PKG is empty then this is a request to remove the package.
       REP=$(echo $PKGPAT |cut -d% -f1)
+      # Skip installation on detecting a blacklisted package:
+      for BLST in ${BLACKLIST} BLNONE; do
+        if [ "$PKG" == "$BLST" ]; then
+          # Found a blacklisted package.
+          break
+        fi
+      done
+      # Now decide what to do:
       if [ -z "${PKG}" ]; then
         # Package removal:
         ROOT="$2" removepkg "${REP}"
+      elif [ "${PKG}" == "${BLST}" ]; then
+        echo "-- Not installing blacklisted package '$PKG'."
       else
         # Package install/upgrade:
         # Look in ./patches ; then ./${DISTRO}$DIRSUFFIX ; then ./extra
@@ -1235,6 +1248,11 @@ if [ -z "$(rsync  --info=progress2 2>&1 |grep "unknown option")" ]; then
 else
   # Remain silent if we have an older rsync:
   RSYNCREP=" "
+fi
+
+# Determine possible blacklist to use:
+if [ -z "${BLACKLIST}" ]; then
+  eval BLACKLIST=\$BLACKLIST_${LIVEDE}
 fi
 
 # Create output directory for image file:
