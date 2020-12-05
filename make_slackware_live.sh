@@ -501,29 +501,26 @@ function install_pkgs() {
     done
   fi
 
-  if [ "$TRIM" = "doc" -o "$TRIM" = "mandoc" -o "$LIVEDE" = "XFCE"  ]; then
+  if [ "$TRIM" = "doc" -o "$TRIM" = "mandoc" -o "$TRIM" = "bloat" ]; then
     # Remove undesired (too big for a live OS) document subdirectories,
     # but leave cups alone because it contains the CUPS service's web page:
-    mv "${2}"/usr/doc/cups-* "${2}"/usr/ 2>/dev/null
-    (cd "${2}/usr/doc" && find . -type d -mindepth 2 -maxdepth 2 -exec rm -rf {} \;)
+    (cd "${2}/usr/doc" && find . -type d -mindepth 2 -maxdepth 2 |grep -v /cups- |xargs rm -rf)
     rm -rf "$2"/usr/share/gtk-doc
     rm -rf "$2"/usr/share/help
     find "$2"/usr/share/ -type d -name doc |xargs rm -rf
     # Remove residual bloat:
     rm -rf "${2}"/usr/doc/*/html
-    rm -f "${2}"/usr/doc/*/*.{html,css,xml,pdf,db,gz,bz2,xz,txt,TXT}
+    rm -f "${2}"/usr/doc/*/*.{pdf,db,gz,bz2,xz,txt,TXT}
     # This will remove more bloat but won't touch the license texts:
-    find "${2}"/usr/doc/ -type f -size +50k |xargs rm -f
+    find "${2}"/usr/doc/ -type f -size +50k |grep -v /cups- |xargs rm -f
     # Remove info pages:
     rm -rf "$2"/usr/info
-    # Move cups documentation back in place:
-    mv "${2}"/usr/cups-* "${2}"/usr/doc/ 2>/dev/null
   fi
-  if [ "$TRIM" = "mandoc" -o "$LIVEDE" = "XFCE" ]; then
+  if [ "$TRIM" = "mandoc" -o "$TRIM" = "bloat" ]; then
     # Also remove man pages:
     rm -rf "$2"/usr/man
   fi
-  if [ "$LIVEDE" = "XFCE" ]; then
+  if [ "$TRIM" = "bloat" ]; then
     # By pruning stuff that no one likely needs anyway,
     # we make room for packages we would otherwise not be able to add.
     # MySQL embedded is only used by Amarok:
@@ -598,34 +595,32 @@ function install_pkgs() {
     find "$2"/usr/ -type d -iname test |xargs rm -rf
     find "$2"/usr/ -type d -iname "example*" |xargs rm -rf
     # Get rid of most of the screensavers:
-    KEEPXSCR="julia xflame xjack"
+    KEEPXSCR="julia|xflame|xjack"
     if [ -d "${2}"/usr/libexec/xscreensaver ]; then
       cd "${2}"/usr/libexec/xscreensaver
-        mkdir .keep
-        for XSCR in ${KEEPXSCR} ; do
-          mv ${XSCR} .keep/ 2>/dev/null
-        done
-        rm -rf [A-Za-z]*
-        mv .keep/* . 2>/dev/null
-        rm -rf .keep
+        find . -type f | grep -Ev "($KEEPXSCR)" |xargs rm -f
       cd - 1>/dev/null
     fi
-    # Remove unneeded languages from glibc:
-    KEEPLANG="$(cat ${LIVE_TOOLDIR}/languages|grep -Ev "(^ *#|^$)"|cut -d: -f5)"
-    for LOCALEDIR in /usr/lib${DIRSUFFIX}/locale /usr/share/i18n/locales /usr/share/locale ; do
-      if [ -d "${2}"/${LOCALEDIR} ]; then
-        cd "${2}"/${LOCALEDIR}
-        mkdir .keep
-        for KL in C ${KEEPLANG} ; do
-          mv ${KL%%.utf8}* .keep/ 2>/dev/null   # en_US.utf8 -> en_US*
-          mv ${KL%%_*} .keep/ 2>/dev/null       # en_US.utf8 -> en
-        done
-        rm -rf [A-Za-z]*
-        mv .keep/* . 2>/dev/null
-        rm -rf .keep
-        cd - 1>/dev/null
-      fi
-    done
+    if [ "$3" != "local" ] && echo "$(cat ${PKGFILE} |grep -v -E '^ *#|^$' |cut -d: -f1)" |grep -wq glibc ; then
+      # Remove unneeded languages from glibc:
+      KEEPLANG="$(cat ${LIVE_TOOLDIR}/languages|grep -Ev "(^ *#|^$)"|cut -d: -f5)"
+      for LOCALEDIR in /usr/lib${DIRSUFFIX}/locale /usr/share/i18n/locales /usr/share/locale ; do
+        if [ -d "${2}"/${LOCALEDIR} ]; then
+          cd "${2}"/${LOCALEDIR}
+          mkdir ${LIVE_WORK}/.keep
+          for KL in C ${KEEPLANG} ; do
+            # en_US.utf8 -> en_US*
+            mv ${KL%%.utf8}* ${LIVE_WORK}/.keep/ 2>/dev/null
+            # en_US.utf8 -> en
+            mv ${KL%%_*} ${LIVE_WORK}/.keep/ 2>/dev/null
+          done
+          rm -rf [A-Za-z]*
+          mv ${LIVE_WORK}/.keep/* . 2>/dev/null
+          rm -rf ${LIVE_WORK}/.keep
+          cd - 1>/dev/null
+        fi
+      done
+    fi
     # Remove big old ICU libraries that are not needed for the XFCE image:
     if [ -e "$2"/var/log/packages/aaa_elflibs-[0-9]* ]; then
       for ICUFILE in $(grep /libicu "$2"/var/log/packages/aaa_elflibs-[0-9]*) ; do
@@ -1076,7 +1071,8 @@ do
         echo " -m pkglst[,pkglst] Add modules defined by pkglists/<pkglst>,..."
         echo " -r series[,series] Refresh only one or a few package series."
         echo " -s slackrepo_dir   Directory containing ${DISTRO^} repository."
-        echo " -t <doc|mandoc>    Trim the ISO (remove man and/or doc)."
+        echo " -t <doc|mandoc|bloat>"
+        echo "                    Trim the ISO (remove man and/or doc and/or bloat)."
         echo " -v                 Show debug/error output."
         echo " -z version         Define your ${DISTRO^} version (default: $SL_VERSION)."
         echo " -G                 Generate ISO file from existing directory tree"
@@ -1248,6 +1244,13 @@ if [ -z "$(rsync  --info=progress2 2>&1 |grep "unknown option")" ]; then
 else
   # Remain silent if we have an older rsync:
   RSYNCREP=" "
+fi
+
+# What to trim from the ISO file (none, doc, mandoc, bloat):
+if [ "${LIVEDE}" == "XFCE" ]; then
+  TRIM=${TRIM:-"bloat"}
+else
+  TRIM=${TRIM:-"none"}
 fi
 
 # Determine possible blacklist to use:
