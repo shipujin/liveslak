@@ -182,7 +182,7 @@ SEQ_SLACKWARE="tagfile:a,ap,d,e,f,k,kde,kdei,l,n,t,tcl,x,xap,xfce,y pkglist:slac
 
 # Stripped-down Slackware with XFCE as the Desktop Environment:
 # - each series will become a squashfs module:
-SEQ_XFCEBASE="${MINLIST},noxbase,x_base,xapbase,xfcebase"
+SEQ_XFCEBASE="${MINLIST},noxbase,x_base,xapbase,xfcebase local:mcpp"
 
 # Stripped-down Slackware with Plasma5 as the Desktop Environment:
 # - each series will become a squashfs module.
@@ -1930,6 +1930,14 @@ sed -i ${LIVE_ROOTDIR}/etc/rc.d/rc.4 -e 's,bin/xdm -nodaemon,& -config /etc/X11/
 # Adapt xdm configuration to target architecture:
 sed -i "s/@LIBDIR@/lib${DIRSUFFIX}/g" ${LIVE_ROOTDIR}/etc/X11/xdm/liveslak-xdm/xdm-config
 
+# XDM needs a C preprocessor to calculate the login box position, and if
+# the ISO contains mcpp instead of the cpp contained in full gcc, we will
+# create a symlink (don't forget to install mcpp of course!):
+if [ ! -e ${LIVE_ROOTDIR}/usr/bin/cpp ] && [ -x ${LIVE_ROOTDIR}/usr/bin/mcpp ];
+then
+  ln -s mcpp ${LIVE_ROOTDIR}/usr/bin/cpp
+fi
+ 
 # The Xscreensaver should show a blank screen only, to prevent errors about
 # missing modules:
 echo "mode:           blank" > ${LIVE_ROOTDIR}/home/${LIVEUID}/.xscreensaver
