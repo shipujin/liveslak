@@ -47,7 +47,6 @@ The "liveslak" scripts can generate a variety of Slackware flavors:
 
 Common download locations are:
   * Primary site: http://slackware.nl/slackware-live/ (%%rsync://slackware.nl/mirrors/slackware-live/%%)
-  * DAW site: https://martin.alienbase.nl/mirrors/slackware-live/pilot/ (%%rsync://martin.alienbase.nl/mirrors/slackware-live/pilot/%%)
   * Darren's http://slackware.uk/people/alien-slacklive/ (%%rsync://slackware.uk/people/alien-slacklive/%%)
   * Willy's http://repo.ukdw.ac.id/slackware-live/
   * Ryan's https://seattleslack.ryanpcmcquen.org/mirrors/slackware-live/
@@ -76,7 +75,7 @@ Slackware Live Edition deviates as little as possible from a regular Slackware b
 Slackware Live Edition uses syslinux to boot the Linux kernel on BIOS computers. To be precise, the "isolinux" variant is installed to the ISO image and the "extlinux" variant is installed into the Linux partition of the USB Live version.
 
 Syslinux shows a graphical boot menu with a nice Slackware-themed background and several options:
-  * Start (SLACKWARE | PLASMA5 | XFCE | MATE) Live (depending on which of the ISOs you boot)
+  * Start (SLACKWARE | PLASMA5 | XFCE | MATE | DAW) Live (depending on which of the ISOs you boot)
   * Non-US Keyboard selection
   * Non-US Language selection
   * Memory test with memtest86+
@@ -90,7 +89,7 @@ If you stick to US English interface language you will probably still want to ch
 
 On UEFI computers, Grub2 handles the boot and it will show a menu similar (and similarly themed) to the Syslinux menu:
 
-  * Start (SLACKWARE | PLASMA5 | XFCE | MATE) Live (depending on which of the ISOs you boot)
+  * Start (SLACKWARE | PLASMA5 | XFCE | MATE | DAW) Live (depending on which of the ISOs you boot)
   * Non-US Keyboard selection
   * Non-US Language selection
   * Non-US Timezone selection
@@ -156,7 +155,12 @@ You might have noticed that the "-P" parameter does not accept a size parameter.
 
 
 All variants of Slackware Live Edition contain a script "setup2hd", a tweaked version of the regular Slackware setup program.
-The "setup2hd" script supports regular Slackware network installations. In addition it allows you to install the Slackware release on which the Live OS is based, to the computer's local hard disk - with the exception of the XFCE variant which does not contain the required huge kernel.  You must boot the Live OS first, and then start ''setup2hd'' either in an X Terminal in your graphical Desktop Environment (aka Runlevel 4), or from the console in Runlevel 3.  The fact that you can start "setup2hd" from a graphical terminal means that during installation, you can continue browsing, listening to music, watching video, reading an e-book or whatever else makes you pass the time.
+The "setup2hd" script supports regular Slackware network installations. In addition it allows you to install the Slackware release on which the Live OS is based, to the computer's local hard disk.  You must boot the Live OS first, and then start ''setup2hd'' either in an X Terminal in your graphical Desktop Environment (aka Runlevel 4), or from the console in Runlevel 3.  The fact that you can start "setup2hd" from a graphical terminal means that during installation, you can continue browsing, listening to music, watching video, reading an e-book or whatever else makes you pass the time.
+
+The 'setup2hd' program has some capabilities that the original Slackware 'setup' lacks:
+  * It will launch fdisk/gdisk if you forgot to create Linux partitions in advance;
+  * It will allow you to create a regular user account and set its password;
+  * It will prompt you to set the root password in a graphical dialog.
 
 
 ==== Updating the kernel (and more) on a USB stick ====
@@ -708,7 +712,8 @@ The script's parameters are:
  -m pkglst[,pkglst] Add modules defined by pkglists/<pkglst>,...
  -r series[,series] Refresh only one or a few package series.
  -s slackrepo_dir   Directory containing Slackware repository.
- -t <doc|mandoc>    Trim the ISO (remove man and/or doc).
+ -t <none|doc|mandoc|bloat>
+                    Trim the ISO (remove man and/or doc and/or bloat).
  -v                 Show debug/error output.
  -z version         Define your Slackware version (default: current).
  -G                 Generate ISO file from existing directory tree
@@ -746,6 +751,7 @@ You can create your own custom Live OS by changing its characteristics in the co
 
   * The name of the Desktop variant (the script itself knows SLACKWARE, PLASMA5, DAW, XFCE, MATE, CINNAMON, STUDIOWARE and DLACK),
   * The list(s) of packages used for your custom distribution,
+  * The full name of the user (by default that is "Slackware Live User"),
   * The name of the useraccount (by default that is "live"),
   * The name of the distribution (by default that is "slackware"),
   * And finally you can define a function "custom_config()" where you can add all your costom post-installation steps that are not covered in the "make_slackware_live.sh" script itself.
@@ -927,5 +933,5 @@ Slackware Live Edition is created by the 'liveslak' scripts developed and mainta
   * Git repository: %%git://slackware.nl/liveslak.git%%
   * Git repository (browsable): http://git.slackware.nl/liveslak/
   * Download mirror: http://www.slackware.com/~alien/liveslak/
-  * Project landing page: https://alien.slackbook.org/blog/slackware-live-edition/
+  * Project landing page: https://liveslak.org/
 
