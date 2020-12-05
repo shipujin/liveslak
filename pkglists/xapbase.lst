@@ -37,6 +37,7 @@ nghttp2
 pangomm
 pavucontrol
 pidgin
+polkit-gnome
 rdesktop
 rxvt
 rxvt-unicode
