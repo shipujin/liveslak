@@ -1630,6 +1630,13 @@ chmod 440 ${LIVE_ROOTDIR}/etc/sudoers
 
 # Add some convenience to the bash shell:
 mkdir -p  ${LIVE_ROOTDIR}/etc/skel/
+cat << "EOT" > ${LIVE_ROOTDIR}/etc/skel/.bashrc
+# If not running interactively, don't do anything
+[ -z "$PS1" ] && return
+# Check the window size after each command and, if necessary,
+# update the values of LINES and COLUMNS.
+shopt -s checkwinsize
+EOT
 cat << "EOT" > ${LIVE_ROOTDIR}/etc/skel/.profile
 # Source a .bashrc if it exists:
 [[ -r ~/.bashrc ]] && . ~/.bashrc
