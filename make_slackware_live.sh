@@ -2191,6 +2191,11 @@ if [ "$LIVEDE" = "PLASMA5" -o "$LIVEDE" = "DAW" ]; then
     rm -f ${LIVE_ROOTDIR}/usr/share/wayland-sessions/plasmawayland.desktop || true
   fi
 
+  # Remove broken/unwanted shortcuts (discover and konqueror) from taskbar:
+  sed -i ${LIVE_ROOTDIR}/usr/share/plasma/plasmoids/org.kde.plasma.taskmanager/contents/config/main.xml \
+    -e 's#,applications:org.kde.discover.desktop##' \
+    -e s'#,preferred://browser##'
+
   # Set the OS name to "Slackware Live" in "System Information":
   echo "Name=${DISTRO^} Live" >> ${LIVE_ROOTDIR}/etc/kde/xdg/kcm-about-distrorc
 
