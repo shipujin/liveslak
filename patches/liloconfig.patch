@@ -1,6 +1,141 @@
---- liloconfig.orig	2016-07-12 01:21:03.000000000 +0200
-+++ liloconfig	2016-11-12 11:57:41.585974417 +0100
-@@ -767,7 +767,7 @@
+--- liloconfig.orig	2020-05-18 01:30:25.457982369 +0200
++++ liloconfig	2020-12-05 12:48:42.535216766 +0100
+@@ -22,6 +22,11 @@
+ #  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ #
++# This script installs the lilo boot loader.
++# The kernel used will be whatever the symlink /boot/vmlinuz points to,
++# and if /boot/initrd.gz exists, that will be installed as the initrd.
++#
++
+ TMP=/var/log/setup/tmp
+ CONSOLETYPE=standard
+ unset UTFVT
+@@ -249,6 +254,45 @@
+  return $RETVAL
+ }
+ 
++# This function scans for the Master Boot Record,
++# if we are going to install lilo to the MBR.
++# The output will be a file "$TMP/LILOMBR" with the device name written to it.
++find_mbr()
++{
++  MBR_TARGET=/dev/sda
++  echo $MBR_TARGET > $TMP/LILOMBR
++  cat /proc/partitions | while read LINE ; do
++   MAJOR="$(echo $LINE | cut -f 1 -d ' ')"
++   MINOR="$(echo $LINE | cut -f 2 -d ' ')"
++   if [ ! "$MINOR" = "0" -a ! "$MINOR" = "64" ]; then # ignore whole devices to weed out CD drives
++    if [ "$MAJOR" = "3" ]; then
++     MBR_TARGET=/dev/hda
++     echo $MBR_TARGET > $TMP/LILOMBR
++    elif [ "$MAJOR" = "22" -a ! "$MBR_TARGET" = "/dev/hda" ]; then
++     MBR_TARGET=/dev/hdc
++     echo $MBR_TARGET > $TMP/LILOMBR
++    elif [ "$MAJOR" = "33" -a ! "$MBR_TARGET" = "/dev/hda" -a ! "$MBR_TARGET" = "/dev/hdc" ]; then
++     MBR_TARGET=/dev/hde
++     echo $MBR_TARGET > $TMP/LILOMBR
++    elif [ "$MAJOR" = "34" -a ! "$MBR_TARGET" = "/dev/hda" -a ! "$MBR_TARGET" = "/dev/hdc" -a ! "$MBR_TARGET" = "/dev/hde" ]; then
++     MBR_TARGET=/dev/hdg
++     echo $MBR_TARGET > $TMP/LILOMBR
++    elif [ "$MAJOR" = "259" -a ! "$MBR_TARGET" = "/dev/hda" -a ! "$MBR_TARGET" = "/dev/hdc" -a ! "$MBR_TARGET" = "/dev/hde" -a ! "$MBR_TARGET" = "/dev/hdg" ]; then
++     if [ "$(echo $LINE | cut -f 4 -d ' ' | cut -b 1-4)" = "nvme" ]; then
++      MBR_TARGET="/dev/$(echo $LINE | cut -f 4 -d ' ' | cut -f 1 -d p)"
++      echo $MBR_TARGET > $TMP/LILOMBR
++     fi
++    fi
++    if dmidecode 2> /dev/null | grep -q QEMU 2> /dev/null ; then
++     if [ -r /dev/vda ]; then
++       MBR_TARGET=/dev/vda
++       echo $MBR_TARGET > $TMP/LILOMBR
++     fi
++    fi
++   fi
++  done
++}
++
+ # This function scans for bootable partitions (making some assumptions along
+ # the way which may or may not be correct, but usually work), and sets up
+ # LILO in either the superblock, or the MBR.
+@@ -289,38 +333,7 @@
+  dialog --infobox "\nScanning partitions and generating /etc/lilo.conf..." 5 57
+  sleep 1
+  if [ "$TG" = "MBR" ]; then
+-  MBR_TARGET=/dev/sda
+-  echo $MBR_TARGET > $TMP/LILOMBR
+-  cat /proc/partitions | while read LINE ; do
+-   MAJOR="$(echo $LINE | cut -f 1 -d ' ')"
+-   MINOR="$(echo $LINE | cut -f 2 -d ' ')"
+-   if [ ! "$MINOR" = "0" -a ! "$MINOR" = "64" ]; then # ignore whole devices to weed out CD drives
+-    if [ "$MAJOR" = "3" ]; then
+-     MBR_TARGET=/dev/hda
+-     echo $MBR_TARGET > $TMP/LILOMBR
+-    elif [ "$MAJOR" = "22" -a ! "$MBR_TARGET" = "/dev/hda" ]; then
+-     MBR_TARGET=/dev/hdc
+-     echo $MBR_TARGET > $TMP/LILOMBR
+-    elif [ "$MAJOR" = "33" -a ! "$MBR_TARGET" = "/dev/hda" -a ! "$MBR_TARGET" = "/dev/hdc" ]; then
+-     MBR_TARGET=/dev/hde
+-     echo $MBR_TARGET > $TMP/LILOMBR
+-    elif [ "$MAJOR" = "34" -a ! "$MBR_TARGET" = "/dev/hda" -a ! "$MBR_TARGET" = "/dev/hdc" -a ! "$MBR_TARGET" = "/dev/hde" ]; then
+-     MBR_TARGET=/dev/hdg
+-     echo $MBR_TARGET > $TMP/LILOMBR
+-    elif [ "$MAJOR" = "259" -a ! "$MBR_TARGET" = "/dev/hda" -a ! "$MBR_TARGET" = "/dev/hdc" -a ! "$MBR_TARGET" = "/dev/hde" -a ! "$MBR_TARGET" = "/dev/hdg" ]; then
+-     if [ "$(echo $LINE | cut -f 4 -d ' ' | cut -b 1-4)" = "nvme" ]; then
+-      MBR_TARGET="/dev/$(echo $LINE | cut -f 4 -d ' ' | cut -f 1 -d p)"
+-      echo $MBR_TARGET > $TMP/LILOMBR
+-     fi
+-    fi
+-    if dmidecode 2> /dev/null | grep -q QEMU 2> /dev/null ; then
+-     if [ -r /dev/vda ]; then
+-       MBR_TARGET=/dev/vda
+-       echo $MBR_TARGET > $TMP/LILOMBR
+-     fi
+-    fi
+-   fi
+-  done
++  find_mbr
+   LILO_TARGET=$(cat $TMP/LILOMBR)
+  elif [ "$TG" = "Root" ]; then
+   LILO_TARGET=$(echo $ROOT_DEVICE)
+@@ -452,7 +465,18 @@
+  LNXP="$(PROBE -l | grep "Linux$")" 
+  LNXP="$(echo $LNXP | cut -f 1 -d ' ' | sort)"
+  if [ ! "$LNXP" = "" ]; then
+-  cat << EOF >> $T_PX/etc/lilo.conf
++  if [ -r $T_PX/boot/initrd.gz ]; then
++   cat << EOF >> $T_PX/etc/lilo.conf
++# Linux bootable partition config begins
++image = $KERNEL
++  initrd = /boot/initrd.gz
++  #root = $ROOT_DEVICE
++  label = Linux
++  read-only
++# Linux bootable partition config ends
++EOF
++  else
++     cat << EOF >> $T_PX/etc/lilo.conf
+ # Linux bootable partition config begins
+ image = $KERNEL
+   root = $ROOT_DEVICE
+@@ -460,6 +484,7 @@
+   read-only
+ # Linux bootable partition config ends
+ EOF
++  fi
+   echo "Linux    -  (Linux partition)" >> $T_PX/boot/boot_message.txt
+  fi
+ # DEAD CODE, BUT IN CASE OS/2 MAKES A COMEBACK!
+@@ -668,6 +693,8 @@
+ ARCHTYPE=i386
+ if [ -r $T_PX/vmlinuz ]; then
+   KERNEL=/vmlinuz
++elif [ -r $T_PX/boot/vmlinuz-generic ] && [ -r $T_PX/boot/initrd.gz ]; then
++  KERNEL=/boot/vmlinuz-generic
+ elif [ -r $T_PX/boot/vmlinuz ]; then
+   KERNEL=/boot/vmlinuz
+ elif [ -r $T_PX/usr/src/linux/arch/$ARCHTYPE/boot/bzImage ]; then
+@@ -680,7 +707,7 @@
  
   # If we're installing from the umsdos.gz rootdisk, suggest skipping LILO:
   if [ ! "$T_PX" = "/" ]; then
@@ -8,8 +143,78 @@
 +   if mount | grep " on $T_PX " | grep umsdos 1> /dev/null 2> /dev/null ; then
       dialog --title "SKIP LILO CONFIGURATION? (RECOMMENDED)" --yesno "Since \
  you are installing to a FAT partition, it's suggested that you do not \
- configure LILO at this time.  (Instead, use your bootdisk.  For booting \
-@@ -1236,8 +1236,8 @@
+ configure LILO at this time. (Instead, use your bootdisk. For booting \
+@@ -777,27 +804,7 @@
+    fi
+    rm -r $TMP/reply
+    if [ "$TG" = "MBR" ]; then
+-    MBR_TARGET=/dev/sda
+-    echo $MBR_TARGET > $TMP/LILOMBR
+-    cat /proc/partitions | while read LINE ; do
+-     MAJOR="$(echo $LINE | cut -f 1 -d ' ')"
+-     MINOR="$(echo $LINE | cut -f 2 -d ' ')"
+-     if [ ! "$MINOR" = "0" -a ! "$MINOR" = "64" ]; then # ignore whole devices to weed out CD drives
+-      if [ "$MAJOR" = "3" ]; then
+-       MBR_TARGET=/dev/hda
+-       echo $MBR_TARGET > $TMP/LILOMBR
+-      elif [ "$MAJOR" = "22" -a ! "$MBR_TARGET" = "/dev/hda" ]; then
+-       MBR_TARGET=/dev/hdc
+-       echo $MBR_TARGET > $TMP/LILOMBR
+-      elif [ "$MAJOR" = "33" -a ! "$MBR_TARGET" = "/dev/hda" -a ! "$MBR_TARGET" = "/dev/hdc" ]; then
+-       MBR_TARGET=/dev/hde
+-       echo $MBR_TARGET > $TMP/LILOMBR
+-      elif [ "$MAJOR" = "34" -a ! "$MBR_TARGET" = "/dev/hda" -a ! "$MBR_TARGET" = "/dev/hdc" -a ! "$MBR_TARGET" = "/dev/hde" ]; then
+-       MBR_TARGET=/dev/hdg
+-       echo $MBR_TARGET > $TMP/LILOMBR
+-      fi
+-     fi
+-    done
++    find_mbr
+     LILO_TARGET=$(cat $TMP/LILOMBR)
+     dialog --title "CONFIRM LOCATION TO INSTALL LILO" --inputbox \
+ "The auto-detected location to install the LILO boot block is shown below. \
+@@ -852,7 +859,11 @@
+ #
+ # Start LILO global section
+ boot = $LILO_TARGET
+-
++EOF
++   if echo $LILO_TARGET | grep -q vda 2>/dev/null ; then
++    echo "disk = /dev/vda bios=0x80 max-partitions=7" >> $TMP/lilo.conf
++   fi
++   cat << EOF >> $TMP/lilo.conf
+ # This option loads the kernel and initrd much faster:
+ compact
+ 
+@@ -970,7 +981,18 @@
+      continue
+     fi
+     LABEL="$(cat $TMP/reply)"
+-    cat << EOF >> $TMP/lilo.conf
++    if [ -r $T_PX/boot/initrd.gz ]; then
++     cat << EOF >> $TMP/lilo.conf
++# Linux bootable partition config begins
++image = $KERNEL
++  initrd = /boot/initrd.gz
++  #root = $LINUX_PART
++  label = $LABEL
++  read-only  # Partitions should be mounted read-only for checking
++# Linux bootable partition config ends
++EOF
++    else
++     cat << EOF >> $TMP/lilo.conf
+ # Linux bootable partition config begins
+ image = $KERNEL
+   root = $LINUX_PART
+@@ -978,6 +1000,7 @@
+   read-only  # Partitions should be mounted read-only for checking
+ # Linux bootable partition config ends
+ EOF
++    fi
+    else
+     dialog --title "CAN'T ADD LINUX PARTITION" --msgbox "You can't add \
+ partitions unless you start over with a new LILO header." 6 60
+@@ -1154,8 +1177,8 @@
     if [ -r $TMP/lilo.conf ]; then
      dialog --title "YOUR NEW /etc/lilo.conf" --textbox "$TMP/lilo.conf" 22 70
     else
