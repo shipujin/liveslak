@@ -2060,53 +2060,56 @@ EOF
 fi
 
 
-# -------------------------------------------------------------------------- #
-echo "-- Configuring KDE4."
-# -------------------------------------------------------------------------- #
+# Only configure for KDE4 if it is actually installed:
+if [ -d ${LIVE_ROOTDIR}/usr/lib${DIRSUFFIX}/kde4/libexec ]; then
 
-# Adjust some usability issues with the default desktop layout:
-if [ -f ${LIVE_ROOTDIR}/usr/share/apps/plasma/layout-templates/org.kde.plasma-desktop.defaultPanel/contents/layout.js ]; then
-  # Only apply to an unmodified file (Slackware 14.2 already implements it):
-  if grep -q 'tasks.writeConfig' ${LIVE_ROOTDIR}/usr/share/apps/plasma/layout-templates/org.kde.plasma-desktop.defaultPanel/contents/layout.js ; then
-    sed -i \
-      -e '/showActivityManager/a konsole = panel.addWidget("quicklaunch")' \
-      -e '/showActivityManager/a dolphin = panel.addWidget("quicklaunch")' \
-      -e '/showActivityManager/a firefox = panel.addWidget("quicklaunch")' \
-      -e '$a firefox.writeConfig("iconUrls","file:///usr/share/applications/mozilla-firefox.desktop")' \
-      -e '$a dolphin.writeConfig("iconUrls","file:////usr/share/applications/kde4/dolphin.desktop")' \
-      -e '$a konsole.writeConfig("iconUrls","file:///usr/share/applications/kde4/konsole.desktop")' \
-      -e '/tasks.writeConfig/d' \
-      ${LIVE_ROOTDIR}/usr/share/apps/plasma/layout-templates/org.kde.plasma-desktop.defaultPanel/contents/layout.js
+  # -------------------------------------------------------------------------- #
+  echo "-- Configuring KDE4."
+  # -------------------------------------------------------------------------- #
+
+  # Adjust some usability issues with the default desktop layout:
+  if [ -f ${LIVE_ROOTDIR}/usr/share/apps/plasma/layout-templates/org.kde.plasma-desktop.defaultPanel/contents/layout.js ]; then
+    # Only apply to an unmodified file (Slackware 14.2 already implements it):
+    if grep -q 'tasks.writeConfig' ${LIVE_ROOTDIR}/usr/share/apps/plasma/layout-templates/org.kde.plasma-desktop.defaultPanel/contents/layout.js ; then
+      sed -i \
+        -e '/showActivityManager/a konsole = panel.addWidget("quicklaunch")' \
+        -e '/showActivityManager/a dolphin = panel.addWidget("quicklaunch")' \
+        -e '/showActivityManager/a firefox = panel.addWidget("quicklaunch")' \
+        -e '$a firefox.writeConfig("iconUrls","file:///usr/share/applications/mozilla-firefox.desktop")' \
+        -e '$a dolphin.writeConfig("iconUrls","file:////usr/share/applications/kde4/dolphin.desktop")' \
+        -e '$a konsole.writeConfig("iconUrls","file:///usr/share/applications/kde4/konsole.desktop")' \
+        -e '/tasks.writeConfig/d' \
+        ${LIVE_ROOTDIR}/usr/share/apps/plasma/layout-templates/org.kde.plasma-desktop.defaultPanel/contents/layout.js
+    fi
   fi
-fi
 
-# Prepare some KDE4 defaults for the 'live' user and any new users.
+  # Prepare some KDE4 defaults for the 'live' user and any new users.
 
-# Preselect the user 'live' in KDM:
-mkdir -p ${LIVE_ROOTDIR}/var/lib/kdm
-cat <<EOT > ${LIVE_ROOTDIR}/var/lib/kdm/kdmsts
+  # Preselect the user 'live' in KDM:
+  mkdir -p ${LIVE_ROOTDIR}/var/lib/kdm
+  cat <<EOT > ${LIVE_ROOTDIR}/var/lib/kdm/kdmsts
 [PrevUser]
 :0=${LIVEUID}
 EOT
-chmod 600 ${LIVE_ROOTDIR}/var/lib/kdm/kdmsts
+  chmod 600 ${LIVE_ROOTDIR}/var/lib/kdm/kdmsts
 
-# Set default GTK+ theme for Qt applications:
-mkdir -p  ${LIVE_ROOTDIR}/etc/skel/
-cat << EOF > ${LIVE_ROOTDIR}/etc/skel/.gtkrc-2.0
+  # Set default GTK+ theme for Qt applications:
+  mkdir -p  ${LIVE_ROOTDIR}/etc/skel/
+  cat << EOF > ${LIVE_ROOTDIR}/etc/skel/.gtkrc-2.0
 include "/usr/share/themes/Adwaita/gtk-2.0/gtkrc"
 include "/usr/share/gtk-2.0/gtkrc"
 include "/etc/gtk-2.0/gtkrc"
 gtk-theme-name="Adwaita"
 EOF
-mkdir -p ${LIVE_ROOTDIR}/etc/skel/.config/gtk-3.0
-cat << EOF > ${LIVE_ROOTDIR}/etc/skel/.config/gtk-3.0/settings.ini
+  mkdir -p ${LIVE_ROOTDIR}/etc/skel/.config/gtk-3.0
+  cat << EOF > ${LIVE_ROOTDIR}/etc/skel/.config/gtk-3.0/settings.ini
 [Settings]
 gtk-theme-name = Adwaita
 EOF
 
-# Be gentle to low-performance USB media and limit disk I/O:
-mkdir -p  ${LIVE_ROOTDIR}/etc/skel/.kde/share/config
-cat <<EOT > ${LIVE_ROOTDIR}/etc/skel/.kde/share/config/nepomukserverrc
+  # Be gentle to low-performance USB media and limit disk I/O:
+  mkdir -p  ${LIVE_ROOTDIR}/etc/skel/.kde/share/config
+  cat <<EOT > ${LIVE_ROOTDIR}/etc/skel/.kde/share/config/nepomukserverrc
 [Basic Settings]
 Configured repositories=main
 Start Nepomuk=false
@@ -2120,15 +2123,15 @@ Used Soprano Backend=redlandbackend
 rebuilt index for type indexing=true
 EOT
 
-# Disable baloo:
-mkdir -p ${LIVE_ROOTDIR}/etc/skel/.kde4/share/apps/config
-cat <<EOT >${LIVE_ROOTDIR}/etc/skel/.kde4/share/apps/config/baloofilerc
+  # Disable baloo:
+  mkdir -p ${LIVE_ROOTDIR}/etc/skel/.kde4/share/apps/config
+  cat <<EOT >${LIVE_ROOTDIR}/etc/skel/.kde4/share/apps/config/baloofilerc
 [Basic Settings]
 Indexing-Enabled=false
 EOT
 
-mkdir -p ${LIVE_ROOTDIR}/etc/skel/.config
-cat <<EOT > ${LIVE_ROOTDIR}/etc/skel/.config/kwalletrc
+  mkdir -p ${LIVE_ROOTDIR}/etc/skel/.config
+  cat <<EOT > ${LIVE_ROOTDIR}/etc/skel/.config/kwalletrc
 [Auto Allow]
 kdewallet=Network Management,KDE Daemon,KDE Control Module
 
@@ -2139,30 +2142,33 @@ First Use=true
 Use One Wallet=true
 EOT
 
-# Start Konsole with a login shell:
-mkdir -p ${LIVE_ROOTDIR}/etc/skel/.kde/share/apps/konsole
-cat <<EOT > ${LIVE_ROOTDIR}/etc/skel/.kde/share/apps/konsole/Shell.profile
+  # Start Konsole with a login shell:
+  mkdir -p ${LIVE_ROOTDIR}/etc/skel/.kde/share/apps/konsole
+  cat <<EOT > ${LIVE_ROOTDIR}/etc/skel/.kde/share/apps/konsole/Shell.profile
 [General]
 Command=/bin/bash -l
 Name=Shell
 Parent=FALLBACK/
 EOT
-mkdir -p ${LIVE_ROOTDIR}/etc/skel/.config
-cat <<EOT >> ${LIVE_ROOTDIR}/etc/skel/.config/konsolerc
+  mkdir -p ${LIVE_ROOTDIR}/etc/skel/.config
+  cat <<EOT >> ${LIVE_ROOTDIR}/etc/skel/.config/konsolerc
 [Desktop Entry]
 DefaultProfile=Shell.profile
 
 EOT
 
-# Configure (default) UTC timezone so we can change it during boot:
-mkdir -p ${LIVE_ROOTDIR}/etc/skel/.kde/share/config
-cat <<EOT > ${LIVE_ROOTDIR}/etc/skel/.kde/share/config/ktimezonedrc
+  # Configure (default) UTC timezone so we can change it during boot:
+  mkdir -p ${LIVE_ROOTDIR}/etc/skel/.kde/share/config
+  cat <<EOT > ${LIVE_ROOTDIR}/etc/skel/.kde/share/config/ktimezonedrc
 [TimeZones]
 LocalZone=UTC
 ZoneinfoDir=/usr/share/zoneinfo
 Zonetab=/usr/share/zoneinfo/zone.tab
 ZonetabCache=
 EOT
+
+fi # End KDE4
+
 
 if [ "$LIVEDE" = "PLASMA5" -o "$LIVEDE" = "DAW" ]; then
 
