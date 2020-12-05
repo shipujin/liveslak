@@ -225,7 +225,7 @@ NETEXCL="appletalk arcnet bonding can dummy.ko hamradio hippi ifb.ko irda macvla
 # -- END: Used verbatim in upslak.sh -- #
 
 # Firmware for wired network cards required for NFS root support:
-NETFIRMWARE="3com acenic adaptec bnx tigon e100 sun kaweth tr_smctr cxgb3"
+NETFIRMWARE="3com acenic adaptec bnx tigon e100 sun kaweth tr_smctr cxgb3 rtl_nic"
 
 # If any Live variant needs additional 'append' parameters, define them here,
 # either using a variable name 'KAPPEND_<LIVEDE>', or by defining 'KAPPEND' in the .conf file:
