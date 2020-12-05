@@ -1,7 +1,12 @@
+# This script is sourced from setup2hd.
+
+# The script defaults to curses dialog but Xdialog is a good alternative:
+DIALOG=${DIALOG:-"dialog"}
+
  # Liveslak installation routine:
  if [ "$MAINSELECT" = "INSTALL" ]; then
   if [ ! -r $TMP/SeTnative ]; then
-   dialog --backtitle "@CDISTRO@ Linux Setup (Live Edition)" \
+   ${DIALOG} --backtitle "@CDISTRO@ Linux Setup (Live Edition)" \
     --title "CANNOT INSTALL SOFTWARE YET" --msgbox "\
 \n\
 Before you can install software, complete the following tasks:\n\
@@ -20,7 +25,7 @@ Press ENTER to return to the main menu." 16 68
   # --------------------------------------------- #
 
   # Buy us some time while we are calculating disk usage:
-  dialog --backtitle "@CDISTRO@ Linux Setup (Live Edition)" \
+  ${DIALOG} --backtitle "@CDISTRO@ Linux Setup (Live Edition)" \
    --title "WELCOME TO @UDISTRO@ LIVE (@LIVEDE@)" --infobox \
    "\nCalculating disk usage, please be patient ..." 5 65
 
@@ -32,7 +37,7 @@ Press ENTER to return to the main menu." 16 68
 
   # Warn when it looks we have insufficient room:
   if [ $PARTFREE -lt $(($DU_LIVE/1024)) ]; then
-    dialog --backtitle "@CDISTRO@ Linux Setup (Live Edition)" \
+    ${DIALOG} --backtitle "@CDISTRO@ Linux Setup (Live Edition)" \
      --title "WELCOME TO @UDISTRO@ LIVE (@LIVEDE@)" --yesno \
      "\nAvailable space: $PARTFREE MB\nRequired space: $(($DU_LIVE/1024))\nIt looks like your hard drive partition is too small.\nDo you want to continue?" 10 65
     retval=$?
@@ -41,19 +46,32 @@ Press ENTER to return to the main menu." 16 68
       exit 1
     fi
   else
-    dialog --backtitle "@CDISTRO@ Linux Setup (Live Edition)" \
+    ${DIALOG} --backtitle "@CDISTRO@ Linux Setup (Live Edition)" \
      --title "WELCOME TO @UDISTRO@ LIVE (@LIVEDE@)" --msgbox \
      "\nAvailable space: $PARTFREE MB\nRequired space: $(($DU_LIVE/1024)) MB\nIt looks like you're good to go!" 10 65
   fi
 
-  (
-    # Install the Live OS by rsyncing the readonly overlay to the harddisk:
-    rsync -HAXa --whole-file --checksum-choice=none --inplace \
-      --info=progress2 --no-inc-recursive \
-      /mnt/liveslakfs/ $T_PX/ ; echo DONE \
-  ) | dialog --backtitle "@CDISTRO@ Linux Setup (Live Edition)" \
-        --title "INSTALLING @UDISTRO@ LIVE (@LIVEDE@) TO DISK" --programbox \
-        "\nProcessing ${TOT_MODS} @CDISTRO@ Live modules ($(( $DU_LIVE/1024 )) MB)" 8 80
+  # Install the Live OS by rsyncing the readonly overlay to the harddisk:
+  if [ "${DIALOG}" == "Xdialog" ]; then
+    ${DIALOG} --backtitle "@CDISTRO@ Linux Setup (Live Edition)" \
+      --title "INSTALLING @UDISTRO@ LIVE (@LIVEDE@) TO DISK" --infobox \
+      "\nProcessing ${TOT_MODS} @CDISTRO@ Live modules ($(( $DU_LIVE/1024 )) MB)" 8 80 5000
+    (
+      rsync -HAXa --whole-file --checksum-choice=none --inplace \
+        --info=progress2 --no-inc-recursive \
+        /mnt/liveslakfs/ $T_PX/ ; echo DONE \
+    ) | ${DIALOG} --backtitle "@CDISTRO@ Linux Setup (Live Edition)" \
+          --title "INSTALLING @UDISTRO@ LIVE (@LIVEDE@) TO DISK" --tailbox \
+          - 8 80 
+  else
+    (
+      rsync -HAXa --whole-file --checksum-choice=none --inplace \
+        --info=progress2 --no-inc-recursive \
+        /mnt/liveslakfs/ $T_PX/ ; echo DONE \
+    ) | ${DIALOG} --backtitle "@CDISTRO@ Linux Setup (Live Edition)" \
+          --title "INSTALLING @UDISTRO@ LIVE (@LIVEDE@) TO DISK" --programbox \
+          "\nProcessing ${TOT_MODS} @CDISTRO@ Live modules ($(( $DU_LIVE/1024 )) MB)" 8 80
+  fi
 
   #
   # Live OS Post Install routine. If you want, you can override this routine
@@ -64,10 +82,10 @@ Press ENTER to return to the main menu." 16 68
   live_post_install () {
     # ---------------------
     # Set up a user account,
-    dialog --title "@UDISTRO@ (@LIVEDE@) USER CREATION" \
+    ${DIALOG} --title "@UDISTRO@ (@LIVEDE@) USER CREATION" \
      --backtitle "@CDISTRO@ Linux Setup (Live Edition)" \
      --msgbox "You will first get the chance to create your user account, \
-and set its password.\nYour account will be added to sudoers and suauth.\n\n\
+and set its password.\nYour account will be added to 'sudoers'.\n\n\
 After that, you will be asked to set the root password." 11 55
     # This will set UFULLNAME, UACCOUNT, UACCTNR and USHELL variables:
     SeTuacct 2>&1 1> $TMP/uacctresult
@@ -109,7 +127,7 @@ EOT
 
     # Re-use some of the custom configuration from 0099-@DISTRO@_zzzconf-*.sxz
     # (some of these may not be present but the command will not fail):
-    dialog --backtitle "@CDISTRO@ Linux Setup (Live Edition)" \
+    ${DIALOG} --backtitle "@CDISTRO@ Linux Setup (Live Edition)" \
      --title "POST-INSTALL @UDISTRO@ LIVE (@LIVEDE@) DATA" --infobox \
      "\nCopying Live modifications to hard disk ..." 5 65
     sleep 1 # It's too fast...
@@ -130,11 +148,22 @@ EOT
       /etc/rc.d/rc.font \
       /etc/rc.d/rc.gpm \
       /etc/slackpkg \
-      /etc/vconsole.conf
+      /etc/vconsole.conf \
+      /var/lib/slackpkg/current
     # Point xdm to the custom /etc/X11/xdm/liveslak-xdm/xdm-config:
     sed -i ${T_PX}/etc/rc.d/rc.4 -e 's,bin/xdm -nodaemon,& -config /etc/X11/xdm/liveslak-xdm/xdm-config,'
+    # If gcc was not installed, create a symlink to cpp pointing to mcpp;
+    # liveslak's XDM theme needs a C preprocessor to calculate screen positions:
+    if [ ! -x ${T_PX}/usr/bin/cpp ]; then
+      ln -s mcpp ${T_PX}/usr/bin/cpp
+    fi
+    # If nvi was not installed, do not use it as a default selection:
+    if [ ! -x ${T_PX}/usr/bin/nvi ] && [ -e ${T_PX}/var/log/setup/setup.vi-ex ];
+    then
+      sed -e 's/default-item "nvi/"default-item "elvis"/' -i ${T_PX}/var/log/setup/setup.vi-ex
+    fi
     # Prevent SeTconfig from asking redundant questions later on:
-    sed -i ${T_PX}/usr/share/@LIVEMAIN@/SeTconfig \
+    sed -i /usr/share/@LIVEMAIN@/SeTconfig \
       -e '/.\/var\/log\/setup\/$SCRIPT $T_PX $ROOT_DEVICE/i # Skip stuff that was taken care of by liveslak\nif echo $SCRIPT |grep -E "(make-bootdisk|mouse|setconsolefont|xwmconfig)"; then continue; fi'
 
     # If a user account was created, we restore some of the user customization:
@@ -142,9 +171,15 @@ EOT
       unsquashfs -n -f -dest $T_PX \
         /mnt/livemedia/@LIVEMAIN@/system/0099*zzzconf*.sxz \
         /home/@LIVEUID@/.face \
-        /home/@LIVEUID@/.face.icon
+        /home/@LIVEUID@/.face.icon \
+        /home/@LIVEUID@/.bashrc \
+        /home/@LIVEUID@/.profile \
+        /home/@LIVEUID@/.screenrc \
+        /home/@LIVEUID@/.xprofile \
+        /home/@LIVEUID@/.xscreensaver
       if [ "@LIVEUID@" != ${UACCOUNT} ]; then
         rsync -a $T_PX/home/@LIVEUID@/ $T_PX/home/${UACCOUNT}/
+        chroot ${T_PX} /usr/bin/chown -R ${UACCOUNT} /home/${UACCOUNT}
         rm -rf $T_PX/home/@LIVEUID@
       fi
     fi
@@ -207,7 +242,7 @@ then
     # unsquashfs -f -dest $T_PX /mnt/livemedia/@LIVEMAIN@/addons/mymodule.sxz
 
 EOF
-    dialog --backtitle "@CDISTRO@ Linux Setup (Live Edition)" \
+    ${DIALOG} --backtitle "@CDISTRO@ Linux Setup (Live Edition)" \
       --title "POST INSTALL HINTS AND TIPS" --msgbox "`cat $TMP/tempmsg`" \
       20 65
     rm $TMP/tempmsg

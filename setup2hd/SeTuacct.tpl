@@ -1,4 +1,8 @@
 #!/bin/sh
+
+# The script defaults to curses dialog but Xdialog is a good alternative:
+DIALOG=${DIALOG:-"dialog"}
+
 TMP=/var/log/setup/tmp
 if [ ! -d $TMP ]; then
   mkdir -p $TMP
@@ -25,7 +29,7 @@ UACCTNR="$FREEUID"
 USHELL="/bin/bash"
 UFORM="Fill out your user details:"
 while [ 0 ]; do
-  dialog --stdout --ok-label "Submit" --no-cancel \
+  ${DIALOG} --stdout --ok-label "Submit" --no-cancel \
     --title "@UDISTRO@ (@LIVEDE@) USER CREATION" \
     --form "$UFORM" \
     11 64 0 \

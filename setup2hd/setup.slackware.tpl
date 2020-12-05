@@ -1,7 +1,12 @@
+# This script is sourced from setup2hd.
+
+# The script defaults to curses dialog but Xdialog is a good alternative:
+DIALOG=${DIALOG:-"dialog"}
+
  # Slackware installation routine as taken from original 'setup':
  if [ "$MAINSELECT" = "INSTALL" ]; then
   if [ ! -r $TMP/SeTSERIES -o ! -r $TMP/SeTsource -o ! -r $TMP/SeTnative ]; then
-   dialog --title "CANNOT INSTALL SOFTWARE YET" --msgbox "\
+   ${DIALOG} --title "CANNOT INSTALL SOFTWARE YET" --msgbox "\
 \n\
 Before you can install software, complete the following tasks:\n\
 \n\
@@ -19,7 +24,7 @@ Press ENTER to return to the main menu." 16 68
   SOURCE_DEVICE="`cat $TMP/SeTsource`"
   IGNORE_TAGFILES=""
   while [ 0 ]; do
-   dialog --title "SELECT PROMPTING MODE" --default-item "terse" --menu \
+   ${DIALOG} --title "SELECT PROMPTING MODE" --default-item "terse" --menu \
    "Now you must select the type of prompts you'd like to see during the \
 installation process. If you have the drive space, the 'full' option \
 is quick, easy, and by far the most foolproof choice. The 'newbie' \
@@ -44,10 +49,10 @@ to use?" \
    MODE="`cat $TMP/SeTpmode`"
    rm -f $TMP/SeTtagext
    if [ "$MODE" = "help" ]; then
-    dialog --title "PROMPT MODE HELP" --exit-label OK --textbox "/usr/lib/setup/PROMPThelp" 19 65
+    ${DIALOG} --title "PROMPT MODE HELP" --exit-label OK --textbox "/usr/lib/setup/PROMPThelp" 19 65
    fi
    if [ "$MODE" = "tagpath" ]; then
-    dialog --title "PROVIDE A CUSTOM PATH TO YOUR TAGFILES" --inputbox \
+    ${DIALOG} --title "PROVIDE A CUSTOM PATH TO YOUR TAGFILES" --inputbox \
     "If you're installing from CD or DVD, it's impossible to edit the \
 tagfiles that are in the package directories. In this case, you might \
 want to provide a path to your custom tagfiles. As an example, you \
@@ -68,7 +73,7 @@ custom tagfiles:" \
      if [ "`cat $TMP/SeTtagpath`" = "" ]; then
       rm -f $TMP/SeTtagpath
      elif [ ! -d "$(cat $TMP/SeTtagpath)" ]; then
-       dialog --title "NOT A VALID DIRECTORY" --msgbox \
+       ${DIALOG} --title "NOT A VALID DIRECTORY" --msgbox \
 "Sorry, but the $(cat $TMP/SeTtagpath) directory could not be located. \
 Press ENTER to go back to the SELECT PROMPTING MODE menu." \
 7 65
@@ -79,12 +84,12 @@ Press ENTER to go back to the SELECT PROMPTING MODE menu." \
     break;
    fi
    if [ "$MODE" = "newbie" ]; then 
-    dialog --infobox "'newbie' prompt mode selected.  Using default tagfiles \
+    ${DIALOG} --infobox "'newbie' prompt mode selected.  Using default tagfiles \
 and verbose package prompting." 4 50
     break;
    fi 
    if [ "$MODE" = "custom" ]; then
-    dialog --title "ENTER CUSTOM EXTENSION" --inputbox "Now, enter the custom \
+    ${DIALOG} --title "ENTER CUSTOM EXTENSION" --inputbox "Now, enter the custom \
 extension you have used for your tagfiles. This must be a valid MS-DOS format \
 file extension consisting of a period followed by three characters. For \
 example, I use '.pat'. You might see my tagfiles on your disks. :^)" \
@@ -97,13 +102,13 @@ example, I use '.pat'. You might see my tagfiles on your disks. :^)" \
       rm -f $TMP/SeTtagext
      fi
     fi
-    dialog --infobox "'custom' prompt mode selected. Using prompting defaults \
+    ${DIALOG} --infobox "'custom' prompt mode selected. Using prompting defaults \
 found in custom tagfiles." 4 50
     break;
    fi
    if [ "$MODE" = "full" ]; then
     IGNORE_TAGFILES="-ignore_tagfiles"
-    dialog --infobox "Full installation mode. Installing all software \
+    ${DIALOG} --infobox "Full installation mode. Installing all software \
 packages without prompting." 4 45
     break;
    fi
@@ -120,12 +125,12 @@ packages without prompting." 4 45
     break;
    fi
    if [ "$MODE" = "menu" ]; then
-    dialog --infobox "'menu' prompt mode selected. Using interactive menus \
+    ${DIALOG} --infobox "'menu' prompt mode selected. Using interactive menus \
 to choose subsystems of related packages." 4 60
     break;
    fi
    if [ "$MODE" = "expert" ]; then
-    dialog --infobox "'expert' prompt mode selected. Using interactive menus \
+    ${DIALOG} --infobox "'expert' prompt mode selected. Using interactive menus \
 to choose packages individually." 4 60
     break;
    fi 

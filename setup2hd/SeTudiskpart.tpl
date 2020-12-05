@@ -1,4 +1,8 @@
 #!/bin/sh
+
+# The script defaults to curses dialog but Xdialog is a good alternative:
+DIALOG=${DIALOG:-"dialog"}
+
 TMP=/var/log/setup/tmp
 if [ ! -d $TMP ]; then
   mkdir -p $TMP
@@ -6,7 +10,7 @@ fi
 
   # If we do not find any useful disks at all, we must bail:
   if [ -z "$(lsblk -a -o NAME,SIZE,RM,RO,TYPE,MODEL |tr -s '[:blank:]' ' ' |grep '0 *0 *disk' | grep -v '^ram')" ]; then
-    dialog --backtitle "@CDISTRO@ Linux Setup (Live Edition)" \
+    ${DIALOG} --backtitle "@CDISTRO@ Linux Setup (Live Edition)" \
      --title "NO HARD DRIVE DETECTED" \
      --msgbox "This machine appears not to have any hard drives installed.\
 This setup will not work. Please add a hard drive to the computer first." 10 64
@@ -16,7 +20,7 @@ This setup will not work. Please add a hard drive to the computer first." 10 64
   # Generate a list of local hard drives we can write to:
   rm -f $TMP/tempscript
   cat <<EOT > $TMP/tempscript
-dialog  --stdout \\
+${DIALOG} --stdout \\
   --title "SELECT DISK DRIVES" \\
   --backtitle "Creating Linux, swap and EFI partitions" \\
   --checklist "Select from available drives.\nA disk partitioning utility \\

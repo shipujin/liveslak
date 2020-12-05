@@ -1,3 +1,6 @@
+# The script defaults to curses dialog but Xdialog is a good alternative:
+DIALOG=${DIALOG:-"dialog"}
+
 #!/bin/sh
 # Liveslak replacement for Slackware's SeTpassword script.
 
@@ -22,7 +25,7 @@ if [ -r $TMP/SeTlive ]; then
 else
   SUTEXT=""
 fi
-dialog --title "@UDISTRO@ (@LIVEDE@) USER CREATION" \
+${DIALOG} --title "@UDISTRO@ (@LIVEDE@) USER CREATION" \
  --backtitle "@CDISTRO@ Linux Setup (Live Edition)" \
  --msgbox "You will first get the chance to create your user account, \
 and set its password.${SUTEXT}\n\n\

@@ -1,4 +1,8 @@
 #!/bin/sh
+
+# The script defaults to curses dialog but Xdialog is a good alternative:
+DIALOG=${DIALOG:-"dialog"}
+
 TMP=/var/log/setup/tmp
 if [ ! -d $TMP ]; then
   mkdir -p $TMP
@@ -6,17 +10,26 @@ fi
 
 UACCOUNT="$1"
 
-    UPASS1=""
-    UPASS2=""
-    UFORM="Define a new password for user '$UACCOUNT'"
+UPASS1=""
+UPASS2=""
+UFORM="Define a new password for user '$UACCOUNT'"
+
     while [ 0 ]; do
-      dialog --stdout --insecure --ok-label "Submit" --no-cancel \
-        --title "@UDISTRO@ (@LIVEDE@) USER CREATION" \
-        --passwordform "$UFORM" \
-        9 64 0 \
-          "Password:"        1 1 "$UPASS1" 1 18 40 0 \
-          "Repeat password:" 2 1 "$UPASS2" 2 18 40 0 \
+      if [ "${DIALOG}" == "Xdialog" ]; then
+        ${DIALOG} --stdout --ok-label "Submit" --no-cancel \
+          --title "@UDISTRO@ (@LIVEDE@) USER CREATION" \
+          --left --separator="\n" --password --password \
+          --2inputsbox "$UFORM" 20 40 \
+          "Password: " "$UPASS1" "Repeat password: " "$UPASS2" \
         2>&1 1> $TMP/tempupass
+      else
+        ${DIALOG} --stdout --ok-label "Submit" --no-cancel \
+          --title "@UDISTRO@ (@LIVEDE@) USER CREATION" \
+          --insecure --passwordform "$UFORM" 9 64 0 "Password:" \
+          1 1 "$UPASS1" 1 18 40 0 "Repeat password:" 2 1 "$UPASS2" 2 18 40 0 \
+        2>&1 1> $TMP/tempupass
+      fi
+
       iii=0
       declare -a USERATTR
       while read LINE ; do

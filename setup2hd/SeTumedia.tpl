@@ -1,13 +1,18 @@
 #!/bin/sh
+
+# The script defaults to curses dialog but Xdialog is a good alternative:
+DIALOG=${DIALOG:-"dialog"}
+
 TMP=/var/log/setup/tmp
 if [ ! -d $TMP ]; then
   mkdir -p $TMP
 fi
 
-dialog --backtitle "Select Slackware installation source." \
---title "SOURCE MEDIA SELECTION" --menu \
+${DIALOG} --backtitle "Select Slackware installation source." \
+--title "SOURCE MEDIA SELECTION" \
+--default-item '4' --menu \
 "Please select the media from which to install Slackware Linux:" \
-14 70 7 \
+11 70 4 \
 "1" "Install Slackware from NFS (Network File System)" \
 "2" "Install Slackware from FTP/HTTP server" \
 "3" "Install Slackware from Samba share" \

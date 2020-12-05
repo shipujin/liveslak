@@ -37,8 +37,29 @@
 export LANG=C
 export LC_ALL=C
 
+# The script defaults to curses dialog but Xdialog is a good alternative:
+DIALOG=${DIALOG:-"dialog"}
+
+# Script needs to be run as root:
+if [ ${EUID} -ne 0 ]; then
+  ${DIALOG} --backtitle "@CDISTRO@ Linux Setup (Live Edition)" \
+  --title "NOT ROOT" --msgbox "\
+\n\
+You must be root to run this program!" 7 68
+  exit 1
+fi
+
+# The terminal window needs to be sufficiently large for cgdisk to fit:
+if [ $(tput cols) -lt 80 ] || [ $(tput lines) -lt 24 ]; then 
+  ${DIALOG} --backtitle "@CDISTRO@ Linux Setup (Live Edition)" \
+  --title "TERMINAL TOO SMALL" --msgbox "\
+\n\
+Before you continue, re-size your terminal\nso it measures at least 80 x 24 characters.\n\
+Otherwise you will not be able to use disk partition tools." 11 68
+fi
+
 if [ ! -d /mnt/livemedia/@LIVEMAIN@/system ]; then
- dialog  --backtitle "@CDISTRO@ Linux Setup (Live Edition)" \
+  ${DIALOG} --backtitle "@CDISTRO@ Linux Setup (Live Edition)" \
   --title "LIVE MEDIA NOT ACCESSIBLE" --msgbox "\
 \n\
 Before you can install software, complete the following tasks:\n\
@@ -66,7 +87,7 @@ echo "on" > $TMP/SeTcolor # turn on color menus
 PATH="$PATH:/usr/share/@LIVEMAIN@"
 export PATH;
 export COLOR=on
-dialog --backtitle "@CDISTRO@ Linux Setup (Live Edition)" --infobox "\n
+${DIALOG} --backtitle "@CDISTRO@ Linux Setup (Live Edition)" --infobox "\n
 Scanning your system for partition information...\n
 \n" 5 55
 # In case the machine is full of fast SSDs:
@@ -77,7 +98,7 @@ vgchange -ay 1> /dev/null 2> /dev/null
 if probe -l 2> /dev/null | grep -E 'Linux$' 1> /dev/null 2> /dev/null ; then
  RUNPART=no
  probe -l 2> /dev/null | grep -E 'Linux$' | sort 1> $TMP/SeTplist 2> /dev/null
- dialog --backtitle "@CDISTRO@ Linux Setup (Live Edition)" \
+ ${DIALOG} --backtitle "@CDISTRO@ Linux Setup (Live Edition)" \
   --title "LINUX PARTITIONS DETECTED" \
   --yes-label "Continue" --no-label "Skip" --defaultno \
   --yesno "Setup detected partitions on this machine of type Linux.\n\
@@ -92,7 +113,7 @@ Otherwise, select 'Skip' to skip disk partitioning and go on with the setup." \
  fi
 else
  RUNPART=yes
- dialog --backtitle "@CDISTRO@ Linux Setup (Live Edition)" \
+ ${DIALOG} --backtitle "@CDISTRO@ Linux Setup (Live Edition)" \
   --title "NO LINUX PARTITIONS DETECTED" \
   --msgbox "There don't seem to be any partitions on this machine of type \
 Linux.  You'll need to make at least one of these to install Linux.  \
@@ -102,7 +123,7 @@ fi
 if [ -d /sys/firmware/efi ]; then
   if ! probe -l 2> /dev/null | grep "EFI System Partition" 1> /dev/null 2> /dev/null ; then
     RUNPART=yes
-    dialog --backtitle "@CDISTRO@ Linux Setup (Live Edition)" \
+    ${DIALOG} --backtitle "@CDISTRO@ Linux Setup (Live Edition)" \
      --title "NO EFI SYSTEM PARTITION DETECTED" \
      --msgbox "This machine appears to be using EFI/UEFI, but no EFI System \
 Partition was found.  You'll need to make an EFI System Partition in order \
@@ -157,14 +178,15 @@ rm -f /var/log/mount 2> /dev/null
 rmdir /var/log/mount 2> /dev/null
 mkdir /var/log/mount 2> /dev/null
 
+MAINSELECT="ADDSWAP"
 while [ 0 ]; do
 
- dialog --title "@CDISTRO@ Linux Setup (version @SL_VERSION@)" \
+ ${DIALOG} --title "@CDISTRO@ Linux Setup (version @SL_VERSION@)" \
   --backtitle "@CDISTRO@ Linux Setup (Live Edition)" \
+  --default-item "$MAINSELECT" \
   --menu "Welcome to @CDISTRO@ Linux Setup (Live Edition).\n\
 Select an option below using the UP/DOWN keys and SPACE or ENTER.\n\
-Alternate keys may also be used: '+', '-', and TAB." 18 72 9 \
-"KEYMAP" "Remap your keyboard if you're not using a US one" \
+Alternate keys may also be used: '+', '-', and TAB." 14 72 5 \
 "ADDSWAP" "Set up your swap partition(s)" \
 "TARGET" "Set up your target partitions" \
 "INSTALL" "Install @CDISTRO@ to disk" \
@@ -180,17 +202,6 @@ Alternate keys may also be used: '+', '-', and TAB." 18 72 9 \
  # Start checking what to do. Some modules may reset MAINSELECT to run the
  # next item in line.
 
- if [ "$MAINSELECT" = "KEYMAP" ]; then
-  SeTkeymap
-  if [ -r $TMP/SeTkeymap ]; then
-   MAINSELECT="ADDSWAP" 
-  fi
- fi
- 
- if [ "$MAINSELECT" = "MAKE TAGS" ]; then
-  SeTmaketag
- fi
- 
  if [ "$MAINSELECT" = "ADDSWAP" ]; then
   SeTswap
   if [ -r $TMP/SeTswap ]; then
@@ -256,7 +267,7 @@ Alternate keys may also be used: '+', '-', and TAB." 18 72 9 \
   REPLACE_FSTAB=Y
   if [ -r $TMP/SeTnative ]; then
    if [ -r $T_PX/etc/fstab ]; then
-    dialog --title "REPLACE /etc/fstab?" --yesno "You already have an \
+    ${DIALOG} --title "REPLACE /etc/fstab?" --yesno "You already have an \
 /etc/fstab on your install partition.  If you were just adding software, \
 you should probably keep your old /etc/fstab.  If you've changed your \
 partitioning scheme, you should use the new /etc/fstab.  Do you want \
@@ -280,14 +291,19 @@ to replace your old /etc/fstab with the new one?" 10 58
     printf "%-16s %-16s %-11s %-16s %-3s %s\n" "proc" "/proc" "proc" "defaults" "0" "0" >> $T_PX/etc/fstab
     printf "%-16s %-16s %-11s %-16s %-3s %s\n" "tmpfs" "/dev/shm" "tmpfs" "defaults" "0" "0" >> $T_PX/etc/fstab
    fi
-   dialog --title "SETUP COMPLETE" --msgbox "System configuration \
+   ${DIALOG} --title "SETUP COMPLETE" --msgbox "System configuration \
 and installation is complete. \
 \n\nYou may now reboot your system." 7 55
+   MAINSELECT="DONE"
   fi
  fi
 
  if [ "$MAINSELECT" = "EXIT" ]; then
   break
+ fi
+
+ if [ "$MAINSELECT" = "DONE" ]; then
+  MAINSELECT="EXIT"
  fi
 
 done # end of main loop
@@ -329,13 +345,13 @@ if [ -f ${T_PX}/etc/fstab ]; then
     eject -s `cat $TMP/SeTCDdev`
     # Tell the user to remove the disc, if one had previously been mounted
     # (it should now be ejected):
-    dialog \
+    ${DIALOG} \
      --clear \
      --title "@CDISTRO@ Linux Setup is complete" "$@" \
      --msgbox "\nPlease remove the installation disc.\n" 7 40
   fi
   # Sign off to the user:
-  dialog \
+  ${DIALOG} \
      --clear \
      --title "@CDISTRO@ Linux Setup is complete" "$@" \
      --msgbox "\nInstallation is complete.\n\n
@@ -348,7 +364,7 @@ fi
 fixdate
 
 # final cleanup
-rm -f $TMP/tagfile $TMP/SeT* $TMP/tar-error $TMP/unsquash_output $TMP/unsquash_error $TMP/PKGTOOL_REMOVED
+rm -f $TMP/tagfile $TMP/temp* $TMP/tmp* $TMP/SeT* $TMP/tar-error $TMP/unsquash_output $TMP/unsquash_error $TMP/PKGTOOL_REMOVED $TMP/LILO* $TMP/avail*
 rm -f /var/log/mount/treecache
 rmdir /var/log/mntiso 2>/dev/null
 rm -rf $TMP/treecache

@@ -1786,6 +1786,10 @@ if [ -f ${DEF_SL_PKGROOT}/../isolinux/initrd.img ]; then
     -e 's, /mnt, ${T_PX},g' \
     -e 's,=/mnt$,=${T_PX},g' \
     -e 's,=/mnt/,=${T_PX}/,g'
+  # Allow a choice of dialog:
+  sed -i ${LIVE_ROOTDIR}/usr/share/${LIVEMAIN}/* \
+    -e '1a \\nDIALOG=${DIALOG:-dialog}\n' \
+    -e 's/dialog -/${DIALOG} -/'
   # If T_PX is used in a script, it should be defined first:
   for FILE in ${LIVE_ROOTDIR}/usr/share/${LIVEMAIN}/* ; do
     if grep -q T_PX $FILE ; then
@@ -1949,6 +1953,54 @@ if [ ! -L ${LIVE_ROOTDIR}/usr/lib${DIRSUFFIX}/gimp/2.0/plug-ins/xsane  ]; then
   ln -s /usr/bin/xsane \
     ${LIVE_ROOTDIR}/usr/lib${DIRSUFFIX}/gimp/2.0/plug-ins/xsane
 fi
+
+## Enable this only after we checked all dialog calls for compatibility ##
+## If Xdialog is installed, set DIALOG environment variable:            ##
+mkdir -p ${LIVE_ROOTDIR}/etc/profile.d
+cat <<EOT > ${LIVE_ROOTDIR}/etc/profile.d/dialog.sh
+#!/bin/sh
+if [ -x /usr/bin/Xdialog ]; then
+  DIALOG=Xdialog
+  XDIALOG_HIGH_DIALOG_COMPAT=1
+  XDIALOG_FORCE_AUTOSIZE=1
+  export DIALOG XDIALOG_HIGH_DIALOG_COMPAT XDIALOG_FORCE_AUTOSIZE
+fi
+EOT
+cat <<EOT > ${LIVE_ROOTDIR}/etc/profile.d/dialog.csh
+#!/bin/csh
+if (-x /usr/bin/Xdialog) then
+  setenv DIALOG Xdialog
+  setenv XDIALOG_HIGH_DIALOG_COMPAT 1
+  setenv XDIALOG_FORCE_AUTOSIZE 1
+endif
+EOT
+# Once we are certain this works, make the scripts executable:
+chmod 0644 ${LIVE_ROOTDIR}/etc/profile.d/dialog.{c,}sh
+
+# Add a shortcut to 'setup2hd' on the user's desktop:
+mkdir -p ${LIVE_ROOTDIR}/usr/share/pixmaps
+install -m 0644 ${LIVE_TOOLDIR}/media/slackware/icons/graySW_512px.png \
+  ${LIVE_ROOTDIR}/usr/share/pixmaps/liveslak.png
+mkdir -p ${LIVE_ROOTDIR}/home/${LIVEUID}/Desktop
+cat <<EOT > ${LIVE_ROOTDIR}/home/${LIVEUID}/Desktop/.directory
+[Desktop Entry]
+Encoding=UTF-8
+Icon=user-desktop
+Type=Directory
+EOT
+cat <<EOT > ${LIVE_ROOTDIR}/home/${LIVEUID}/Desktop/setup2hd.desktop
+#!/usr/bin/env xdg-open
+[Desktop Entry]
+Type=Application
+Terminal=true
+Name=Install ${DISTRO^}
+Comment=Install ${DISTRO^} (live or regular) to Harddisk
+Icon=/usr/share/pixmaps/liveslak.png
+Exec=sudo -i /usr/local/sbin/setup2hd
+EOT
+# Let Plasma5 trust the desktop shortcut:
+chmod 0544 ${LIVE_ROOTDIR}/home/${LIVEUID}/Desktop/setup2hd.desktop
+
 
 # -------------------------------------------------------------------------- #
 echo "-- Configuring XFCE."
