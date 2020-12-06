@@ -10,6 +10,10 @@
       <Old>X42 Plugins</Old>
       <New>Slackware Live Daw/X42 Plugins</New>
     </Move>
+    <Move>
+      <Old>lsp-plugins</Old>
+      <New>Slackware Live Daw/lsp-plugins</New>
+    </Move>
     <Menu>
       <Name>Slackware Live Daw</Name>
       <Directory>liveslak-daw.directory</Directory>
