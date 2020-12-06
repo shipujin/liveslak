@@ -72,6 +72,7 @@ fribidi-compat32
 gamin-compat32
 gc-compat32
 gdk-pixbuf2-compat32
+gdk-pixbuf2-xlib-compat32
 giflib-compat32
 glib2-compat32
 gmp-compat32
