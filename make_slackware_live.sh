@@ -2452,7 +2452,7 @@ if [ "$LIVEDE" = "STUDIOWARE" ]; then
 
 fi # End LIVEDE = STUDIOWARE
 
-if [ "$LIVEDE" = "PLASMA5" -o "$LIVEDE" = "DAW" -o "$LIVEDE" = "STUDIOWARE" ];
+if [ "$LIVEDE" = "DAW" -o "$LIVEDE" = "STUDIOWARE" ];
 then
 
   # -------------------------------------------------------------------------- #
@@ -2515,7 +2515,7 @@ EOT
   #SCALING_GOVERNOR=performance
   #EOT
 
-fi # End LIVEDE = PLASMA5/DAW/STUDIOWARE
+fi # End LIVEDE = DAW/STUDIOWARE
 
 # You can define the function 'custom_config()' by uncommenting it in
 # the configuration file 'make_slackware_live.conf'.
