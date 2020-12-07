@@ -2170,10 +2170,11 @@ EOT
 fi # End KDE4
 
 
-if [ "$LIVEDE" = "PLASMA5" -o "$LIVEDE" = "DAW" ]; then
+# Only configure for Plasma5 if it is actually installed:
+if [ -d ${LIVE_ROOTDIR}/usr/lib${DIRSUFFIX}/kf5 ]; then
 
   # -------------------------------------------------------------------------- #
-  echo "-- Configuring PLASMA5/DAW."
+  echo "-- Configuring Plasma5."
   # -------------------------------------------------------------------------- #
 
   # This section is for any Plasma5 based variant.
@@ -2306,7 +2307,7 @@ text/html=kwebkitpart.desktop;
 EOT
   fi
 
-fi # End LIVEDE = PLASMA5/DAW
+fi # End Plasma5
 
 if [ "$LIVEDE" = "DLACK" ]; then
 
@@ -2631,9 +2632,9 @@ echo "-- Tweaking system startup."
 if [ "$LIVEDE" = "SLACKWARE" ]; then
   ln -sf xinitrc.kde ${LIVE_ROOTDIR}/etc/X11/xinit/xinitrc
 elif [ "$LIVEDE" = "DAW" ]; then
-  ln -sf xinitrc.plasma ${LIVE_ROOTDIR}/etc/X11/xinit/xinitrc
+  ln -sf xinitrc.kde ${LIVE_ROOTDIR}/etc/X11/xinit/xinitrc
 elif [ "$LIVEDE" = "PLASMA5" ]; then
-  ln -sf xinitrc.plasma ${LIVE_ROOTDIR}/etc/X11/xinit/xinitrc
+  ln -sf xinitrc.kde ${LIVE_ROOTDIR}/etc/X11/xinit/xinitrc
 elif [ "$LIVEDE" = "MATE" ]; then
   ln -sf xinitrc.mate-session ${LIVE_ROOTDIR}/etc/X11/xinit/xinitrc
 elif [ "$LIVEDE" = "CINNAMON" ]; then
