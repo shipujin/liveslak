@@ -178,7 +178,7 @@ SL_REPO_URL=${SL_REPO_URL:-"rsync.osuosl.org::slackware"}
 DEF_SL_REPO_URL=${SL_REPO_URL}
 
 # List of Slackware package series - each will become a squashfs module:
-SEQ_SLACKWARE="tagfile:a,ap,d,e,f,k,kde,kdei,l,n,t,tcl,x,xap,xfce,y pkglist:slackextra"
+SEQ_SLACKWARE="tagfile:a,ap,d,e,f,k,kde,l,n,t,tcl,x,xap,xfce,y pkglist:slackextra"
 
 # Stripped-down Slackware with XFCE as the Desktop Environment:
 # - each series will become a squashfs module:
