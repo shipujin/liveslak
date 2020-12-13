@@ -149,6 +149,7 @@ EOT
       /etc/rc.d/rc.gpm \
       /etc/slackpkg \
       /etc/vconsole.conf \
+      /var/lib/sddm/state.conf \
       /var/lib/slackpkg/current
     # Point xdm to the custom /etc/X11/xdm/liveslak-xdm/xdm-config:
     sed -i ${T_PX}/etc/rc.d/rc.4 -e 's,bin/xdm -nodaemon,& -config /etc/X11/xdm/liveslak-xdm/xdm-config,'
@@ -177,16 +178,10 @@ EOT
         /home/@LIVEUID@/.screenrc \
         /home/@LIVEUID@/.xprofile \
         /home/@LIVEUID@/.xscreensaver
-      if [ "@LIVEUID@" != ${UACCOUNT} ]; then
-        rsync -a $T_PX/home/@LIVEUID@/ $T_PX/home/${UACCOUNT}/
-        chroot ${T_PX} /usr/bin/chown -R ${UACCOUNT} /home/${UACCOUNT}
-        rm -rf $T_PX/home/@LIVEUID@
-      fi
     fi
 
     # If the Live OS is real-time capable we need to apply that to the install:
-    if [ "@LIVEDE@" = "PLASMA5" -o "@LIVEDE@" = "DAW" -o "@LIVEDE@" = "STUDIOWARE" ];
-then
+    if [ "@LIVEDE@" = "DAW" -o "@LIVEDE@" = "STUDIOWARE" ]; then
       unsquashfs -n -f -dest $T_PX \
         /mnt/livemedia/@LIVEMAIN@/system/0099*zzzconf*.sxz \
         /etc/security/limits.d/rt_audio.conf \
@@ -196,8 +191,7 @@ then
     fi
 
     # Copy relevant settings for Live DAW:
-    if [ "@LIVEDE@" = "DAW" ];
-then
+    if [ "@LIVEDE@" = "DAW" ]; then
       LCLIVEDE=$(echo @LIVEDE@ |tr 'A-Z' 'a-z')
       unsquashfs -n -f -dest $T_PX \
         /mnt/livemedia/@LIVEMAIN@/system/0099*zzzconf*.sxz \
@@ -219,12 +213,19 @@ then
           /home/@LIVEUID@/.config/autostart/qjackctl.desktop \
           /home/@LIVEUID@/.config/rncbc.org/QjackCtl.conf \
           /home/@LIVEUID@/.config/kscreenlockerrc
-        if [ "@LIVEUID@" != ${UACCOUNT} ]; then
-          rsync -a $T_PX/home/@LIVEUID@/ $T_PX/home/${UACCOUNT}/
-          rm -rf $T_PX/home/@LIVEUID@
-        fi
       fi
     fi
+
+    # If we restored user customizations and the new user account is
+    # not the same as the live user, sync the files over:
+    if [ "@LIVEUID@" != ${UACCOUNT} ]; then
+      rsync -a $T_PX/home/@LIVEUID@/ $T_PX/home/${UACCOUNT}/
+      rm -rf $T_PX/home/@LIVEUID@
+      # Also change SDDM default user:
+      sed -i ${T_PX}/var/lib/sddm/state.conf -e "s/User=@LIVEUID@/User=${UACCOUNT}/g"
+    fi
+    # Let's ensure the proper ownership:
+    chroot ${T_PX} /usr/bin/chown -R ${UACCTNR} /home/${UACCOUNT}
 
     # Remove the marker file from the filesystem root:
     rm -f ${T_PX}/@MARKER@
