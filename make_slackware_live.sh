@@ -2259,10 +2259,19 @@ KWALLET_EOL
   # Start Konsole with a login shell:
   mkdir -p ${LIVE_ROOTDIR}/etc/skel/.local/share/konsole
   cat <<EOT > ${LIVE_ROOTDIR}/etc/skel/.local/share/konsole/Shell.profile
+[Appearance]
+ColorScheme=BlackOnWhite
+
 [General]
 Command=/bin/bash -l
 Name=Shell
 Parent=FALLBACK/
+TerminalColumns=80
+TerminalRows=25
+
+[Interaction Options]
+AutoCopySelectedText=true
+TrimTrailingSpacesInSelectedText=true
 EOT
   mkdir -p ${LIVE_ROOTDIR}/etc/skel/.config
   cat <<EOT >> ${LIVE_ROOTDIR}/etc/skel/.config/konsolerc
