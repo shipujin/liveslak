@@ -1872,6 +1872,7 @@ if [ -f ${DEF_SL_PKGROOT}/../isolinux/initrd.img ]; then
       -e "s/@LIVEDE@/$LIVEDE/g" \
       -e "s/@LIVEMAIN@/$LIVEMAIN/g" \
       -e "s/@LIVEUID@/$LIVEUID/g" \
+      -e "s/@LIVEUIDNR@/$LIVEUIDNR/g" \
       -e "s/@MARKER@/$MARKER/g" \
       -e "s/@SL_VERSION@/$SL_VERSION/g" \
       -e "s/@VERSION@/$VERSION/g" \
@@ -1888,6 +1889,7 @@ if [ -f ${DEF_SL_PKGROOT}/../isolinux/initrd.img ]; then
     -e "s/@LIVEDE@/$LIVEDE/g" \
     -e "s/@LIVEMAIN@/$LIVEMAIN/g" \
     -e "s/@LIVEUID@/$LIVEUID/g" \
+    -e "s/@LIVEUIDNR@/$LIVEUIDNR/g" \
     -e "s/@MARKER@/$MARKER/g" \
     -e "s/@SL_VERSION@/$SL_VERSION/g" \
     -e "s/@VERSION@/$VERSION/g" \
