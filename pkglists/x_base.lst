@@ -33,6 +33,7 @@ dmxproto
 dosfstools
 dri2proto
 dri3proto
+elogind
 enchant
 encodings
 esound

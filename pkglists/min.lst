@@ -86,7 +86,7 @@ lvm2
 lz4
 lzlib
 #man
-#man-db
+man-db
 man-pages
 mc
 mdadm

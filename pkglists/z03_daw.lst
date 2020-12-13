@@ -29,7 +29,6 @@ jack_capture
 jack2
 jamulus
 ladspa_sdk
-lash
 libconfig
 libfishsound
 libgig
@@ -40,7 +39,6 @@ libltc
 libmodplug
 libmp4v2
 libmpdclient
-libsass
 lilv
 linuxsampler
 lsp-plugins
@@ -66,14 +64,13 @@ qjackctl
 qmidiarp
 qsampler
 qsynth
-qtkeychain
 qtractor
 rapidjson
+raptor2
 redkite
 rtaudio
 rtmidi
 rubberband
-sassc
 sc3-plugins
 serd
 shntool

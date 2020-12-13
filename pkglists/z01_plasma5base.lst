@@ -1,81 +1,14 @@
-# Create a rough version of this file using:
-# cd current/latest/x86_64 ; find -name *.t?z |rev |cut -d- -f4- |rev |sort
-# --------------------------------------------------------------------------
+#
 # This file tries to define a lean 'base' setup of Plasma5
 #
-# deps:
-LibRaw
-#autoconf-archive
-accountsservice
-cfitsio
-cryfs
-cryptopp
-dbus
-ddcutil
-dotconf
-#drumstick
-dvdauthor
-ConsoleKit2%elogind
-#espeak-ng
-exiv2
-#flite
-#freecell-solver
-frei0r-plugins
-gpgme
-grantlee
-grantlee-qt4
-hack-font-ttf
-#hyphen
-id3lib
-json-glib
-kdsoap
-#lensfun
-libappindicator
-libburn
-libdbusmenu-gtk
-libdbusmenu-qt5
-libdmtx
-libindicator
-libqalculate
-#libsass
-lmdb
-mlt
-mozjs68
-#noto-cjk-font-ttf
-noto-font-ttf
-opencv
-#pcaudiolib
-perl-path-tiny
-perl-template-toolkit
-phonon
-phonon-gstreamer
-phonon-vlc
-pipewire
-polkit
-polkit-qt5-1
-poppler
-python3-random2
-#pyxdg
-#quazip
-qca-qt5
-qrencode
-qt-gstreamer
-#qtav
-rttr
-#sassc
-sni-qt
-#speech-dispatcher
-util-linux
-vid.stab
-
 # frameworks:
-attica-framework
-baloo5
+attica
+baloo
 bluez-qt
 breeze-icons
 extra-cmake-modules
 frameworkintegration
-kactivities-framework
+kactivities
 kactivities-stats
 kapidox
 karchive
@@ -100,7 +33,7 @@ kdewebkit
 kdnssd
 kdoctools
 kemoticons
-kfilemetadata5
+kfilemetadata
 kglobalaccel
 kguiaddons
 kholidays
@@ -171,7 +104,6 @@ threadweaver
 #kaddressbook
 #kalarm
 #kalarmcal
-#kblog
 #kcalutils
 #kdav
 #kdepim-addons
@@ -225,7 +157,7 @@ khelpcenter
 khotkeys
 kinfocenter
 kmenuedit
-kscreen2
+kscreen
 kscreenlocker
 ksshaskpass
 ksysguard
@@ -235,24 +167,23 @@ kwayland-integration
 kwayland-server
 kwin
 kwrited
-libkscreen2
+libkscreen
 libksysguard
 milou
 oxygen
 plasma-browser-integration
 plasma-desktop
 plasma-integration
-plasma-mediacenter
+#plasma-mediacenter
+plasma-nm
 plasma-pa
 plasma-sdk
 plasma-vault
 plasma-workspace-wallpapers
-plasma5-nm
-polkit-kde-framework
+polkit-kde-agent-1
 powerdevil
 sddm-kcm
 systemsettings
-user-manager
 xdg-desktop-portal-kde
 
 # plasma-extra:
@@ -262,7 +193,7 @@ pulseaudio-qt
 latte-dock
 #oxygen-fonts
 plasma-wayland-protocols
-sddm-qt5
+sddm
 wacomtablet
 
 # applications:
@@ -270,7 +201,7 @@ wacomtablet
 ark
 #artikulate
 audiocd-kio
-baloo5-widgets
+baloo-widgets
 #blinken
 #bomber
 #bovo
@@ -284,6 +215,7 @@ ffmpegthumbs
 #filelight
 #granatier
 gwenview
+#itinerary
 #juk
 k3b
 #kaccessible
@@ -310,15 +242,13 @@ kcolorchooser
 kcron
 #kde-dev-scripts
 #kde-dev-utils
-kde-runtime
+#kde-runtime
 #kdebugsettings
 kdeconnect-kde
 #kdeedu-data
 kdegraphics-mobipocket
-kdegraphics-strigi-analyzer
 kdegraphics-thumbnailers
 kdenetwork-filesharing
-kdenetwork-strigi-analyzers
 kdenlive
 #kdesdk-kioslaves
 #kdesdk-strigi-analyzers
@@ -345,7 +275,6 @@ kirigami-gallery
 #kiriki
 #kiten
 #kjumpingcube
-#klettres
 #klickety
 #klines
 #klinkstatus
@@ -367,16 +296,18 @@ kompare
 #konqueror
 #konquest
 konsole
+#kontrast
+konversation
 #kopete
+#kosmindoormap
 #kpat
-kppp
+#kpublictransport
 #kqtquickcharts
 krdc
 #kremotecontrol
 #kreversi
 krfb
 #kruler
-ksaneplugin
 #kshisen
 #ksirk
 #ksnakeduel
@@ -387,7 +318,6 @@ ksystemlog
 #kteatime
 #ktimer
 #ktouch
-#ktuberling
 #kturtle
 #kubrick
 kwalletmanager
@@ -409,8 +339,8 @@ libksane
 lokalize
 #lskat
 #marble
+#markdownpart
 #minuet
-mplayerthumbs
 okteta
 okular
 #palapeli
@@ -432,7 +362,6 @@ zeroconf-ioslave
 #calligraplan
 #digikam
 falkon
-#kaudiocreator
 #krita
 #kdev-php
 #kdev-python
@@ -451,7 +380,6 @@ falkon
 #ktimetracker
 #ktorrent
 #kuser
-#kwebkitpart
 libktorrent
 #partitionmanager
 skanlite
