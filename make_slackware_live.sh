@@ -184,10 +184,10 @@ SEQ_SLACKWARE="tagfile:a,ap,d,e,f,k,kde,l,n,t,tcl,x,xap,xfce,y pkglist:slackextr
 # - each series will become a squashfs module:
 SEQ_XFCEBASE="${MINLIST},noxbase,x_base,xapbase,xfcebase local:mcpp"
 
-# Stripped-down Slackware with Plasma5 as the Desktop Environment:
+# Stripped-down Slackware DAW with Plasma5 as the Desktop Environment:
 # - each series will become a squashfs module.
 # Note that loading the modules needs a specific order, which we force:
-SEQ_DAW="pkglist:${MINLIST},noxbase,x_base,xapbase,slackextra,slackpkgplus,z00_slk4daw,z01_plasma5base,z02_alien4daw,z02_alienrest4daw,z03_daw"
+SEQ_DAW="pkglist:${MINLIST},noxbase,x_base,xapbase,slackextra,slackpkgplus,z00_plasma5supp,z01_plasma5base,z02_alien4daw,z02_alienrest4daw,z03_daw"
 
 # List of Slackware package series with Plasma5 instead of KDE 4 (full install):
 # - each will become a squashfs module:
