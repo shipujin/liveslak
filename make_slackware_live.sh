@@ -2444,7 +2444,7 @@ EOT
   # get that added so that our mew submenu will be populated:
   for DAWPKG in $(cat ${LIVE_TOOLDIR}/pkglists/z03_daw.lst |grep -v x42 |grep -Ev '(^ *#)' ) ; do
     # Find the installed full package name belonging to the DAW package:
-    PKGINST=$( ls -1 ${LIVE_ROOTDIR}/var/log/packages/${DAWPKG}* 2>/dev/null |grep -E "/var/log/packages/${DAWPKG}-[^-]+-[^-]+-[^-]+" || true)
+    PKGINST=$( ls -1 ${LIVE_ROOTDIR}/var/log/packages/${DAWPKG}* 2>/dev/null |grep -E "/var/log/packages/${DAWPKG}-[^-]+-[^-]+-[^-]+$" || true)
     if [ -n "${PKGINST}" ]; then
       for DESKTOPF in $(grep 'usr/share/applications/.*.desktop' ${PKGINST})
       do
