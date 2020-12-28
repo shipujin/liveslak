@@ -2428,13 +2428,15 @@ EOT
   # Add all our programs into their own submenu Applications>Multimedia>DAW
   # to avoid clutter in the Multimedia menu. We will use a custom category
   # "X-DAW" to decide what goes into the new submenu.
-  # Also move the existing X42-Plugins submenu below the new DAW submenu.
+  # Also move the X42 and LSP Plugin submenus below the new DAW submenu.
   # see https://specifications.freedesktop.org/menu-spec/menu-spec-1.0.html
+  # We overwrite the menu entries from the 'daw_base' package,
+  # since we want the slightly different liveslak contents instead:
   install -Dm 644 ${LIVE_TOOLDIR}/media/${LIVEDE,,}/menu/liveslak-daw.menu \
-    -t $LIVE_ROOTDIR/etc/xdg/menus/applications-merged/
+    $LIVE_ROOTDIR/etc/xdg/menus/applications-merged/${DISTRO}-daw.menu
   install -Dm 644 \
     ${LIVE_TOOLDIR}/media/${LIVEDE,,}/menu/liveslak-daw.directory \
-    -t $LIVE_ROOTDIR/usr/share/desktop-directories/
+    $LIVE_ROOTDIR/usr/share/desktop-directories/${DISTRO}-daw.directory
   install -Dm 644 ${LIVE_TOOLDIR}/media/${LIVEDE,,}/menu/liveslak-daw.png \
     -t $LIVE_ROOTDIR/usr/share/icons/hicolor/256x256/apps/
 
@@ -2479,18 +2481,27 @@ then
   echo "-- Configuring $LIVEDE (RT behaviour)."
   # -------------------------------------------------------------------------- #
 
+  # Install real-time configuration in case the OS-installed packages
+  # have not yet done this for us ('daw_base' for instance).
+  # The script looks for specific filenames as used in 'daw_base':
+  #   /etc/security/limits.d/rt_audio.conf
+  #   /etc/sysctl.d/daw.conf
+  #   /etc/udev/rules.d/40-timer-permissions.rules
+
   # RT Scheduling and Locked Memory:
   # Implementation depends on whether PAM is installed:
   if [ -L ${LIVE_ROOTDIR}/lib${DIRSUFFIX}/libpam.so.? ]; then
-    # For PAM based system, allow user in 'audio' group to invoke rt capability:
-    mkdir -p ${LIVE_ROOTDIR}/etc/security/limits.d
-    cat <<EOT > ${LIVE_ROOTDIR}/etc/security/limits.d/rt_audio.conf
+    if [ ! -f ${LIVE_ROOTDIR}/etc/security/limits.d/rt_audio.conf ]; then
+      # On PAM based OS, allow user in 'audio' group to invoke rt capability:
+      mkdir -p ${LIVE_ROOTDIR}/etc/security/limits.d
+      cat <<EOT > ${LIVE_ROOTDIR}/etc/security/limits.d/rt_audio.conf
 # Realtime capability allowed for user in the 'audio' group:
 # Use 'unlimited' with care, you can lock up your system when app misbehaves:
 #@audio   -  memlock    2097152
 @audio   -  memlock    unlimited
 @audio   -  rtprio     95
 EOT
+    fi
   else
     cat << "EOT" > ${LIVE_ROOTDIR}/etc/initscript
 # Set umask to safe level:
@@ -2508,25 +2519,29 @@ EOT
     chmod +x ${LIVE_ROOTDIR}/etc/initscript
   fi
 
-  # Allow access for 'audio' group to the high precision event timer,
-  # which may benefit a DAW which relies on ALSA MIDI;
-  # Also grant write access to /dev/cpu_dma_latency to prevent CPU's
-  # from going into idle state:
-  mkdir -p ${LIVE_ROOTDIR}/etc/udev/rules.d
-  cat <<EOT > ${LIVE_ROOTDIR}/etc/udev/rules.d/40-timer-permissions.rules
+  if [ ! -f ${LIVE_ROOTDIR}/etc/udev/rules.d/40-timer-permissions.rules ]; then
+    # Allow access for 'audio' group to the high precision event timer,
+    # which may benefit a DAW which relies on ALSA MIDI;
+    # Also grant write access to /dev/cpu_dma_latency to prevent CPU's
+    # from going into idle state:
+    mkdir -p ${LIVE_ROOTDIR}/etc/udev/rules.d
+    cat <<EOT > ${LIVE_ROOTDIR}/etc/udev/rules.d/40-timer-permissions.rules
 KERNEL=="rtc0", GROUP="audio"
 KERNEL=="hpet", GROUP="audio"
 KERNEL=="cpu_dma_latency", GROUP="audio"
 EOT
+  fi
 
-  # Audio related sysctl settings for better realtime performance:
-  mkdir -p ${LIVE_ROOTDIR}/etc/sysctl.d
-  cat <<EOT > ${LIVE_ROOTDIR}/etc/sysctl.d/daw.conf
+  if [ ! -f ${LIVE_ROOTDIR}/etc/sysctl.d/daw.conf ]; then
+    # Audio related sysctl settings for better realtime performance:
+    mkdir -p ${LIVE_ROOTDIR}/etc/sysctl.d
+    cat <<EOT > ${LIVE_ROOTDIR}/etc/sysctl.d/daw.conf
 # https://wiki.linuxaudio.org/wiki/system_configuration
 dev.hpet.max-user-freq = 3072
 fs.inotify.max_user_watches = 524288
 vm.swappiness = 10
 EOT
+  fi
 
   #  # This would benefit a DAW, but if the user runs the Live OS on a laptop,
   #  # she might want to decide about this herself:
