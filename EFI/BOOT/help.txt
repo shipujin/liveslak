@@ -71,6 +71,9 @@ cfg=[skip|write] =>
   OS parameters; or specify 'write' to write current OS parameters
   to disk.
 
+domain=your_custom_domain =>
+  Specify a custom domain name.  Defaults to 'example.net'.
+
 hostname=your_custom_hostname[,qualifier] =>
   Specify a custom hostname.  A qualifier 'fixed' can be appended
   to prohibit hostname modification in  case of network boot.
@@ -100,6 +103,11 @@ persistence=directoryname => Use this if you want to use
 
 toram => copy the OS from the media to to RAM before running it.
   You can remove the boot media after booting.
+
+toram=all => Prevent writes to disk since we are supposed to
+  run from RAM; equivalent to parameter "toram".
+
+toram=os => Load OS modules into RAM, but write persistent data to USB.
 
 === Troubleshooting ===
 
