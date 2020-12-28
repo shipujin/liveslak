@@ -15,7 +15,6 @@ djvulibre
 dotconf
 dvdauthor
 ebook-tools
-elogind
 exiv2
 flex
 font-bh-ttf
@@ -87,7 +86,6 @@ qrencode
 qt5
 qt5-webkit
 qtkeychain
-recordmydesktop
 rttr
 ruby
 sane

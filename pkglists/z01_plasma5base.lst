@@ -179,7 +179,7 @@ plasma-nm
 plasma-pa
 plasma-sdk
 plasma-vault
-plasma-workspace-wallpapers
+#plasma-workspace-wallpapers
 polkit-kde-agent-1
 powerdevil
 sddm-kcm
@@ -187,7 +187,6 @@ systemsettings
 xdg-desktop-portal-kde
 
 # plasma-extra:
-#kde-wallpapers
 pulseaudio-qt
 #kpeoplevcard
 latte-dock

@@ -14,12 +14,15 @@ carla
 cecilia5
 chromaprint
 cuetools
+daw_base
 drumstick
 dssi
 eq10q
 faad2
+faust
 geonkick
 giada
+glfw
 guitarix
 gxplugins.lv2
 helm
@@ -28,6 +31,7 @@ hydrogen
 jack_capture
 jack2
 jamulus
+jq
 ladspa_sdk
 libconfig
 libfishsound
@@ -36,9 +40,11 @@ liblo
 liblrdf
 liblscp
 libltc
+libmicrohttpd
 libmodplug
 libmp4v2
 libmpdclient
+libwebsockets
 lilv
 linuxsampler
 lsp-plugins
@@ -83,6 +89,11 @@ suil
 supercollider
 vamp-aubio-plugins
 vamp-plugin-sdk
+vcvrack
+vcvrack-audible-instruments
+vcvrack-befaco
+vcvrack-bogaudio
+vcvrack-impromptu-modular
 vmpk
 wxGTK3
 wxpython
