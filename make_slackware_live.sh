@@ -2459,6 +2459,12 @@ EOT
     fi
   done
 
+  # VCV Rack plugins need to be linked into the user-directory to be seen:
+  mkdir -p ${LIVE_ROOTDIR}/home/${LIVEUID}/.Rack/plugins-v1
+  for PLUGIN in $(find ${LIVE_ROOTDIR}/usr/share/vcvrack/ -type f -name "*.zip" -mindepth 1 -maxdepth 1); do
+    ln -s /usr/share/vcvrack/$(basename ${PLUGIN}) ${LIVE_ROOTDIR}/home/${LIVEUID}/.Rack/plugins-v1/
+  done
+
 fi # End LIVEDE = DAW
 
 if [ "$LIVEDE" = "STUDIOWARE" ]; then
