@@ -1740,15 +1740,15 @@ MIRRORPLUS['mate']=http://slackware.uk/msb/${SL_VERSION}/latest/${SL_ARCH}/
 EOPL
   # Use the appropriate ktown variant:
   eval $( grep "^ *VARIANT=" ${LIVE_TOOLDIR}/pkglists/plasma5.conf)
-  if [ "$VARIANT" = "latest" ]; then
-    cat <<EOPL >> etc/slackpkg/slackpkgplus.conf
-#MIRRORPLUS['ktown']=http://slackware.nl/alien-kde/${SL_VERSION}/testing/${SL_ARCH}/
-MIRRORPLUS['ktown']=http://slackware.nl/alien-kde/${SL_VERSION}/latest/${SL_ARCH}/
-EOPL
-  else
+  if [ "$VARIANT" = "testing" ]; then
     cat <<EOPL >> etc/slackpkg/slackpkgplus.conf
 #MIRRORPLUS['ktown']=http://slackware.nl/alien-kde/${SL_VERSION}/latest/${SL_ARCH}/
 MIRRORPLUS['ktown']=http://slackware.nl/alien-kde/${SL_VERSION}/testing/${SL_ARCH}/
+EOPL
+  else
+    cat <<EOPL >> etc/slackpkg/slackpkgplus.conf
+#MIRRORPLUS['ktown']=http://slackware.nl/alien-kde/${SL_VERSION}/testing/${SL_ARCH}/
+MIRRORPLUS['ktown']=http://slackware.nl/alien-kde/${SL_VERSION}/latest/${SL_ARCH}/
 EOPL
   fi
 fi
