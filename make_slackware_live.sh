@@ -1938,6 +1938,14 @@ echo "-- Configuring the X base system."
 # Reduce the number of local consoles, two should be enough:
 sed -i -e '/^c3\|^c4\|^c5\|^c6/s/^/# /' ${LIVE_ROOTDIR}/etc/inittab
 
+# Also treat members of the 'wheel' group as admins next to root:
+mkdir -p ${LIVE_ROOTDIR}/etc/polkit-1/rules.d
+cat <<EOT > ${LIVE_ROOTDIR}/etc/polkit-1/rules.d/10-wheel-admin.rules
+polkit.addAdminRule(function(action, subject) {
+    return ["unix-group:wheel"];
+});
+EOT
+
 # Give the 'live' user a face:
 if [ -f "${LIVE_TOOLDIR}/media/${LIVEDE,,}/icons/default.png" ]; then
   # Use custom face icon if available for the Live variant:
