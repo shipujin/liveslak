@@ -1,5 +1,5 @@
---- liloconfig.orig	2020-05-18 01:30:25.457982369 +0200
-+++ liloconfig	2020-12-05 12:48:42.535216766 +0100
+--- testing/liloconfig.20201223	2020-12-23 22:01:43.268714126 +0100
++++ testing/liloconfig.20201226	2020-12-26 22:31:01.070803743 +0100
 @@ -22,6 +22,11 @@
  #  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
@@ -98,7 +98,15 @@
    LILO_TARGET=$(cat $TMP/LILOMBR)
   elif [ "$TG" = "Root" ]; then
    LILO_TARGET=$(echo $ROOT_DEVICE)
-@@ -452,7 +465,18 @@
+@@ -338,7 +351,6 @@
+   echo "append=\"$APPEND $UTFVT\"" >> $T_PX/etc/lilo.conf
+   echo >> $T_PX/etc/lilo.conf
+  #fi
+-
+  if echo $LILO_TARGET | grep -q vda 2>/dev/null ; then
+   echo "disk = /dev/vda bios=0x80 max-partitions=7" >> $T_PX/etc/lilo.conf
+  fi
+@@ -452,7 +464,18 @@
   LNXP="$(PROBE -l | grep "Linux$")" 
   LNXP="$(echo $LNXP | cut -f 1 -d ' ' | sort)"
   if [ ! "$LNXP" = "" ]; then
@@ -118,7 +126,7 @@
  # Linux bootable partition config begins
  image = $KERNEL
    root = $ROOT_DEVICE
-@@ -460,6 +484,7 @@
+@@ -460,6 +483,7 @@
    read-only
  # Linux bootable partition config ends
  EOF
@@ -126,7 +134,7 @@
    echo "Linux    -  (Linux partition)" >> $T_PX/boot/boot_message.txt
   fi
  # DEAD CODE, BUT IN CASE OS/2 MAKES A COMEBACK!
-@@ -668,6 +693,8 @@
+@@ -668,6 +692,8 @@
  ARCHTYPE=i386
  if [ -r $T_PX/vmlinuz ]; then
    KERNEL=/vmlinuz
@@ -135,16 +143,7 @@
  elif [ -r $T_PX/boot/vmlinuz ]; then
    KERNEL=/boot/vmlinuz
  elif [ -r $T_PX/usr/src/linux/arch/$ARCHTYPE/boot/bzImage ]; then
-@@ -680,7 +707,7 @@
- 
-  # If we're installing from the umsdos.gz rootdisk, suggest skipping LILO:
-  if [ ! "$T_PX" = "/" ]; then
--   if mount | grep " on /mnt " | grep umsdos 1> /dev/null 2> /dev/null ; then
-+   if mount | grep " on $T_PX " | grep umsdos 1> /dev/null 2> /dev/null ; then
-      dialog --title "SKIP LILO CONFIGURATION? (RECOMMENDED)" --yesno "Since \
- you are installing to a FAT partition, it's suggested that you do not \
- configure LILO at this time. (Instead, use your bootdisk. For booting \
-@@ -777,27 +804,7 @@
+@@ -763,33 +789,7 @@
     fi
     rm -r $TMP/reply
     if [ "$TG" = "MBR" ]; then
@@ -167,26 +166,19 @@
 -       MBR_TARGET=/dev/hdg
 -       echo $MBR_TARGET > $TMP/LILOMBR
 -      fi
+-      if dmidecode 2> /dev/null | grep -q QEMU 2> /dev/null ; then
+-       if [ -r /dev/vda ]; then
+-         MBR_TARGET=/dev/vda
+-         echo $MBR_TARGET > $TMP/LILOMBR
+-       fi
+-      fi
 -     fi
 -    done
 +    find_mbr
      LILO_TARGET=$(cat $TMP/LILOMBR)
      dialog --title "CONFIRM LOCATION TO INSTALL LILO" --inputbox \
  "The auto-detected location to install the LILO boot block is shown below. \
-@@ -852,7 +859,11 @@
- #
- # Start LILO global section
- boot = $LILO_TARGET
--
-+EOF
-+   if echo $LILO_TARGET | grep -q vda 2>/dev/null ; then
-+    echo "disk = /dev/vda bios=0x80 max-partitions=7" >> $TMP/lilo.conf
-+   fi
-+   cat << EOF >> $TMP/lilo.conf
- # This option loads the kernel and initrd much faster:
- compact
- 
-@@ -970,7 +981,18 @@
+@@ -965,7 +965,18 @@
       continue
      fi
      LABEL="$(cat $TMP/reply)"
@@ -206,7 +198,7 @@
  # Linux bootable partition config begins
  image = $KERNEL
    root = $LINUX_PART
-@@ -978,6 +1000,7 @@
+@@ -973,6 +984,7 @@
    read-only  # Partitions should be mounted read-only for checking
  # Linux bootable partition config ends
  EOF
@@ -214,14 +206,3 @@
     else
      dialog --title "CAN'T ADD LINUX PARTITION" --msgbox "You can't add \
  partitions unless you start over with a new LILO header." 6 60
-@@ -1154,8 +1177,8 @@
-    if [ -r $TMP/lilo.conf ]; then
-     dialog --title "YOUR NEW /etc/lilo.conf" --textbox "$TMP/lilo.conf" 22 70
-    else
--    if [ -r /mnt/etc/lilo.conf ]; then
--     dialog --title "YOUR OLD /etc/lilo.conf" --textbox "/mnt/etc/lilo.conf" 22 70
-+    if [ -r $T_PX/etc/lilo.conf ]; then
-+     dialog --title "YOUR OLD /etc/lilo.conf" --textbox "$T_PX/etc/lilo.conf" 22 70
-     elif [ "$T_PX" = "/" -a -r /etc/lilo.conf ]; then
-      dialog --title "YOUR OLD /etc/lilo.conf" --textbox "/etc/lilo.conf" 22 70
-     else
