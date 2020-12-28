@@ -1301,7 +1301,7 @@ Xft.lcdfilter: lcddefault
 Xft.rgba: rgb
 Xft.autohint: 0
 EOT
-    chown ${LIVEUID}:users /mnt/overlay/home/${LIVEUID}/.Xresources
+    chroot /mnt/overlay/ chown ${LIVEUID}:users /home/${LIVEUID}/.Xresources
   elif [ -f /mnt/overlay/etc/profile.d/freetype.sh ]; then
     # Explicitly configure the non-default old v35 interpreter in freetype:
     cat <<EOT >> /mnt/overlay/etc/profile.d/freetype.sh
