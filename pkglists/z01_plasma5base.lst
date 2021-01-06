@@ -209,7 +209,7 @@ baloo-widgets
 dolphin
 dolphin-plugins
 #dragon
-elisa
+#elisa
 ffmpegthumbs
 #filelight
 #granatier
@@ -248,7 +248,7 @@ kdeconnect-kde
 kdegraphics-mobipocket
 kdegraphics-thumbnailers
 kdenetwork-filesharing
-kdenlive
+#kdenlive
 #kdesdk-kioslaves
 #kdesdk-strigi-analyzers
 #kdesdk-thumbnailers
@@ -320,7 +320,7 @@ ksystemlog
 #kturtle
 #kubrick
 kwalletmanager
-kwave
+#kwave
 #kwordquiz
 libkcddb
 libkcompactdisc
@@ -335,7 +335,7 @@ libkipi
 #libkmahjongg
 libkomparediff2
 libksane
-lokalize
+#lokalize
 #lskat
 #marble
 #markdownpart
