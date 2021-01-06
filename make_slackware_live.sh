@@ -187,7 +187,7 @@ SEQ_XFCEBASE="${MINLIST},noxbase,x_base,xapbase,xfcebase local:mcpp"
 # Stripped-down Slackware DAW with Plasma5 as the Desktop Environment:
 # - each series will become a squashfs module.
 # Note that loading the modules needs a specific order, which we force:
-SEQ_DAW="pkglist:${MINLIST},noxbase,x_base,xapbase,slackextra,slackpkgplus,z00_plasma5supp,z01_plasma5base,z02_alien4daw,z02_alienrest4daw,z03_daw"
+SEQ_DAW="pkglist:${MINLIST},noxbase,x_base,xapbase,slackpkgplus,z00_plasma5supp,z01_plasma5base,z01_plasma5extra,z01_swdev,z02_alien4daw,z02_alienrest4daw,z03_daw"
 
 # Slackware with 'ktown' Plasma5 instead of its own KDE (full install):
 # - each will become a squashfs module:
@@ -2437,9 +2437,9 @@ EOT
     $LIVE_ROOTDIR/etc/xdg/menus/applications-merged/${DISTRO}-daw.menu
   install -Dm 644 \
     ${LIVE_TOOLDIR}/media/${LIVEDE,,}/menu/liveslak-daw.directory \
-    $LIVE_ROOTDIR/usr/share/desktop-directories/${DISTRO}-daw.directory
+    $LIVE_ROOTDIR/usr/share/desktop-directories/liveslak-daw.directory
   install -Dm 644 ${LIVE_TOOLDIR}/media/${LIVEDE,,}/menu/liveslak-daw.png \
-    -t $LIVE_ROOTDIR/usr/share/icons/hicolor/256x256/apps/
+    -t $LIVE_ROOTDIR/usr/share/icons/hicolor/512x512/apps/
 
   # Any menu entry that does not yet have a Category "X-DAW" will now have to
   # get that added so that our mew submenu will be populated:
