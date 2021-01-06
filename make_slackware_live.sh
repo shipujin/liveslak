@@ -193,15 +193,15 @@ SEQ_DAW="pkglist:${MINLIST},noxbase,x_base,xapbase,slackextra,slackpkgplus,z00_p
 # - each will become a squashfs module:
 SEQ_KTOWN="tagfile:a,ap,d,e,f,k,l,n,t,tcl,x,xap,xfce,y pkglist:ktown,ktownalien,slackextra,slackpkgplus"
 
-# List of Slackware package series with MSB instead of KDE 4 (full install):
+# List of Slackware package series with MSB instead of KDE (full install):
 # - each will become a squashfs module:
 SEQ_MSB="tagfile:a,ap,d,e,f,k,l,n,t,tcl,x,xap,xfce,y pkglist:mate,slackextra,slackpkgplus"
 
-# List of Slackware package series with Cinnamon instead of KDE4 (full install):
+# List of Slackware package series with Cinnamon instead of KDE (full install):
 # - each will become a squashfs module:
 SEQ_CIN="tagfile:a,ap,d,e,f,k,l,n,t,tcl,x,xap,xfce,y pkglist:cinnamon,slackextra,slackpkgplus"
 
-# Slackware package series with Gnome3/systemd instead of KDE4 (full install):
+# Slackware package series with Gnome3/systemd instead of KDE (full install):
 # - each will become a squashfs module:
 SEQ_DLACK="tagfile:a,ap,d,e,f,k,l,n,t,tcl,x,xap pkglist:dlackware,slackextra,systemd"
 
