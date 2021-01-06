@@ -35,7 +35,7 @@
 # -----------------------------------------------------------------------------
 
 # Version of the Live OS generator:
-VERSION="1.3.8.3"
+VERSION="1.3.8.4"
 
 # Timestamp:
 THEDATE=$(date +%Y%m%d)
