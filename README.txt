@@ -33,8 +33,8 @@ The reasons I had for creating the Slackware Live Edition are as follows:
 The "liveslak" scripts can generate a variety of Slackware flavors:
   - a complete 64bit Slackware-current Live Edition (in a 4.0 GB ISO);
   - a slimmed-down XFCE ISO (700 MB) with XDM as the graphical login manager.  It fits on a CDROM medium or a 1 GB USB stick;
-  -  a ISO image (4.3 GB) of Slackware64-current containing Plasma 5 instead of KDE 4.
-  - A Digital Audio Workstation (DAW) based on a custom Slackware package set plus Plasma5, containing a rich software collection for musicians, producers and live performance artists.
+  -  a ISO image (4.3 GB) of Slackware64-current containing 'ktown' Plasma 5 instead of Slackware's KDE.
+  - A Digital Audio Workstation (DAW) based on a custom Slackware package set plus a basic Plasma5, containing a rich software collection for musicians, producers and live performance artists.
   - a Mate variant (3.2 GB) where KDE 4 has been replaced by Mate (a Gnome 2 fork);
   - a Cinnamon flavour (a fork of the Gnome 3 Shell replacing Slackware's KDE 4).
   - a Dlackware variant, which is Gnome3 + PAM + systemd on top of Slackware and stripped of KDE4.
@@ -75,7 +75,7 @@ Slackware Live Edition deviates as little as possible from a regular Slackware b
 Slackware Live Edition uses syslinux to boot the Linux kernel on BIOS computers. To be precise, the "isolinux" variant is installed to the ISO image and the "extlinux" variant is installed into the Linux partition of the USB Live version.
 
 Syslinux shows a graphical boot menu with a nice Slackware-themed background and several options:
-  * Start (SLACKWARE | PLASMA5 | XFCE | MATE | DAW) Live (depending on which of the ISOs you boot)
+  * Start (SLACKWARE | KTOWN | XFCE | MATE | DAW) Live (depending on which of the ISOs you boot)
   * Non-US Keyboard selection
   * Non-US Language selection
   * Memory test with memtest86+
@@ -89,7 +89,7 @@ If you stick to US English interface language you will probably still want to ch
 
 On UEFI computers, Grub2 handles the boot and it will show a menu similar (and similarly themed) to the Syslinux menu:
 
-  * Start (SLACKWARE | PLASMA5 | XFCE | MATE | DAW) Live (depending on which of the ISOs you boot)
+  * Start (SLACKWARE | KTOWN | XFCE | MATE | DAW) Live (depending on which of the ISOs you boot)
   * Non-US Keyboard selection
   * Non-US Language selection
   * Non-US Timezone selection
@@ -566,7 +566,7 @@ The fourth script:
 
 The "setup2hd" script is a modified Slackware installer, so you will be comfortable with the process.  The 'SOURCE' section offers two types of choices:  a regular Slackware network installation using a NFS, HTTP, FTP or Samba server, as well as a choice of installing the Live OS which you are running. The script knows where to find the squashfs modules, so the "Install Live OS" selection will not prompt further inputs.
   * The Slackware network installation is identical to that of the official Slackware installation medium.
-  * If you chose to install the Live OS, then after you select the target partition(s), every active module of the Live OS variant (SLACKWARE, PLASMA5, MATE, ...) is extracted to the hard drive.  After extraction has completed, the script summarizes how many modules have been extracted.  It will also show an example command to extract any remaining inactive or disabled modules manually.  The final step in the installation is again the stock Slackware installer which kicks off the Slackware configuration scripts.
+  * If you chose to install the Live OS, then after you select the target partition(s), every active module of the Live OS variant (SLACKWARE, KTOWN, MATE, ...) is extracted to the hard drive.  After extraction has completed, the script summarizes how many modules have been extracted.  It will also show an example command to extract any remaining inactive or disabled modules manually.  The final step in the installation is again the stock Slackware installer which kicks off the Slackware configuration scripts.
 
 
 === pxeserver ===
@@ -700,7 +700,7 @@ The script's parameters are:
  -c comp            Squashfs compression (default: xz).
                     Can be any of 'gzip lzma lzo xz zstd'.
  -d desktoptype     SLACKWARE (full Slack), KDE4 (basic KDE4),
-                    XFCE (basic XFCE), PLASMA5 (KDE Plasma5 replaces KDE4),
+                    XFCE (basic XFCE), KTOWN (ktown Plasma5 replacement),
                     MATE (Gnome2 fork replaces KDE4), CINNAMON (fork of Gnome3
                     Shell replaces KDE4), DLACK (adds Gnome3, PAM and systemd).
  -e                 Use ISO boot-load-size of 32 for computers
@@ -749,7 +749,7 @@ Which means that most of the Slackware package series (excepting kde and kdei) w
 
 You can create your own custom Live OS by changing its characteristics in the configuration file "make_slackware_live.conf". Among the things you can change are:
 
-  * The name of the Desktop variant (the script itself knows SLACKWARE, PLASMA5, DAW, XFCE, MATE, CINNAMON, STUDIOWARE and DLACK),
+  * The name of the Desktop variant (the script itself knows SLACKWARE, KTOWN, DAW, XFCE, MATE, CINNAMON, STUDIOWARE and DLACK),
   * The list(s) of packages used for your custom distribution,
   * The full name of the user (by default that is "Slackware Live User"),
   * The name of the useraccount (by default that is "live"),
@@ -802,7 +802,7 @@ This is the section in ''make_slackware_live.conf'' which deals with these custo
 
 === Custom background images ===
 
-The Plasma5 based Live variants allow customization of the background image used for the login greeter, the desktop wallpaper and the lock screen. The image you want to use for this purpose, must have a 16:9 aspect ratio and its dimensions should at least be 1920x1080 pixels. You  must store the custom image inside the liveslak source tree: in the subdirectory ''./media/<variant>/bg/'' where "<variant>" is the lower-case name of the Live variant (variant 'PLASMA5' equals directory 'plasma5', 'DAW' becomes 'daw', etc).
+The Plasma5 based Live variants allow customization of the background image used for the login greeter, the desktop wallpaper and the lock screen. The image you want to use for this purpose, must have a 16:9 aspect ratio and its dimensions should at least be 1920x1080 pixels. You  must store the custom image inside the liveslak source tree: in the subdirectory ''./media/<variant>/bg/'' where "<variant>" is the lower-case name of the Live variant (variant 'KTOWN' equals directory 'ktown', 'DAW' becomes 'daw', etc).
 
 The "make_slackware_live.sh" script will look there for a file named either "background.jpg" or "background.png". If you want, that file can be a symlink to the actual bitmap file. The image will be converted into a set of wallpaper images of different aspect ratios and sizes. The different aspect ratios like 16:9, 16:10 and 4:3 will be achieved by cropping the images if needed, to avoid distortion. The image set will be installed as a Plasma5 wallpaper called "Slackware Live", and configured to be the default Live OS background.
 
