@@ -1104,9 +1104,8 @@ EOT
   if [ ! -z "$TZ" -a -f /mnt/overlay/usr/share/zoneinfo/${TZ} ]; then
     # Configure custom timezone:
     echo "${MARKER}:  Configuring timezone '$TZ'"
-    cp /mnt/overlay/usr/share/zoneinfo/${TZ} /mnt/overlay/etc/localtime
+    ln -s /usr/share/zoneinfo/${TZ} /mnt/overlay/etc/localtime
     rm -f /mnt/overlay/etc/localtime-copied-from
-    ln -s /usr/share/zoneinfo/${TZ} /mnt/overlay/etc/localtime-copied-from
     # Configure the hardware clock to be interpreted as localtime and not UTC:
     cat <<EOT > /mnt/overlay/etc/hardwareclock
 # /etc/hardwareclock
@@ -1119,7 +1118,7 @@ EOT
     # file so QT5 fails to determine the timezone and falls back to UTC. Fix:
     echo ${TZ} > /mnt/overlay/etc/timezone
 
-    # KDE4 and PLASMA5 user timezone re-configuration:
+    # KDE4 and Plasma5 user timezone re-configuration:
     if [ -f /mnt/overlay/home/${LIVEUID}/.kde/share/config/ktimezonedrc ]; then
       sed -i -e "s%^LocalZone=.*%LocalZone=${TZ}%" \
         /mnt/overlay/home/${LIVEUID}/.kde/share/config/ktimezonedrc

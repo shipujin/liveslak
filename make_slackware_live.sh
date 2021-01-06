@@ -1503,16 +1503,14 @@ echo "LANG=${DEF_LOCALE}" > ${LIVE_ROOTDIR}/etc/locale.conf
 echo "KEYMAP=${DEF_KBD}" > ${LIVE_ROOTDIR}/etc/vconsole.conf
 
 # Set timezone to UTC, mimicking the 'timeconfig' script in Slackware:
-cp -a ${LIVE_ROOTDIR}/usr/share/zoneinfo/UTC ${LIVE_ROOTDIR}/etc/localtime
+ln -s /usr/share/zoneinfo/UTC ${LIVE_ROOTDIR}/etc/localtime
 # Could be absent so 'rm -f' to avoid script aborts:
 rm -f ${LIVE_ROOTDIR}/etc/localtime-copied-from
-ln -s /usr/share/zoneinfo/UTC ${LIVE_ROOTDIR}/etc/localtime-copied-from
 
-# Qt5 expects '/etc/localtime' to be a symlink, but in Slackware this is a
-# real file.  This causes Qt5 timezone detection to fail so that "UTC"
-# will be returned always.  However if a file '/etc/timezone' exists, Qt5
-# will use that.  Until this is fixed (either in Slackware or in Qt5) we
-# add the file and update the 'timeconfig' script accordingly:
+# Qt5 expects '/etc/localtime' to be a symlink. If this is a real file,
+# it causes Qt5 timezone detection to fail so that "UTC" will be returned
+# always.  However if a file '/etc/timezone' exists, Qt5 will use that.
+# We add the file and update the 'timeconfig' script accordingly:
 echo "UTC" > ${LIVE_ROOTDIR}/etc/timezone
 sed -i -n "p;s/^\( *\)rm -f localtime$/\1echo \$TZ > timezone/p" \
   ${LIVE_ROOTDIR}/usr/sbin/timeconfig
