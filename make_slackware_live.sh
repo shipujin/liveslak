@@ -89,7 +89,7 @@ USEXORR=${USEXORR:-"NO"}
 DISTRO=${DISTRO:-"slackware"}
 
 # What type of Live image?
-# Choices are: SLACKWARE, XFCE, DAW, PLASMA5, MATE, CINNAMON, DLACK, STUDIOWARE
+# Choices are: SLACKWARE, XFCE, LEAN, DAW, KTOWN, MATE, CINNAMON, DLACK, STUDIOWARE
 LIVEDE=${LIVEDE:-"SLACKWARE"}
 
 # The live username of the image:
@@ -116,7 +116,7 @@ NVGRPNR=${NVUIDNR:-"365"}
 # Custom name for the host:
 LIVE_HOSTNAME=${LIVE_HOSTNAME:-"darkstar"}
 
-# What runlevel to use if adding a DE like: XFCE, DAW, PLASMA5 etc...
+# What runlevel to use if adding a DE like: XFCE, DAW, KTOWN etc...
 RUNLEVEL=${RUNLEVEL:-4}
 
 # Use the graphical syslinux menu (YES or NO)?
@@ -189,9 +189,9 @@ SEQ_XFCEBASE="${MINLIST},noxbase,x_base,xapbase,xfcebase local:mcpp"
 # Note that loading the modules needs a specific order, which we force:
 SEQ_DAW="pkglist:${MINLIST},noxbase,x_base,xapbase,slackextra,slackpkgplus,z00_plasma5supp,z01_plasma5base,z02_alien4daw,z02_alienrest4daw,z03_daw"
 
-# List of Slackware package series with Plasma5 instead of KDE 4 (full install):
+# Slackware with 'ktown' Plasma5 instead of its own KDE (full install):
 # - each will become a squashfs module:
-SEQ_PLASMA5="tagfile:a,ap,d,e,f,k,l,n,t,tcl,x,xap,xfce,y pkglist:plasma5,plasma5alien,slackextra,slackpkgplus"
+SEQ_KTOWN="tagfile:a,ap,d,e,f,k,l,n,t,tcl,x,xap,xfce,y pkglist:ktown,ktownalien,slackextra,slackpkgplus"
 
 # List of Slackware package series with MSB instead of KDE 4 (full install):
 # - each will become a squashfs module:
@@ -210,7 +210,7 @@ SEQ_DLACK="tagfile:a,ap,d,e,f,k,l,n,t,tcl,x,xap pkglist:dlackware,slackextra,sys
 SEQ_STUDW="tagfile:a,ap,d,e,f,k,kde,l,n,t,tcl,x,xap,xfce,y pkglist:slackextra,slackpkgplus,studioware"
 
 # Package blacklists for variants:
-BLACKLIST_PLASMA5="scim scim-tables scim-pinyin scim-m17n scim-hangul scim-anthy scim-input-pad"
+#BLACKLIST_KTOWN="scim scim-tables scim-pinyin scim-m17n scim-hangul scim-anthy scim-input-pad"
 
 # -- START: Used verbatim in upslak.sh -- #
 # List of kernel modules required for a live medium to boot properly;
@@ -230,7 +230,7 @@ NETFIRMWARE="3com acenic adaptec bnx tigon e100 sun kaweth tr_smctr cxgb3 rtl_ni
 # If any Live variant needs additional 'append' parameters, define them here,
 # either using a variable name 'KAPPEND_<LIVEDE>', or by defining 'KAPPEND' in the .conf file:
 KAPPEND_SLACKWARE=""
-KAPPEND_PLASMA5="threadirqs"
+KAPPEND_KTOWN="threadirqs"
 KAPPEND_DAW="threadirqs"
 KAPPEND_STUDIOWARE="threadirqs"
 
@@ -1060,8 +1060,8 @@ do
         echo "                    Use i586 for a 32bit ISO, x86_64 for 64bit."
         echo " -c comp            Squashfs compression (default: ${SQ_COMP})."
         echo "                    Can be any of '${SQ_COMP_AVAIL}'."
-        echo " -d desktoptype     SLACKWARE (full Slack), DAW,"
-        echo "                    XFCE basic, PLASMA5, MATE, CINNAMON, DLACK."
+        echo " -d desktoptype     SLACKWARE (full Slack),XFCE basic, LEAN, DAW,"
+        echo "                    KTOWN, MATE, CINNAMON, DLACK, STUDIOWARE."
         echo " -e                 Use ISO boot-load-size of 32 for computers."
         echo "                    where the ISO won't boot otherwise."
         echo " -f                 Forced re-generation of all squashfs modules,"
@@ -1321,8 +1321,9 @@ echo "${THEDATE} (${BUILDER})" > ${LIVE_BOOT}/${MARKER}
 case "$LIVEDE" in
   SLACKWARE) MSEQ="${SEQ_SLACKWARE}" ;;
        XFCE) MSEQ="${SEQ_XFCEBASE}" ;;
+       LEAN) MSEQ="${SEQ_LEAN}" ;;
         DAW) MSEQ="${SEQ_DAW}" ;;
-    PLASMA5) MSEQ="${SEQ_PLASMA5}" ;;
+      KTOWN) MSEQ="${SEQ_KTOWN}" ;;
        MATE) MSEQ="${SEQ_MSB}" ;;
    CINNAMON) MSEQ="${SEQ_CIN}" ;;
       DLACK) MSEQ="${SEQ_DLACK}" ;;
@@ -1739,7 +1740,7 @@ MIRRORPLUS['mate']=http://slackware.uk/msb/${SL_VERSION}/latest/${SL_ARCH}/
 #MIRRORPLUS['studioware']=http://slackware.uk/studioware/${SL_VERSION}/ 
 EOPL
   # Use the appropriate ktown variant:
-  eval $( grep "^ *VARIANT=" ${LIVE_TOOLDIR}/pkglists/plasma5.conf)
+  eval $( grep "^ *VARIANT=" ${LIVE_TOOLDIR}/pkglists/ktown.conf)
   if [ "$VARIANT" = "testing" ]; then
     cat <<EOPL >> etc/slackpkg/slackpkgplus.conf
 #MIRRORPLUS['ktown']=http://slackware.nl/alien-kde/${SL_VERSION}/latest/${SL_ARCH}/
@@ -2669,18 +2670,14 @@ echo "-- Tweaking system startup."
 # -------------------------------------------------------------------------- #
 
 # Configure the default DE when running startx:
-if [ "$LIVEDE" = "SLACKWARE" ]; then
-  ln -sf xinitrc.kde ${LIVE_ROOTDIR}/etc/X11/xinit/xinitrc
-elif [ "$LIVEDE" = "DAW" ]; then
-  ln -sf xinitrc.kde ${LIVE_ROOTDIR}/etc/X11/xinit/xinitrc
-elif [ "$LIVEDE" = "PLASMA5" ]; then
-  ln -sf xinitrc.kde ${LIVE_ROOTDIR}/etc/X11/xinit/xinitrc
-elif [ "$LIVEDE" = "MATE" ]; then
+if [ "$LIVEDE" = "MATE" ]; then
   ln -sf xinitrc.mate-session ${LIVE_ROOTDIR}/etc/X11/xinit/xinitrc
 elif [ "$LIVEDE" = "CINNAMON" ]; then
   ln -sf xinitrc.cinnamon-session ${LIVE_ROOTDIR}/etc/X11/xinit/xinitrc
 elif [ "$LIVEDE" = "DLACK" ]; then
   ln -sf xinitrc.gnome ${LIVE_ROOTDIR}/etc/X11/xinit/xinitrc
+elif [ -f ${LIVE_ROOTDIR}/etc/X11/xinit/xinitrc.kde ]; then
+  ln -sf xinitrc.kde ${LIVE_ROOTDIR}/etc/X11/xinit/xinitrc
 elif [ -f ${LIVE_ROOTDIR}/etc/X11/xinit/xinitrc.xfce ]; then
   ln -sf xinitrc.xfce ${LIVE_ROOTDIR}/etc/X11/xinit/xinitrc
 fi
