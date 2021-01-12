@@ -2,7 +2,7 @@
 #
 # Copyright 2004  Slackware Linux, Inc., Concord, CA, USA
 # Copyright 2007, 2008, 2009, 2010, 2012  Patrick J. Volkerding, Sebeka, MN, USA
-# Copyright 2015, 2016, 2017, 2018  Eric Hameleers, Eindhoven, NL
+# Copyright 2015, 2016, 2017, 2018, 2019, 2020, 2021  Eric Hameleers, Eindhoven, NL
 # All rights reserved.
 #
 # Redistribution and use of this script, with or without modification, is
@@ -1104,6 +1104,7 @@ EOT
   if [ ! -z "$TZ" -a -f /mnt/overlay/usr/share/zoneinfo/${TZ} ]; then
     # Configure custom timezone:
     echo "${MARKER}:  Configuring timezone '$TZ'"
+    rm -f /mnt/overlay/etc/localtime
     ln -s /usr/share/zoneinfo/${TZ} /mnt/overlay/etc/localtime
     rm -f /mnt/overlay/etc/localtime-copied-from
     # Configure the hardware clock to be interpreted as localtime and not UTC:
