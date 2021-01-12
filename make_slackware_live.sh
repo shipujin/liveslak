@@ -240,9 +240,9 @@ KAPPEND_STUDIOWARE="threadirqs"
 # Add CACert root certificates yes/no?
 ADD_CACERT=${ADD_CACERT:-"NO"}
 
-# Default language selection for the Live OS; this can be changed with the
-# coomandline switch "-l":
-DEF_LANG="us"
+# Default language selection for the Live OS; 'en' means generic English.
+# This can be changed with the commandline switch "-l":
+DEF_LANG="en"
 
 #
 # ---------------------------------------------------------------------------
@@ -649,12 +649,13 @@ function gen_bootmenu() {
   rm -f ${MENUROOTDIR}/kbd.cfg
   rm -f ${MENUROOTDIR}/lang*.cfg
 
-  # Generate main (US) vesamenu.cfg:
+  # Generate main (EN) vesamenu.cfg:
   cat ${LIVE_TOOLDIR}/menu.tpl | sed \
     -e "s/@KBD@/${DEF_KBD}/g" \
     -e "s/@LANG@/${DEF_LANG}/g" \
     -e "s/@ULANG@/${DEF_LANG^^}/g" \
     -e "s,@LOCALE@,${DEF_LOCALE},g" \
+    -e "s,@TZ@,${DEF_TZ},g" \
     -e "s/@CONSFONT@/$CONSFONT/g" \
     -e "s/@DIRSUFFIX@/$DIRSUFFIX/g" \
     -e "s/@DISTRO@/$DISTRO/g" \
@@ -681,6 +682,11 @@ function gen_bootmenu() {
     cat <<EOL >> ${MENUROOTDIR}/kbd.cfg
 label ${LANCOD}
   menu label ${LANDSC}
+EOL
+    if [ "${KBD}" == "${DEF_KBD}" ]; then
+      echo "  menu default" >> ${MENUROOTDIR}/kbd.cfg
+    fi
+    cat <<EOL >> ${MENUROOTDIR}/kbd.cfg
   kbdmap menu/${KBD}.ktl
   kernel vesamenu.c32
   append menu/menu_${LANCOD}.cfg
@@ -693,6 +699,7 @@ EOL
       -e "s/@LANG@/$LANCOD/g" \
       -e "s/@ULANG@/${DEF_LANG^^}/g" \
       -e "s,@LOCALE@,${DEF_LOCALE},g" \
+      -e "s,@TZ@,${DEF_TZ},g" \
       -e "s/@CONSFONT@/$CONSFONT/g" \
       -e "s/@DIRSUFFIX@/$DIRSUFFIX/g" \
       -e "s/@DISTRO@/$DISTRO/g" \
@@ -1179,7 +1186,7 @@ else
   # Select sane defaults in case the language file lacks info:
   DEF_LANDSC="${DEF_LANDSC:-'us american'}"
   DEF_KBD="${DEF_KBD:-'us'}"
-  DEF_TZ="${DEF_TZ:-'US/Pacific'}"
+  DEF_TZ="${DEF_TZ:-'UTC'}"
   DEF_LOCALE="${DEF_LOCALE:-'en_US.utf8'}"
 fi
 

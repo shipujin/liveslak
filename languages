@@ -5,6 +5,7 @@ da:dansk:dk-latin1:Europe/Copenhagen:da_DK.utf8:
 gb:british:uk:Etc/GMT:en_GB.utf8:
 de:deutsch:de-latin1-nodeadkeys:Europe/Berlin:de_DE@euro:de,nodeadkeys
 de_ch:deutsch (schweiz):de-latin1:Europe/Zurich:de_CH.utf8:ch,
+en:english:us:UTC:en_US.utf8:
 es:espanol:es:Europe/Madrid:es_ES.utf8:
 fr:francais:fr-latin9:Europe/Paris:fr_FR.utf8:
 fr_ch:francais (suisse):fr-latin9:Europe/Zurich:fr_CH.utf8:ch,fr
