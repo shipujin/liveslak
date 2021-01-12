@@ -20,6 +20,7 @@ font-bh-ttf
 font-bitstream-type1
 font-xfree86-type1
 frei0r-plugins
+fuse
 #ghostscript
 #ghostscript-fonts-std
 gmp
@@ -35,7 +36,6 @@ kdsoap
 libXcm
 libappindicator
 libburn
-libdbusmenu
 libdbusmenu-qt
 libdmtx
 liberation-fonts-ttf
@@ -52,6 +52,9 @@ libvncserver
 libyaml
 #lilo
 #lmdb
+man
+man-db
+man-pages
 mariadb
 mlt
 noto-fonts-ttf

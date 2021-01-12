@@ -18,7 +18,6 @@ bdftopcf
 bigreqsproto
 bluez
 boost
-brotli
 cairo
 cdrtools
 compositeproto
@@ -33,7 +32,6 @@ dmxproto
 dosfstools
 dri2proto
 dri3proto
-elogind
 enchant
 encodings
 esound
@@ -68,6 +66,8 @@ gcr
 gd
 gegl
 gexiv2
+ghostscript
+ghostscript-fonts-std
 glew
 glproto
 glu
@@ -75,7 +75,7 @@ gmime
 gnome-keyring
 gnome-themes-extra
 gnome-themes-standard
-##gobject-introspection
+gobject-introspection
 graphene
 graphite2
 gsettings-desktop-schemas
@@ -147,6 +147,7 @@ libcaca
 libcanberra
 libcap-ng
 libcroco
+libdbusmenu
 libdmx
 libdrm
 libepoxy
@@ -179,6 +180,7 @@ libxkbcommon
 libxkbfile
 libxklavier
 libxshmfence
+links
 listres
 luit
 makedepend

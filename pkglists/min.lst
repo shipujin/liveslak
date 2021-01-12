@@ -45,10 +45,9 @@ gnupg
 gnupg2
 gnutls
 gpgme
-##gpm
+#gpm
 gptfdisk
 grep
-#groff
 gzip
 haveged
 hostname
@@ -81,14 +80,10 @@ libtermcap
 libunistring
 libuv
 lilo
-links
 logrotate
 lvm2
 lz4
 lzlib
-#man
-man-db
-man-pages
 mc
 mdadm
 mkinitrd
