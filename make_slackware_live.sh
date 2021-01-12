@@ -2381,6 +2381,24 @@ text/html=kwebkitpart.desktop;
 EOT
   fi
 
+  # Requirement for Plasma Wayland sessions:
+  mkdir -p ${LIVE_ROOTDIR}/etc/profile.d
+  cat <<EOT > ${LIVE_ROOTDIR}/etc/profile.d/kwayland.sh
+#!/bin/sh
+# Force the usage of XCB platform on Qt5 applications:
+export QT_QPA_PLATFORM=xcb
+# Force the usage of X11 platform for GDK applications:
+export GDK_BACKEND=x11
+EOT
+  cat <<EOT > ${LIVE_ROOTDIR}/etc/profile.d/kwayland.csh
+#!/bin/csh
+# Force the usage of XCB platform on Qt5 applications:
+setenv QT_QPA_PLATFORM xcb
+# Force the usage of X11 platform for GDK applications:
+setenv GDK_BACKEND x11
+EOT
+  chmod 755 ${LIVE_ROOTDIR}/etc/profile.d/kwayland.*
+
 fi # End Plasma5
 
 if [ "$LIVEDE" = "DLACK" ]; then
