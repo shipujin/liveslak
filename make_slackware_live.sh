@@ -2766,8 +2766,12 @@ sed -i ${LIVE_ROOTDIR}/etc/inittab -e "s/\(id:\).\(:initdefault:\)/\1${RUNLEVEL}
 
 # But enable NFS client support and CUPS:
 [ -f ${LIVE_ROOTDIR}/etc/rc.d/rc.rpc ] && chmod +x ${LIVE_ROOTDIR}/etc/rc.d/rc.rpc
-[ -f ${LIVE_ROOTDIR}/etc/rc.d/rc.cups ] && chmod +x ${LIVE_ROOTDIR}/etc/rc.d/rc.cups
-[ -f ${LIVE_ROOTDIR}/etc/rc.d/rc.cups-browsed ] && chmod +x ${LIVE_ROOTDIR}/etc/rc.d/rc.cups-browsed
+if [ -x ${LIVE_ROOTDIR}/usr/sbin/cupsd ] && [ -f ${LIVE_ROOTDIR}/etc/rc.d/rc.cups ]; then
+  chmod +x ${LIVE_ROOTDIR}/etc/rc.d/rc.cups
+fi
+if [ -x ${LIVE_ROOTDIR}/usr/sbin/cupsd ] && [ -f ${LIVE_ROOTDIR}/etc/rc.d/rc.cups-browsed ]; then
+  chmod +x ${LIVE_ROOTDIR}/etc/rc.d/rc.cups-browsed
+fi
 
 # Add a softvol pre-amp to ALSA - some computers have too low volumes.
 # If etc/asound.conf exists it's configuring ALSA to use Pulse,
