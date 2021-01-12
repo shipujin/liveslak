@@ -1556,19 +1556,20 @@ chmod +x ${LIVE_ROOTDIR}/etc/rc.d/rc.font
 cat <<"EOM" > ${LIVE_ROOTDIR}/etc/rc.d/rc.gpm
 #!/bin/sh
 # Start/stop/restart the GPM mouse server:
-[ ! -x /usr/sbin/gpm ] && return
-MTYPE="imps2"
-if [ "$1" = "stop" ]; then
-  echo "Stopping gpm..."
-  /usr/sbin/gpm -k
-elif [ "$1" = "restart" ]; then
-  echo "Restarting gpm..."
-  /usr/sbin/gpm -k
-  sleep 1
-  /usr/sbin/gpm -m /dev/mouse -t ${MTYPE}
-else # assume $1 = start:
-  echo "Starting gpm:  /usr/sbin/gpm -m /dev/mouse -t ${MTYPE}"
-  /usr/sbin/gpm -m /dev/mouse -t ${MTYPE}
+if [ -x /usr/sbin/gpm ]; then
+  MTYPE="imps2"
+  if [ "$1" = "stop" ]; then
+    echo "Stopping gpm..."
+    /usr/sbin/gpm -k
+  elif [ "$1" = "restart" ]; then
+    echo "Restarting gpm..."
+    /usr/sbin/gpm -k
+    sleep 1
+    /usr/sbin/gpm -m /dev/mouse -t ${MTYPE}
+  else # assume $1 = start:
+    echo "Starting gpm:  /usr/sbin/gpm -m /dev/mouse -t ${MTYPE}"
+    /usr/sbin/gpm -m /dev/mouse -t ${MTYPE}
+  fi
 fi
 EOM
 chmod +x ${LIVE_ROOTDIR}/etc/rc.d/rc.gpm
