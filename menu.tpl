@@ -12,7 +12,7 @@ f4 f4.txt #00000000
 
 menu hshift 1
 menu vshift 9
-menu width 45
+menu width 55
 menu margin 1
 menu rows 10
 menu helpmsgrow 14
@@ -75,3 +75,10 @@ menu label Memory test with memtest86+
 label localboot
 menu label Boot from local drive
   localboot -1
+
+label core2ram
+  @C2RMH@menu hide
+  menu label Console OS in RAM
+  kernel /boot/generic
+  append initrd=/boot/initrd.img @KAPPEND@ load_ramdisk=1 prompt_ramdisk=0 rw printk.time=0 kbd=@KBD@ locale=@LOCALE@ tz=@TZ@ toram=core 3
+

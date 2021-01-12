@@ -395,6 +395,10 @@ toram => copy the OS from the media to to RAM before running it.
 toram=all => Prevent writes to disk since we are supposed to run from RAM;
   equivalent to parameter "toram".
 
+toram=core => Load Console OS modules into RAM. Console-only Slackware
+  loads fast, contains 'setup2hd' and frees up your USB drive so you can
+  overwrite it with a Persistent Live OS.
+
 toram=os => Load OS modules into RAM, but write persistent data to USB.
 
 === Troubleshooting ===
@@ -699,16 +703,17 @@ The script's parameters are:
                     Use i586 for a 32bit ISO, x86_64 for 64bit.
  -c comp            Squashfs compression (default: xz).
                     Can be any of 'gzip lzma lzo xz zstd'.
- -d desktoptype     SLACKWARE (full Slack), KDE4 (basic KDE4),
-                    XFCE (basic XFCE), KTOWN (ktown Plasma5 replacement),
-                    MATE (Gnome2 fork replaces KDE4), CINNAMON (fork of Gnome3
-                    Shell replaces KDE4), DLACK (adds Gnome3, PAM and systemd).
+ -d desktoptype     SLACKWARE (full Slack), LEAN (basic Plasma5/XFCE),
+                    DAW (Digital Audio Workstation), XFCE (basic XFCE,
+                    stripped), KTOWN (ktown Plasma5 replacement), MATE
+                    (Gnome2 fork replaces KDE), CINNAMON (fork of Gnome3 Shell
+                    replaces KDE), DLACK (Gnome3 replaces KDE).
  -e                 Use ISO boot-load-size of 32 for computers
                     where the ISO won't boot otherwise (default: 4).
  -f                 Forced re-generation of all squashfs modules,
                     custom configurations and new initrd.img.
  -l <localization>  Enable a different default localization
-                    (script-default is 'us').
+                    (script-default is 'en').
  -m pkglst[,pkglst] Add modules defined by pkglists/<pkglst>,...
  -r series[,series] Refresh only one or a few package series.
  -s slackrepo_dir   Directory containing Slackware repository.
@@ -716,6 +721,7 @@ The script's parameters are:
                     Trim the ISO (remove man and/or doc and/or bloat).
  -v                 Show debug/error output.
  -z version         Define your Slackware version (default: current).
+ -C                 Add RAM-based Console OS to boot menu.
  -G                 Generate ISO file from existing directory tree
  -H hostname        Hostname of the Live OS (default: darkstar).
  -M                 Add multilib (x86_64 only).

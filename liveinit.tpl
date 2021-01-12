@@ -44,6 +44,9 @@ DISTRO="@DISTRO@"
 CDISTRO="@CDISTRO@"
 VERSION="@VERSION@"
 
+CORE2RAMMODS="@CORE2RAMMODS@"
+CORE2RAM=0
+
 LIVEUID="@LIVEUID@"
 
 LIVEMEDIA=""
@@ -240,6 +243,8 @@ for ARG in $(cat /proc/cmdline); do
       TORAM=1
       if [ "$(echo $ARG | cut -f2 -d=)" = "os" ]; then
         VIRGIN=0 # load OS modules into RAM, write persistent data to disk
+      elif [ "$(echo $ARG | cut -f2 -d=)" = "core" ]; then
+        CORE2RAM=1 # load Core OS modules into RAM
       elif [ "$(echo $ARG | cut -f2 -d=)" = "all" ]; then
         VIRGIN=1 # prevent writes to disk since we are supposed to run from RAM
       fi
@@ -514,11 +519,24 @@ if [ "$RESCUE" = "" ]; then
 
   find_mod() {
     MY_LOC="$1"
+    MY_SUBSYS=$(basename "$1")
+    MY_SYSROOT=$(dirname "$1")
+    MY_COREMODS="$(echo boot ${CORE2RAMMODS} zzzconf |tr ' ' '|')"
 
-    ( for MY_EXT in ${SQ_EXT_AVAIL} ; do
-        echo "$(find ${MY_LOC} -name "*.${MY_EXT}" 2>/dev/null)"
-      done
-    ) | sort
+    # For all except core2ram, this is a simple find & sort, but for core2ram
+    # we have to search two locations (system and core2ram) and filter the
+    # results to return only the Core OS modules:
+    if [ "${MY_SUBSYS}" = "core2ram" ]; then
+      ( for MY_EXT in ${SQ_EXT_AVAIL} ; do
+          echo "$(find ${MY_SYSROOT}/core2ram/ ${MY_SYSROOT}/system/ -name "*.${MY_EXT}" 2>/dev/null |grep -Ew ${DISTRO}_"(${MY_COREMODS})")"
+        done
+      ) | sort
+    else
+      ( for MY_EXT in ${SQ_EXT_AVAIL} ; do
+          echo "$(find ${MY_LOC} -name "*.${MY_EXT}" 2>/dev/null)"
+        done
+      ) | sort
+    fi
   }
 
   find_modloc() {
@@ -540,7 +558,7 @@ if [ "$RESCUE" = "" ]; then
   }
 
   load_modules() {
-    # SUBSYS can be 'system', 'addons', 'optional':
+    # SUBSYS can be 'system', 'addons', 'optional', 'core2ram':
     SUBSYS="$1"
 
     # Find all supported modules:
@@ -580,9 +598,18 @@ if [ "$RESCUE" = "" ]; then
         else
           echo "${MARKER}:  Failed to mount $SUBSYS module '${MODBASE}', excluding it from the overlay."
             echo "$MODBASE" >> /mnt/live/modules/failed
+            rmdir /mnt/live/modules/${MODBASE} 2>/dev/null
         fi
       fi
     done
+
+    # Warn if Core OS modules were requested but none were found/mounted;
+    if [ "$SUBSYS" = "core2ram" ]; then
+      MY_COREMODS="$(echo ${CORE2RAMMODS} |tr ' ' '|')"
+      if [ -z "$(ls -1 /mnt/live/modules/ |grep -Ew ${DISTRO}_"(${MY_COREMODS})")" ] ; then
+        echo "${MARKER}:  '$SUBSYS' modules were not found. Trouble ahead..."
+      fi
+    fi
   }
 
   # Function input is a series of device node names. Return all block devices:
@@ -833,26 +860,31 @@ if [ "$RESCUE" = "" ]; then
   RODIRS=""
   FS2HD=""
 
-  # First, the base Slackware system components:
-  load_modules system
+  if [ $CORE2RAM -eq 1 ]; then
+    # Only load the Core OS modules:
+    load_modules core2ram
+  else
+    # First, the base Slackware system components:
+    load_modules system
 
-  # Next, the add-on (3rd party etc) components, if any:
-  # Remember, module name must adhere to convention: "NNNN-modname-*.sxz"
-  # where 'N' is a digit and 'modname' must not contain a dash '-'.
-  load_modules addons
+    # Next, the add-on (3rd party etc) components, if any:
+    # Remember, module name must adhere to convention: "NNNN-modname-*.sxz"
+    # where 'N' is a digit and 'modname' must not contain a dash '-'.
+    load_modules addons
 
-  # And finally any explicitly requested optionals (like nvidia drivers):
-  ## TODO:
-  ## Automatically load the nvidia driver if we find a supported GPU:
-  # NVPCIID=$(lspci -nn|grep NVIDIA|grep VGA|rev|cut -d'[' -f1|rev|cut -d']' -f1|tr -d ':'|tr [a-z] [A-Z])
-  # if cat /mnt/media/${LIVEMAIN}/optional/nvidia-*xx.ids |grep -wq $NVPCIID ;
-  # then
-  #   LOAD="nvidia,${LOAD}"
-  # fi
-  ## END TODO:
-  # Remember, module name must adhere to convention: "NNNN-modname-*.sxz"
-  # where 'N' is a digit and 'modname' must not contain a dash '-'.
-  load_modules optional
+    # And finally any explicitly requested optionals (like nvidia drivers):
+    ## TODO:
+    ## Automatically load the nvidia driver if we find a supported GPU:
+    # NVPCIID=$(lspci -nn|grep NVIDIA|grep VGA|rev|cut -d'[' -f1|rev|cut -d']' -f1|tr -d ':'|tr [a-z] [A-Z])
+    # if cat /mnt/media/${LIVEMAIN}/optional/nvidia-*xx.ids |grep -wq $NVPCIID ;
+    # then
+    #   LOAD="nvidia,${LOAD}"
+    # fi
+    ## END TODO:
+    # Remember, module name must adhere to convention: "NNNN-modname-*.sxz"
+    # where 'N' is a digit and 'modname' must not contain a dash '-'.
+    load_modules optional
+  fi
 
   # Get rid of the starting colon:
   RODIRS=$(echo $RODIRS |cut -c2-)

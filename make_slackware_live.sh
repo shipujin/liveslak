@@ -35,7 +35,7 @@
 # -----------------------------------------------------------------------------
 
 # Version of the Live OS generator:
-VERSION="1.3.8.4"
+VERSION="1.3.9"
 
 # Timestamp:
 THEDATE=$(date +%Y%m%d)
@@ -160,6 +160,10 @@ ONLY_ISO="NO"
 
 # The name of the directory used for storing persistence data:
 PERSISTENCE=${PERSISTENCE:-"persistence"}
+
+# Add a Core OS to load into RAM (currently only supported for XFCE and LEAN):
+CORE2RAM=${CORE2RAM:-"NO"}
+CORE2RAMMODS="${MINLIST} noxbase"
 
 # Slackware version to use (note: this won't work for Slackware <= 14.1):
 SL_VERSION=${SL_VERSION:-"current"}
@@ -304,6 +308,7 @@ LIVE_BOOT=${LIVE_BOOT:-"${LIVE_STAGING}/${LIVEMAIN}/bootinst"}
 LIVE_MOD_SYS=${LIVE_MOD_SYS:-"${LIVE_STAGING}/${LIVEMAIN}/system"}
 LIVE_MOD_ADD=${LIVE_MOD_ADD:-"${LIVE_STAGING}/${LIVEMAIN}/addons"}
 LIVE_MOD_OPT=${LIVE_MOD_OPT:-"${LIVE_STAGING}/${LIVEMAIN}/optional"}
+LIVE_MOD_COS=${LIVE_MOD_COS:-"${LIVE_STAGING}/${LIVEMAIN}/core2ram"}
 
 # ---------------------------------------------------------------------------
 # Define some functions.
@@ -323,6 +328,7 @@ function cleanup() {
 
   rmdir ${LIVE_ROOTDIR} 2>${DBGOUT}
   rmdir ${LIVE_WORK}/*_$$ 2>${DBGOUT}
+  rm ${LIVE_MOD_COS}/* 2>${DBGOUT} || true
   rm ${LIVE_MOD_OPT}/* 2>${DBGOUT} || true
   rm ${LIVE_MOD_ADD}/* 2>${DBGOUT} || true
 } # End of cleanup()
@@ -668,6 +674,7 @@ function gen_bootmenu() {
     -e "s/@SL_VERSION@/$SL_VERSION/g" \
     -e "s/@VERSION@/$VERSION/g" \
     -e "s/@KAPPEND@/$KAPPEND/g" \
+    -e "s/@C2RMH@/$C2RMH/g" \
     > ${MENUROOTDIR}/vesamenu.cfg
 
   for LANCOD in $(cat ${LIVE_TOOLDIR}/languages |grep -Ev "(^ *#|^$)" |cut -d: -f1)
@@ -712,6 +719,7 @@ EOL
       -e "s/@SL_VERSION@/$SL_VERSION/g" \
       -e "s/@VERSION@/$VERSION/g" \
       -e "s/@KAPPEND@/$KAPPEND/g" \
+      -e "s/@C2RMH@/$C2RMH/g" \
       > ${MENUROOTDIR}/menu_${LANCOD}.cfg
 
     # Generate custom language selection submenu for selected keyboard:
@@ -771,6 +779,7 @@ function gen_uefimenu() {
     -e "s/@SL_VERSION@/$SL_VERSION/g" \
     -e "s/@VERSION@/$VERSION/g" \
     -e "s/@KAPPEND@/$KAPPEND/g" \
+    -e "s/@C2RMH@/$C2RMH/g" \
     > ${GRUBDIR}/grub.cfg
 
   # Set a default keyboard selection:
@@ -1048,7 +1057,7 @@ EOT
 # Action!
 # ---------------------------------------------------------------------------
 
-while getopts "a:c:d:efhl:m:r:s:t:vz:GH:MO:R:X" Option
+while getopts "a:c:d:efhl:m:r:s:t:vz:CGH:MO:R:X" Option
 do
   case $Option in
     h )
@@ -1085,6 +1094,7 @@ do
         echo "                    Trim the ISO (remove man and/or doc and/or bloat)."
         echo " -v                 Show debug/error output."
         echo " -z version         Define your ${DISTRO^} version (default: $SL_VERSION)."
+        echo " -C                 Add RAM-based Console OS to boot menu."
         echo " -G                 Generate ISO file from existing directory tree"
         echo " -H hostname        Hostname of the Live OS (default: $LIVE_HOSTNAME)."
         echo " -M                 Add multilib (x86_64 only)."
@@ -1116,6 +1126,8 @@ do
     v ) DEBUG="YES"
         ;;
     z ) SL_VERSION="${OPTARG}"
+        ;;
+    C ) CORE2RAM="YES"
         ;;
     G ) ONLY_ISO="YES"
         ;;
@@ -1170,6 +1182,42 @@ fi
 if [ "$SL_ARCH" != "x86_64" -a "$MULTILIB" = "YES" ]; then
   echo ">> Multilib is only supported on x86_64 architecture."
   exit 1
+fi
+
+# Determine which module sequence we have to build:
+case "$LIVEDE" in
+  SLACKWARE) MSEQ="${SEQ_SLACKWARE}" ;;
+       XFCE) MSEQ="${SEQ_XFCEBASE}" ;;
+       LEAN) MSEQ="${SEQ_LEAN}" ;;
+        DAW) MSEQ="${SEQ_DAW}" ;;
+      KTOWN) MSEQ="${SEQ_KTOWN}" ;;
+       MATE) MSEQ="${SEQ_MSB}" ;;
+   CINNAMON) MSEQ="${SEQ_CIN}" ;;
+      DLACK) MSEQ="${SEQ_DLACK}" ;;
+ STUDIOWARE) MSEQ="${SEQ_STUDW}" ;;
+          *) if [ -n "${SEQ_CUSTOM}" ]; then
+               # Custom distribution with a predefined package list:
+               MSEQ="${SEQ_CUSTOM}"              
+             else
+               echo "** Unsupported configuration '$LIVEDE'"; exit 1
+             fi
+             ;;
+esac
+
+if [ "${CORE2RAM}" == "YES" ] || [ "${LIVEDE}" == "XFCE" ] || [ "${LIVEDE}" == "LEAN" ] ; then
+  # For now, allow CORE2RAM only for the variants that actually
+  # have the required modules in their system list.
+  # TODO: create these modules separately in the 'core2ram' subdirectory. 
+  for MY_MOD in ${CORE2RAMMODS} ; do
+    if ! echo ${MSEQ} | grep -wq ${MY_MOD} ; then
+      echo ">> Modules required for Core RAM-based OS (${CORE2RAMMODS}) not available."
+      exit 1
+    fi
+  done
+  # Whether to hide the Core OS menu on boot yes or no:
+  C2RMH="#"
+else
+  C2RMH=""
 fi
 
 if ! cat ${LIVE_TOOLDIR}/languages |grep -Ev '(^ *#|^$)' |grep -q ^${DEF_LANG}:
@@ -1296,7 +1344,7 @@ if [ "$FORCE" = "YES" ]; then
 fi
 
 # Create temporary directories for building the live filesystem:
-for LTEMP in $LIVE_OVLDIR $LIVE_BOOT $LIVE_MOD_SYS $LIVE_MOD_ADD $LIVE_MOD_OPT ; do
+for LTEMP in $LIVE_OVLDIR $LIVE_BOOT $LIVE_MOD_SYS $LIVE_MOD_ADD $LIVE_MOD_OPT $LIVE_MOD_COS ; do
   umount ${LTEMP} 2>${DBGOUT} || true
   mkdir -p ${LTEMP}
   if [ $? -ne 0 ]; then
@@ -1328,26 +1376,6 @@ unset INSTDIR
 RODIRS="${LIVE_BOOT}"
 # Create the verification file for the install_pkgs function:
 echo "${THEDATE} (${BUILDER})" > ${LIVE_BOOT}/${MARKER}
-
-# Determine which module sequence we have to build:
-case "$LIVEDE" in
-  SLACKWARE) MSEQ="${SEQ_SLACKWARE}" ;;
-       XFCE) MSEQ="${SEQ_XFCEBASE}" ;;
-       LEAN) MSEQ="${SEQ_LEAN}" ;;
-        DAW) MSEQ="${SEQ_DAW}" ;;
-      KTOWN) MSEQ="${SEQ_KTOWN}" ;;
-       MATE) MSEQ="${SEQ_MSB}" ;;
-   CINNAMON) MSEQ="${SEQ_CIN}" ;;
-      DLACK) MSEQ="${SEQ_DLACK}" ;;
- STUDIOWARE) MSEQ="${SEQ_STUDW}" ;;
-          *) if [ -n "${SEQ_CUSTOM}" ]; then
-               # Custom distribution with a predefined package list:
-               MSEQ="${SEQ_CUSTOM}"              
-             else
-               echo "** Unsupported configuration '$LIVEDE'"; exit 1
-             fi
-             ;;
-esac
 
 # Do we need to create/include additional module(s) defined by a pkglist:
 if [ -n "$SEQ_ADDMOD" ]; then
@@ -2976,7 +3004,8 @@ cat $LIVE_TOOLDIR/liveinit.tpl | sed \
   -e "s/@DISTRO@/$DISTRO/g" \
   -e "s/@CDISTRO@/${DISTRO^}/g" \
   -e "s/@UDISTRO@/${DISTRO^^}/g" \
-  -e "s/@VERSION@/$VERSION/g" \
+  -e "s/@CORE2RAMMODS@/${CORE2RAMMODS}/g" \
+  -e "s/@VERSION@/${VERSION}/g" \
   -e "s/@SQ_EXT_AVAIL@/${SQ_EXT_AVAIL}/g" \
   -e "s,@DEF_KBD@,${DEF_KBD},g" \
   -e "s,@DEF_LOCALE@,${DEF_LOCALE},g" \

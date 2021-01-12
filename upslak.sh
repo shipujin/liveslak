@@ -81,6 +81,7 @@ LIVEUID=""
 MARKER=""
 MEDIALABEL=""
 PERSISTENCE=""
+CORE2RAMMODS=""
 SQ_EXT_AVAIL=""
 VERSION=""
 
@@ -359,7 +360,7 @@ collect_kmods() {
   else
     chroot ${IMGDIR} depmod $KVER 2>/dev/null
   fi
-}
+} # End of collect_kmods ()
 
 # Read configuration data from old initrd:
 read_initrd() {
@@ -371,7 +372,7 @@ read_initrd() {
   OLDWAIT=$(cat ./wait-for-root)
 
   # Read the values of liveslak template variables in the init script:
-  for TEMPLATEVAR in DEF_KBD DEF_LOCALE DEF_TZ DISTRO LIVE_HOSTNAME LIVEMAIN LIVEUID MARKER MEDIALABEL PERSISTENCE SQ_EXT_AVAIL VERSION ; do
+  for TEMPLATEVAR in DEF_KBD DEF_LOCALE DEF_TZ DISTRO LIVE_HOSTNAME LIVEMAIN LIVEUID MARKER MEDIALABEL PERSISTENCE CORE2RAMMODS SQ_EXT_AVAIL VERSION ; do
     eval $(grep "^ *${TEMPLATEVAR}=" ./init |head -1)
   done
 
@@ -544,10 +545,13 @@ parse_template() {
     -e "s/@PERSISTENCE@/${PERSISTENCE:-persistence}/g" \
     -e "s/@DARKSTAR@/${LIVE_HOSTNAME:-darkstar}/g" \
     -e "s/@LIVEUID@/${LIVEUID:-live}/g" \
+    -e "s/@LIVEUIDNR@/${LIVEUIDNR:-1000}/g" \
     -e "s/@DISTRO@/$DISTRO/g" \
     -e "s/@CDISTRO@/${DISTRO^}/g" \
     -e "s/@UDISTRO@/${DISTRO^^}/g" \
+    -e "s/@CORE2RAMMODS@/${CORE2RAMMODS:-"min noxbase"}/g" \
     -e "s/@VERSION@/${VERSION}/g" \
+    -e "s/@KVER@/$KVER/g" \
     -e "s/@SQ_EXT_AVAIL@/${SQ_EXT_AVAIL}/g" \
     -e "s,@DEF_KBD@,${DEF_KBD},g" \
     -e "s,@DEF_LOCALE@,${DEF_LOCALE},g" \
