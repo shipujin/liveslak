@@ -19,7 +19,7 @@ glibmm
 #gnuchess
 gparted
 gtkmm3
-gucharmap
+#gucharmap
 gv
 hexchat
 imagemagick
@@ -38,8 +38,8 @@ pavucontrol
 pidgin
 polkit-gnome
 rdesktop
-rxvt
-rxvt-unicode
+#rxvt
+#rxvt-unicode
 sane
 seamonkey-solibs
 tigervnc

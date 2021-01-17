@@ -217,7 +217,7 @@ SEQ_DLACK="tagfile:a,ap,d,e,f,k,l,n,t,tcl,x,xap pkglist:dlackware,slackextra,sys
 SEQ_STUDW="tagfile:a,ap,d,e,f,k,kde,l,n,t,tcl,x,xap,xfce,y pkglist:slackextra,slackpkgplus,studioware"
 
 # Package blacklists for variants:
-#BLACKLIST_KTOWN="scim scim-tables scim-pinyin scim-m17n scim-hangul scim-anthy scim-input-pad"
+BLACKLIST_XFCE="lynx mc"
 
 # -- START: Used verbatim in upslak.sh -- #
 # List of kernel modules required for a live medium to boot properly;

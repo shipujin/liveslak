@@ -9,7 +9,6 @@ gcc
 gccmakedep
 guile
 intltool
-llvm
 make
 # z00_plasma5supp.lst:
 gcc-g++

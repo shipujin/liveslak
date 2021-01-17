@@ -65,8 +65,8 @@ gcr
 gd
 gegl
 gexiv2
-ghostscript
-ghostscript-fonts-std
+#ghostscript
+#ghostscript-fonts-std
 glew
 glproto
 glu

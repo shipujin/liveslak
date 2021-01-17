@@ -21,13 +21,14 @@ font-bitstream-type1
 font-xfree86-type1
 frei0r-plugins
 fuse
-#ghostscript
-#ghostscript-fonts-std
+ghostscript
+ghostscript-fonts-std
 gmp
 #gpgme
 grantlee
 groff
 gtkmm2
+gucharmap
 hack-fonts-ttf
 hyphen
 id3lib
@@ -76,6 +77,8 @@ qt5-webkit
 qtkeychain
 rttr
 ruby
+rxvt
+rxvt-unicode
 #sane
 sazanami-fonts-ttf
 sip

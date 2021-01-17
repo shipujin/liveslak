@@ -101,7 +101,7 @@ libx86
 libxcb
 libxml2
 libxslt
-##llvm
+llvm
 lm_sensors
 lmdb
 lynx
