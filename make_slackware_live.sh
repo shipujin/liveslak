@@ -161,7 +161,7 @@ ONLY_ISO="NO"
 # The name of the directory used for storing persistence data:
 PERSISTENCE=${PERSISTENCE:-"persistence"}
 
-# Add a Core OS to load into RAM (currently only supported for XFCE and LEAN):
+# Add a Core OS to load into RAM (currently supported for XFCE, LEAN, DAW):
 CORE2RAM=${CORE2RAM:-"NO"}
 CORE2RAMMODS="${MINLIST} noxbase"
 
@@ -1204,7 +1204,7 @@ case "$LIVEDE" in
              ;;
 esac
 
-if [ "${CORE2RAM}" == "YES" ] || [ "${LIVEDE}" == "XFCE" ] || [ "${LIVEDE}" == "LEAN" ] ; then
+if [ "${CORE2RAM}" == "YES" ] || [ "${LIVEDE}" == "XFCE" ] || [ "${LIVEDE}" == "LEAN" ] || [ "${LIVEDE}" == "DAW" ] ; then
   # For now, allow CORE2RAM only for the variants that actually
   # have the required modules in their system list.
   # TODO: create these modules separately in the 'core2ram' subdirectory. 
