@@ -936,8 +936,8 @@ A website offering Live versions based on many regular Linux distributions.  The
 
 Slackware Live Edition is created by the 'liveslak' scripts developed and maintained by Eric Hameleers aka Alien BOB [[alien@slackware.com]].
 
-  * Git repository: %%git://slackware.nl/liveslak.git%%
-  * Git repository (browsable): http://git.slackware.nl/liveslak/
+  * Git repository: %%git://liveslak.org/liveslak.git%%
+  * Git repository (browsable): http://git.liveslak.org/liveslak/
   * Download mirror: http://www.slackware.com/~alien/liveslak/
   * Project landing page: https://liveslak.org/
 
