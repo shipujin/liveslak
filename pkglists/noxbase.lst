@@ -21,6 +21,7 @@ exiv2
 fftw
 flac
 ##flex
+gamin
 ##gcc
 ##gccmakedep
 gdk-pixbuf2
