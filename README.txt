@@ -46,7 +46,7 @@ The "liveslak" scripts can generate a variety of Slackware flavors:
 
 
 Common download locations are:
-  * Primary site: http://slackware.nl/slackware-live/ (%%rsync://slackware.nl/mirrors/slackware-live/%%)
+  * Primary site: http://download.liveslak.org/ (%%rsync://liveslak.org/liveslak/%%)
   * Darren's http://slackware.uk/people/alien-slacklive/ (%%rsync://slackware.uk/people/alien-slacklive/%%)
   * Willy's http://repo.ukdw.ac.id/slackware-live/
   * Ryan's https://seattleslack.ryanpcmcquen.org/mirrors/slackware-live/
@@ -936,7 +936,7 @@ A website offering Live versions based on many regular Linux distributions.  The
 
 Slackware Live Edition is created by the 'liveslak' scripts developed and maintained by Eric Hameleers aka Alien BOB [[alien@slackware.com]].
 
-  * Git repository: %%git://liveslak.org/liveslak.git%%
+  * Git repository: %%git://git.liveslak.org/liveslak.git%%
   * Git repository (browsable): http://git.liveslak.org/liveslak/
   * Download mirror: http://www.slackware.com/~alien/liveslak/
   * Project landing page: https://liveslak.org/
