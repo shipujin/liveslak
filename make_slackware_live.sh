@@ -1632,14 +1632,14 @@ KERNEL=="loop*", ENV{UDISKS_IGNORE}="1"
 EOL
 
 # Set a root password.
-echo "root:${ROOTPW}" | chroot ${LIVE_ROOTDIR} /usr/sbin/chpasswd
+echo "root:${ROOTPW}" | /usr/sbin/chpasswd -R ${LIVE_ROOTDIR}
 
 # Create group and user for the nvidia persistence daemon:
 if ! chroot ${LIVE_ROOTDIR} /usr/bin/getent passwd ${NVUID} > /dev/null 2>&1 ;
 then
   chroot ${LIVE_ROOTDIR} /usr/sbin/groupadd -g ${NVGRPNR} ${NVGRP}
   chroot ${LIVE_ROOTDIR} /usr/sbin/useradd -c "Nvidia persistence" -u ${NVUIDNR} -g ${NVGRPNR} -d /dev/null -s /bin/false ${NVUID}
-  echo "${NVUID}:$(openssl rand -base64 12)" | chroot ${LIVE_ROOTDIR} /usr/sbin/chpasswd
+  echo "${NVUID}:$(openssl rand -base64 12)" | /usr/sbin/chpasswd -R ${LIVE_ROOTDIR}
 fi
 
 # Determine the full name of the live account in the image:
@@ -1652,7 +1652,7 @@ fi
 
 # Create a nonprivileged user account (called "live" by default):
 chroot ${LIVE_ROOTDIR} /usr/sbin/useradd -c "${LIVEUIDFN}" -g users -G wheel,audio,cdrom,floppy,plugdev,video,power,netdev,lp,scanner,kmem,dialout,games,disk,input -u ${LIVEUIDNR} -d /home/${LIVEUID} -m -s /bin/bash ${LIVEUID}
-echo "${LIVEUID}:${LIVEPW}" | chroot ${LIVE_ROOTDIR} /usr/sbin/chpasswd
+echo "${LIVEUID}:${LIVEPW}" | /usr/sbin/chpasswd -R ${LIVE_ROOTDIR}
 
 # Configure suauth if we are not on a PAM system (where this does not work):
 if [ ! -L ${LIVE_ROOTDIR}/lib${DIRSUFFIX}/libpam.so.? ]; then
@@ -2577,7 +2577,7 @@ if [ "$LIVEDE" = "STUDIOWARE" ]; then
   # Create group and user for the Avahi service:
   chroot ${LIVE_ROOTDIR} /usr/sbin/groupadd -g 214 avahi
   chroot ${LIVE_ROOTDIR} /usr/sbin/useradd -c "Avahi Service Account" -u 214 -g 214 -d /dev/null -s /bin/false avahi
-  echo "avahi:$(openssl rand -base64 12)" | chroot ${LIVE_ROOTDIR} /usr/sbin/chpasswd
+  echo "avahi:$(openssl rand -base64 12)" | /usr/sbin/chpasswd -R ${LIVE_ROOTDIR}
 
 fi # End LIVEDE = STUDIOWARE
 
