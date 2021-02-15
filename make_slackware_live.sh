@@ -1631,8 +1631,8 @@ KERNEL=="loop*", ENV{UDISKS_PRESENTATION_HIDE}="1"
 KERNEL=="loop*", ENV{UDISKS_IGNORE}="1"
 EOL
 
-# Set a root password.
-if ! echo "root:${ROOTPW}" | /usr/sbin/chpasswd -R ${LIVE_ROOTDIR} ; then
+# Set a root password. Note 'chpasswd' sometimes segfaults in the first form.
+if ! echo "root:${ROOTPW}" | /usr/sbin/chpasswd -R ${LIVE_ROOTDIR} 2>/dev/null; then
   echo "root:${ROOTPW}" | chroot ${LIVE_ROOTDIR} /usr/sbin/chpasswd
 fi
 
@@ -1641,7 +1641,7 @@ if ! chroot ${LIVE_ROOTDIR} /usr/bin/getent passwd ${NVUID} > /dev/null 2>&1 ;
 then
   chroot ${LIVE_ROOTDIR} /usr/sbin/groupadd -g ${NVGRPNR} ${NVGRP}
   chroot ${LIVE_ROOTDIR} /usr/sbin/useradd -c "Nvidia persistence" -u ${NVUIDNR} -g ${NVGRPNR} -d /dev/null -s /bin/false ${NVUID}
-  if ! echo "${NVUID}:$(openssl rand -base64 12)" | /usr/sbin/chpasswd -R ${LIVE_ROOTDIR} ; then
+  if ! echo "${NVUID}:$(openssl rand -base64 12)" | /usr/sbin/chpasswd -R ${LIVE_ROOTDIR} 2>/dev/null ; then
     echo "${NVUID}:$(openssl rand -base64 12)" | chroot ${LIVE_ROOTDIR} /usr/sbin/chpasswd
   fi
 fi
@@ -1656,7 +1656,7 @@ fi
 
 # Create a nonprivileged user account (called "live" by default):
 chroot ${LIVE_ROOTDIR} /usr/sbin/useradd -c "${LIVEUIDFN}" -g users -G wheel,audio,cdrom,floppy,plugdev,video,power,netdev,lp,scanner,kmem,dialout,games,disk,input -u ${LIVEUIDNR} -d /home/${LIVEUID} -m -s /bin/bash ${LIVEUID}
-if ! echo "${LIVEUID}:${LIVEPW}" | /usr/sbin/chpasswd -R ${LIVE_ROOTDIR} ; then
+if ! echo "${LIVEUID}:${LIVEPW}" | /usr/sbin/chpasswd -R ${LIVE_ROOTDIR} 2>/dev/null ; then
   echo "${LIVEUID}:${LIVEPW}" | chroot ${LIVE_ROOTDIR} /usr/sbin/chpasswd
 fi
 
@@ -2583,7 +2583,7 @@ if [ "$LIVEDE" = "STUDIOWARE" ]; then
   # Create group and user for the Avahi service:
   chroot ${LIVE_ROOTDIR} /usr/sbin/groupadd -g 214 avahi
   chroot ${LIVE_ROOTDIR} /usr/sbin/useradd -c "Avahi Service Account" -u 214 -g 214 -d /dev/null -s /bin/false avahi
-  if ! echo "avahi:$(openssl rand -base64 12)" | /usr/sbin/chpasswd -R ${LIVE_ROOTDIR} ; then
+  if ! echo "avahi:$(openssl rand -base64 12)" | /usr/sbin/chpasswd -R ${LIVE_ROOTDIR} 2>/dev/null ; then
     echo "avahi:$(openssl rand -base64 12)" | chroot ${LIVE_ROOTDIR} /usr/sbin/chpasswd
   fi
 
