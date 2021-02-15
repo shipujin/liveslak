@@ -15,12 +15,15 @@ glibc-solibs
 # You can find this list embedded in the 'massconvert32.sh' script.
 # The A/ series:
 aaa_elflibs-compat32
+aaa_glibc-solibs-compat32
+aaa_libraries-compat32
 attr-compat32
 bzip2-compat32
 cracklib-compat32
 cups-compat32
 dbus-compat32
 e2fsprogs-compat32
+elogind-compat32
 eudev-compat32
 libgudev-compat32
 libpwquality-compat32
@@ -108,6 +111,7 @@ libcap-compat32
 libcdio-paranoia-compat32
 libclc-compat32
 libcroco-compat32
+libdbusmenu-compat32
 libedit-compat32
 libexif-compat32
 libffi-compat32
