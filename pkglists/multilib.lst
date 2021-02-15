@@ -1,4 +1,5 @@
 # The core multilib packages:
+aaa_glibc-solibs
 compat32-tools
 gcc
 gcc-g++
@@ -15,7 +16,6 @@ glibc-solibs
 # You can find this list embedded in the 'massconvert32.sh' script.
 # The A/ series:
 aaa_elflibs-compat32
-aaa_glibc-solibs-compat32
 aaa_libraries-compat32
 attr-compat32
 bzip2-compat32
