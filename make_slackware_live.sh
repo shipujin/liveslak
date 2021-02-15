@@ -1791,6 +1791,8 @@ DEBUG_ETH_UP="no"
 EOT
 fi
 
+# First disable any potentially incorrect mirror for slackpkg:
+sed -e "s/^ *\([^#]\)/#\1/" -i ${LIVE_ROOTDIR}/etc/slackpkg/mirrors
 # Enable a Slackware mirror for slackpkg:
 cat <<EOT >> ${LIVE_ROOTDIR}/etc/slackpkg/mirrors
 #http://mirrors.slackware.com/slackware/slackware${DIRSUFFIX}-${SL_VERSION}/
