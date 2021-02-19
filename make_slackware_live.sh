@@ -1775,7 +1775,7 @@ EOT
   # Ensure that NetworkManager uses its internal DHCP client - seems to give
   # better compliancy:
   sed -e "s/^dhcp=dhcpcd/#&/" -e "s/^#\(dhcp=internal\)/\1/" \
-      -i ${LIVE_ROOTDIR}/etc/NetworkManager/NetworkManager.conf
+      -i ${LIVE_ROOTDIR}/etc/NetworkManager/conf.d/00-dhcp-client.conf
 
 else
   # Use Slackware's own network configurion routing for eth0 in the base image:
