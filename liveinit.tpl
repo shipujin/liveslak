@@ -1189,7 +1189,7 @@ EOPW
 
   if [ -z "$LIVE_DOMAIN" ]; then
     # No custom domain on the boot commandline:
-    LIVE_DOMAIN="example.net"
+    LIVE_DOMAIN="home.arpa"
   fi
 
   if [ ! -z "$LIVE_HOSTNAME" ]; then

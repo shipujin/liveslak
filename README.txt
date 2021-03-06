@@ -352,7 +352,7 @@ cfg=[skip|write] =>
   to disk.
 
 domain=your_custom_domain =>
-  Specify a custom domain name.  Defaults to 'example.net'.
+  Specify a custom domain name.  Defaults to 'home.arpa'.
 
 hostname=your_custom_hostname[,qualifier] =>
   Specify a custom hostname.  A qualifier 'fixed' can be appended

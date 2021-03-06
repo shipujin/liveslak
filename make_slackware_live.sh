@@ -1514,12 +1514,12 @@ else
 fi
 
 # Configure hostname and network:
-echo "${LIVE_HOSTNAME}.example.net" > ${LIVE_ROOTDIR}/etc/HOSTNAME
+echo "${LIVE_HOSTNAME}.home.arpa" > ${LIVE_ROOTDIR}/etc/HOSTNAME
 if [ -f ${LIVE_ROOTDIR}/etc/NetworkManager/NetworkManager.conf ]; then
   sed -i -e "s/^hostname=.*/hostname=${LIVE_HOSTNAME}/" \
     ${LIVE_ROOTDIR}/etc/NetworkManager/NetworkManager.conf
 fi
-sed -e "s/^\(127.0.0.1\t*\)darkstar.*/\1${LIVE_HOSTNAME}.example.net ${LIVE_HOSTNAME}/" \
+sed -e "s/^\(127.0.0.1\t*\)darkstar.*/\1${LIVE_HOSTNAME}.home.arpa ${LIVE_HOSTNAME}/" \
   -i ${LIVE_ROOTDIR}/etc/hosts
 
 # Make sure we can access DNS straight away:
