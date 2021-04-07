@@ -28,6 +28,7 @@ libcue
 #libnice
 libnma
 libsigc++
+libsigc++3
 libzip
 #lftp
 mozilla-firefox
