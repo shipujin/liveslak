@@ -672,9 +672,9 @@ if [ $REFRESH -eq 0 ]; then
   if [ -z "$LP3" ]; then LP3=$(echo $DEF_LAYOUT |cut -d, -f3) ; fi
   LP3_START=$(( ${LP2_END} + 1 ))
   # The end of partition 3 depends on both values of LP3 and LP4:
-  if [ -n "${LP4}" -a ${LP4} -gt 0 ]; then
+  if [ -n "${LP4}" ] && [ ${LP4} -gt 0 ]; then
     LP3_END=$(( $ENDSECT - ( $LP4 * 2048 ) -1 ))
-  elif [ -n "${LP3}" -a ${LP3} -gt 0 ]; then
+  elif [ -n "${LP3}" ] && [ ${LP3} -gt 0 ]; then
     LP3_END=$(( ${LP3_START} + ( $LP3 *2048 ) - 1 ))
   else
     # Give all remaining space to partition 3:
