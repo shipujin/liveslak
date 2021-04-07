@@ -16,6 +16,7 @@ libpeas
 libunique
 libunique3
 libwnck3
+lxml
 murrine
 pangox-compat
 pygtksourceview
