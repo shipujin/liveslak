@@ -120,11 +120,11 @@ PATH="/sbin:/bin:/usr/sbin:/usr/bin"
 # Mount /proc and /sys:
 mount -n proc /proc -t proc
 mount -n sysfs /sys -t sysfs
-mount -n tmpfs /run -t tmpfs -o mode=0755
+mount -n tmpfs /run -t tmpfs -o mode=0755,size=32M,nodev,nosuid,noexec
 
 if grep devtmpfs /proc/filesystems 1>/dev/null 2>/dev/null ; then
   DEVTMPFS=1
-  mount -n devtmpfs /dev -t devtmpfs
+  mount -n devtmpfs /dev -t devtmpfs -o size=8M
 fi	
 
 # Parse command line
