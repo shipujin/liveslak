@@ -755,7 +755,7 @@ Which means that most of the Slackware package series (excepting kde and kdei) w
 
 You can create your own custom Live OS by changing its characteristics in the configuration file "make_slackware_live.conf". Among the things you can change are:
 
-  * The name of the Desktop variant (the script itself knows SLACKWARE, KTOWN, DAW, XFCE, MATE, CINNAMON, STUDIOWARE and DLACK),
+  * The name of the Desktop variant (the script itself knows SLACKWARE, LEAN, KTOWN, DAW, XFCE, MATE, CINNAMON, STUDIOWARE and DLACK),
   * The list(s) of packages used for your custom distribution,
   * The full name of the user (by default that is "Slackware Live User"),
   * The name of the useraccount (by default that is "live"),
@@ -853,7 +853,8 @@ What does the 'liveslak' init script do?
     * Same for any custom locale which was specified with the "locale" parameter, this will get added to "/etc/profile.d/lang.sh".
     * If timezone and hardware clock were specified in the "tz" parameter, these will be configured in "/etc/localtime" and "/etc/hardwareclock".
     * The boot parameters "livepw" and "rootpw" allow you to specify custom passwords for the 'live' and 'root' users; the defaults for these two are simply 'live' and 'root'.  This is achieved by running the "chpasswd" command in the chrooted overlay so that a plain text password can be given as input.
-    * The "hostname" boot parameter can be used to change the Live OS' hostname from its default "darkstar".  Configuration is written to "/etc/HOSTNAME" and "/etc/NetworkManager/NetworkManager.conf".
+    * The "hostname" and "domain" boot parameters can be used to change the Live OS' hostname from its default "darkstar" and the domain to something else than "home.arpa".  Configuration is written to "/etc/hosts", "/etc/HOSTNAME" and "/etc/NetworkManager/NetworkManager.conf".
+    * If the "nfshost" boot parameter was specified, the Live OS is going through a network (PXE) boot.  Appropriate network drivers will be loaded and network configuration will be applied so that the squashfs modules can be loaded via NFS. 
     * If the "blacklist" boot parameter was specified, then the kernel modules mentioned as argument(s) will be added to a modprobe blacklist file "/etc/modprobe.d/BLACKLIST-live.conf".
     * The "/var/lib/alsa/asound.state" file in the Live OS is removed to allow correct sound configuration on any computer where the Live media is booted.
     * The complete content of the /liveslak/rootcopy directory on the Live partition (may be empty) is copied to the filesystem root of the Live OS, potentially 'overwriting' files in the Live OS.  Use the /liveslak/rootcopy to add customization to your Live OS when you run it off a USB stick.
