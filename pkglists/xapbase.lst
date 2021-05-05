@@ -25,6 +25,7 @@ hexchat
 imagemagick
 jansson
 libcue
+libgnt
 #libnice
 libnma
 libsigc++
