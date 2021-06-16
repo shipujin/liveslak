@@ -161,12 +161,14 @@ kscreen
 kscreenlocker
 ksshaskpass
 ksysguard
+ksystemstats
 kwallet-pam
 kwayland
 kwayland-integration
 kwayland-server
 kwin
 kwrited
+layer-shell-qt
 libkscreen
 libksysguard
 milou

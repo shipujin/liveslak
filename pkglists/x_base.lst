@@ -145,6 +145,7 @@ libbluray
 libcaca
 libcanberra
 libcap-ng
+libclc
 libcroco
 libdbusmenu
 libdmx
@@ -224,6 +225,7 @@ showfont
 sinhala_lklug-font-ttf
 smproxy
 speex
+spirv-llvm-translator
 startup-notification
 t1lib
 talloc
