@@ -275,7 +275,7 @@ SQ_COMP_PARAMS_OPT[gzip]=""
 SQ_COMP_PARAMS_OPT[lzma]=""
 SQ_COMP_PARAMS_OPT[lzo]=""
 SQ_COMP_PARAMS_OPT[xz]="-b 1M"
-SQ_COMP_PARAMS_OPT[zstd]="-b 1M -Xcompression-level 19"
+SQ_COMP_PARAMS_OPT[zstd]="-b 1M -Xcompression-level 22"
 
 # What compression to use for the squashfs modules?
 # Default is xz, alternatives are gzip, lzma, lzo, zstd:
