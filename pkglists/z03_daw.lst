@@ -15,6 +15,7 @@ cecilia5
 chromaprint
 cuetools
 daw_base
+dblatex
 drumstick
 dssi
 eq10q
@@ -23,6 +24,7 @@ faust
 geonkick
 giada
 glfw
+guile1.8
 guitarix
 gxplugins.lv2
 helm
@@ -46,6 +48,7 @@ libmp4v2
 libmpdclient
 libwebsockets
 lilv
+lilypond
 linuxsampler
 lsp-plugins
 lv2
@@ -56,6 +59,7 @@ mpc
 muse
 musescore
 mxml
+noise-repellent
 non-daw
 ntk
 portaudio
@@ -74,6 +78,7 @@ qtractor
 rapidjson
 raptor2
 redkite
+rosegarden
 rtaudio
 rtmidi
 rubberband
