@@ -16,11 +16,14 @@ chromaprint
 cuetools
 daw_base
 dblatex
+dgedit
+drumgizmo
 drumstick
 dssi
 eq10q
 faad2
 faust
+frescobaldi
 geonkick
 giada
 glfw
@@ -46,6 +49,7 @@ libmicrohttpd
 libmodplug
 libmp4v2
 libmpdclient
+libsmf
 libwebsockets
 lilv
 lilypond
@@ -66,8 +70,11 @@ portaudio
 portmidi
 protobuf
 pulseaudio-jack
+python-ly
 python-numpy
 python-pathlib2
+python-poppler-qt5
+python-pygame
 python-pyliblo
 python-pyo
 qjackctl
