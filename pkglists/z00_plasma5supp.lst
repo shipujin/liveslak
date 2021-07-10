@@ -68,6 +68,8 @@ phonon-vlc
 pipewire
 polkit-qt-1
 #poppler
+python2
+python2-module-collection
 python-six
 pyxdg
 qca
@@ -86,7 +88,6 @@ sox
 ssr
 taglib
 taglib-extras
-vid.stab
 vim
 vim-gvim
 vulkan-sdk
@@ -102,4 +103,3 @@ xdg-user-dirs
 xedit
 xine-lib
 xpdf
-xsane

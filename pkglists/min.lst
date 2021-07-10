@@ -118,8 +118,8 @@ polkit
 procps-ng
 pth
 python
-python2
-python2-module-collection
+#python2
+#python2-module-collection
 python3
 quota
 rsync

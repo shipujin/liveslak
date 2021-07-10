@@ -43,6 +43,7 @@ rdesktop
 #rxvt
 #rxvt-unicode
 sane
+seamonkey
 seamonkey-solibs
 tigervnc
 vid.stab
@@ -58,4 +59,5 @@ xgames
 #xpaint
 # Now needs qt:
 #xpdf
-#xsane
+# Needs gimp:
+xsane
