@@ -49,6 +49,7 @@ libqalculate
 libraw1394
 libsass
 libspectre
+liburing
 libva-utils
 libvncserver
 libyaml

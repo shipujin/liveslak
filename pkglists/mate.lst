@@ -8,6 +8,7 @@ gtk-engines
 gtk-layer-shell
 gtksourceview
 gtksourceview3
+gtksourceview4
 gupnp
 libgksu
 libgtop

@@ -139,6 +139,7 @@ libtheora-compat32
 libtiff-compat32
 libunistring-compat32
 libunwind-compat32
+liburing-compat32
 libusb-compat32
 libvorbis-compat32
 libvpx-compat32
