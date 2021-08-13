@@ -1063,9 +1063,9 @@ while getopts "a:c:d:efhl:m:r:s:t:vz:CGH:MO:R:X" Option
 do
   case $Option in
     h )
-	echo "----------------------------------------------------------------"
-	echo "make_slackware_live.sh $VERSION"
-	echo "----------------------------------------------------------------"
+        echo "----------------------------------------------------------------"
+        echo "make_slackware_live.sh $VERSION"
+        echo "----------------------------------------------------------------"
         echo "Usage:"
         echo "  $0 [OPTION] ..."
         echo "or:"
