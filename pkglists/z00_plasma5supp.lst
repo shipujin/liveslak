@@ -48,6 +48,7 @@ liboggz
 libqalculate
 libraw1394
 libsass
+libsodium
 libspectre
 liburing
 libva-utils

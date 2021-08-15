@@ -30,6 +30,7 @@ libgnt
 libnma
 libsigc++
 libsigc++3
+libsodium
 libzip
 #lftp
 mozilla-firefox
