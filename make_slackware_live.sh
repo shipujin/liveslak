@@ -219,7 +219,7 @@ SEQ_STUDW="tagfile:a,ap,d,e,f,k,kde,l,n,t,tcl,x,xap,xfce,y pkglist:slackextra,sl
 # Package blacklists for variants:
 BLACKLIST_DAW="seamonkey"
 BLACKLIST_LEAN="seamonkey"
-BLACKLIST_XFCE="lynx mc mozilla-firefox"
+BLACKLIST_XFCE="lynx mc mozilla-firefox pidgin"
 
 # -- START: Used verbatim in upslak.sh -- #
 # List of kernel modules required for a live medium to boot properly;
