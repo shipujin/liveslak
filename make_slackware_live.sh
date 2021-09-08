@@ -2154,12 +2154,36 @@ for SKEL in ${LIVE_TOOLDIR}/skel/skel*.txz ; do
 done
 
 if [ "$LIVEDE" = "XFCE" ]; then
-  # Since the XFCE ISO no longer has xpdf, use Firefox as the PDF viewer:
+  # Since the XFCE ISO no longer has xpdf, use Firefox as the PDF viewer
+  # if that is present:
   mkdir -p ${LIVE_ROOTDIR}/etc/skel/.config
-  cat << EOF > ${LIVE_ROOTDIR}/etc/skel/.config/mimeapps.list
+  if [ -f ${LIVE_ROOTDIR}/usr/bin/firefox ]; then
+    cat << EOF > ${LIVE_ROOTDIR}/etc/skel/.config/mimeapps.list
 [Default Applications]
 application/pdf=mozilla-firefox.desktop
 EOF
+  else
+    # If firefox is not present, we hope that seamonkey is there;
+    # you won't have a PDF viewer in that case unfortunately, but you could
+    # download https://github.com/IsaacSchemm/pdf.js-seamonkey :
+    cat << EOF > ${LIVE_ROOTDIR}/etc/skel/.config/mimeapps.list
+[Default Applications]
+x-scheme-handler/http=seamonkey.desktop
+x-scheme-handler/https=seamonkey.desktop
+x-scheme-handler/ftp=seamonkey.desktop
+x-scheme-handler/chrome=seamonkey.desktop
+x-scheme-handler/mailto=seamonkey-mail.desktop
+text/html=seamonkey.desktop
+
+[Added Associations]
+x-scheme-handler/http=xfce4-web-browser.desktop;seamonkey.desktop;
+x-scheme-handler/https=xfce4-web-browser.desktop;seamonkey.desktop;
+x-scheme-handler/ftp=seamonkey.desktop;
+x-scheme-handler/chrome=seamonkey.desktop;
+x-scheme-handler/mailto=seamonkey.desktop;
+text/html=seamonkey.desktop;
+EOF
+  fi
 fi
 
 
