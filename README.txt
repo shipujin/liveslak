@@ -287,12 +287,14 @@ You can still set just the XkbVariant by adding something like "kbd=ch xkb=,fr"
  
 livepw="somestring" => Change the password for user "live".
   The password is passed as a cleartext string.
+  You can pass an empty string (livepw=) to remove the password.
 
 locale=nl_NL kbd=nl tz=Europe/Amsterdam => Example of language, 
   keyboard and/or timezone customization. 
  
 rootpw="somestring" => Change the password for user "root".
   The password is passed as a cleartext string.
+  You can pass an empty string (rootpw=) to remove the password.
 
 === Custom software ===
 
@@ -852,7 +854,7 @@ What does the 'liveslak' init script do?
     * if you specified a custom keyboard layout for the console (and optionally another for X) by using the "kbd" and "xkb" boot parameters then these will be confifured in "/etc/rc.d/rc.keymap" and "/etc/X11/xorg.conf.d/30-keyboard.conf" in the Live OS.
     * Same for any custom locale which was specified with the "locale" parameter, this will get added to "/etc/profile.d/lang.sh".
     * If timezone and hardware clock were specified in the "tz" parameter, these will be configured in "/etc/localtime" and "/etc/hardwareclock".
-    * The boot parameters "livepw" and "rootpw" allow you to specify custom passwords for the 'live' and 'root' users; the defaults for these two are simply 'live' and 'root'.  This is achieved by running the "chpasswd" command in the chrooted overlay so that a plain text password can be given as input.
+    * The boot parameters "livepw" and "rootpw" allow you to specify custom passwords for the 'live' and 'root' users; the defaults for these two are simply 'live' and 'root'.  This is achieved by running the "chpasswd" command in the chrooted overlay so that a plain text password can be given as input. If you would rather avoid a password completely, you can just pass an empty string ("livepw=" or "rootpw=").
     * The "hostname" and "domain" boot parameters can be used to change the Live OS' hostname from its default "darkstar" and the domain to something else than "home.arpa".  Configuration is written to "/etc/hosts", "/etc/HOSTNAME" and "/etc/NetworkManager/NetworkManager.conf".
     * If the "nfshost" boot parameter was specified, the Live OS is going through a network (PXE) boot.  Appropriate network drivers will be loaded and network configuration will be applied so that the squashfs modules can be loaded via NFS. 
     * If the "blacklist" boot parameter was specified, then the kernel modules mentioned as argument(s) will be added to a modprobe blacklist file "/etc/modprobe.d/BLACKLIST-live.conf".

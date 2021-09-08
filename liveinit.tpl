@@ -106,6 +106,11 @@ HNMAC_ALLOWED="YES"
 INTERFACE=""
 NFSHOST=""
 
+# Password handling, assign random initialization:
+DEFPW="7af0aed2-d900-4ed8-89f0"
+ROOTPW=$DEFPW
+LIVEPW=$DEFPW
+
 # Max wait time for DHCP client to configure an interface:
 DHCPWAIT=20
 
@@ -1162,20 +1167,28 @@ EOT
     fi
   fi
 
-  if [ ! -z "$LIVEPW" ]; then
+  if [ -n "$LIVEPW" ] && [ "$LIVEPW" != "${DEFPW}" ]; then
     # User entered a custom live password on the boot commandline:
     echo "${MARKER}:  Changing password for user '${LIVEUID}'."
     chroot /mnt/overlay /usr/sbin/chpasswd <<EOPW
 ${LIVEUID}:${LIVEPW}
 EOPW
+  elif [ -z "$LIVEPW" ]; then
+    # User requested an empty live password:
+    echo "${MARKER}:  Removing password for user '${LIVEUID}'."
+    chroot /mnt/overlay /usr/bin/passwd -d ${LIVEUID}
   fi
 
-  if [ ! -z "$ROOTPW" ]; then
+  if [ -n "$ROOTPW" ] && [ "$ROOTPW" != "${DEFPW}" ]; then
     # User entered a custom root password on the boot commandline:
     echo "${MARKER}:  Changing password for user 'root'."
     chroot /mnt/overlay /usr/sbin/chpasswd <<EOPW
 root:${ROOTPW}
 EOPW
+  elif [ -z "$ROOTPW" ]; then
+    # User requested an empty root password:
+    echo "${MARKER}:  Removing password for user 'root'."
+    chroot /mnt/overlay /usr/bin/passwd -d root
   fi
 
   if [ ! -z "$HNMAC" -a "$HNMAC_ALLOWED" = "YES" ]; then
