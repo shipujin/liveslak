@@ -1780,7 +1780,7 @@ EOT
       -i ${LIVE_ROOTDIR}/etc/NetworkManager/conf.d/00-dhcp-client.conf
 
 else
-  # Use Slackware's own network configurion routing for eth0 in the base image:
+  # Use Slackware's own network configuration routing for eth0 in base image:
   cat <<EOT > ${LIVE_ROOTDIR}/etc/rc.d/rc.inet1.conf
 IFNAME[0]="eth0"
 IPADDR[0]=""
