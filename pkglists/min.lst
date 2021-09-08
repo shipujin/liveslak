@@ -112,6 +112,7 @@ pam
 parted
 pciutils
 perl
+pinentry
 pkgtools
 plzip
 polkit
