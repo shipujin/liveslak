@@ -19,6 +19,7 @@ xlogin.Login.greeting:
 !xlogin.Login.greeting:		CLIENTHOST
 xlogin.Login.namePrompt:	Username:\040
 xlogin.Login.passwdPrompt:	Password:\040
+xlogin.Login.echoPasswd:	true
 xlogin.Login.allowNullPasswd:	true
 xlogin.Login.fail:		incorrect
 xlogin.Login.greetFace:		Terminus-14:style=Bold
