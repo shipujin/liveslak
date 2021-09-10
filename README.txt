@@ -850,6 +850,7 @@ What does the 'liveslak' init script do?
   * The complete RAM filesystem which underpins the overlay is made available to the user of the Live OS as "/mnt/live"
   * The filesystem of the Live media is made available to the user of the Live OS as "/mnt/livemedia".  If the media is a USB stick then you will have write access to "/mnt/livemedia".
   * With the root filesystem assembled, the Live OS is configured before it actually boots:
+    * If a OS-specific configuration file (by default ''/liveslak/slackware_os.cfg'') exists, its contents will be parsed.  Values of the variables defined in this file overrule any default liveslak or boot commandline values.
     * if you specified "swap" on the boot commandline, any available swap partition will be added to "/etc/fstab" in the Live OS.
     * if you specified a custom keyboard layout for the console (and optionally another for X) by using the "kbd" and "xkb" boot parameters then these will be confifured in "/etc/rc.d/rc.keymap" and "/etc/X11/xorg.conf.d/30-keyboard.conf" in the Live OS.
     * Same for any custom locale which was specified with the "locale" parameter, this will get added to "/etc/profile.d/lang.sh".
@@ -863,6 +864,25 @@ What does the 'liveslak' init script do?
     * And lastly but very importantly, any LUKS-encrypted container files are unlocked (init will ask you for the passphrase) and the filesystem(s) contained therein will be mounted in the Live OS. Currently, a LUKS-encrypted /home is supported.  The files "/etc/fstab" and "/etc/crypttab" will be updated so that the Live OS will do the mounting and unmounting.
     * The init script will end by telling the kernel to swith to our new root filesystem (the overlay) and start the Slackware init program (PID 1, /sbin/init).
   * From this moment onward, you are booting a 'normal' Slackware system and the fact that this is actually running in RAM and not from your local harddisk is not noticeable.
+
+
+=== OS configuration file for persistent media ===
+
+If present, the liveslak init will load a OS config file from a persistent Live medium such as a USB stick.  In the case of 'Slackware Live Edition' this file is called "/liveslak/slackware_os.cfg" - i.e. is placed in the "liveslak" directory of your USB drive.  For custom non-Slackware Live OS-es based on liveslak, the filename may be different.
+This file contains one or more "VARIABLE=value" lines, where VARIABLE is one of the following variables that are used in the live init script:
+  * BLACKLIST, KEYMAP, LIVE_HOSTNAME, LOAD, LOCALE, LUKSVOL, NOLOAD, RUNLEVEL, TWEAKS, TZ, XKB.
+Values for the variables defined in this configuration file override the values already set via liveslak's own defaults or via boot-up command-line parameters.
+
+When booting your persistent //Slackware Live Edition//, the optional boot-time parameter "cfg" deals with this OS configuration file.  The "cfg" parameter understands two possible argument values:
+  * "cfg=write" will (over)write the OS configuration file to your USB drive, using the values for all of the above variables that are valid for that particular boot. So if your timezone is "PST" then one of the lines in that file will read "TZ=PST".
+  * "cfg=skip" will skip processing of an existing "/liveslak/slackware_os.cfg" file.
+
+The OS configuration file is not present by default. You either create it at boot-time using "cfg=write" (which is a persistent change) or you create it manually using an ASCII text editor, after mounting theUSB partition on a computer.  As an example, here is the content of ''/liveslak/slackware_os.cfg'' on my own USB stick: <code>
+KEYMAP=nl
+LIVE_HOSTNAME=zelazny
+LOCALE=nl_NL.utf8
+TWEAKS=tpb,syn
+TZ=Europe/Amsterdam</code>
 
 
 === Slackware Live module format ===
