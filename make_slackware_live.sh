@@ -1852,8 +1852,8 @@ if [ "${SL_VERSION}" = "current" ]; then
   touch /var/lib/slackpkg/current
 fi
 
-ARCH=${SL_ARCH} /usr/sbin/slackpkg -batch=on update gpg
-ARCH=${SL_ARCH} /usr/sbin/slackpkg -batch=on update
+ARCH=${SL_ARCH} /usr/sbin/slackpkg -batch=on -default_answer=y update gpg
+ARCH=${SL_ARCH} /usr/sbin/slackpkg -batch=on -default_answer=y update
 # Let any lingering .new files replace their originals:
 yes o | ARCH=${SL_ARCH} /usr/sbin/slackpkg new-config
 
