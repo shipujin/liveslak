@@ -40,6 +40,8 @@ pangomm
 pavucontrol
 pidgin
 polkit-gnome
+python-cffi
+python-pycparser
 rdesktop
 #rxvt
 #rxvt-unicode

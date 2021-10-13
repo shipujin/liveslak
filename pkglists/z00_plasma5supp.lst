@@ -20,6 +20,7 @@ fluxbox
 font-bh-ttf
 font-bitstream-type1
 font-xfree86-type1
+freerdp
 frei0r-plugins
 fuse
 ghostscript
@@ -101,6 +102,7 @@ xcb-util-renderutil
 xcb-util-wm
 xcm
 xconsole
+xdg-desktop-portal
 xdg-user-dirs
 xedit
 xine-lib

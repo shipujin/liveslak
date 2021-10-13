@@ -78,6 +78,7 @@ gobject-introspection
 graphene
 graphite2
 gsettings-desktop-schemas
+gst-plugins-bad-free
 gst-plugins-base
 gst-plugins-base0
 gst-plugins-good
