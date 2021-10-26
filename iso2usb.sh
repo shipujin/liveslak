@@ -80,7 +80,7 @@ DOLUKS=0
 REFRESH=0
 
 # These tools are required by the script, we will check for their existence:
-REQTOOLS="blkid cpio extlinux fdisk gdisk isoinfo lsblk mkdosfs sgdisk syslinux wipefs"
+REQTOOLS="blkid cpio cryptsetup extlinux fdisk find gdisk gzip isoinfo losetup lsblk lzip mkdosfs sgdisk syslinux wipefs xz"
 
 # Path to syslinux files:
 if [ -d /usr/share/syslinux ]; then
@@ -204,6 +204,8 @@ uncompressfs () {
     gzip -cd "${1}"
   elif $(file "${1}" | grep -qi ": XZ"); then
     xz -cd "${1}"
+  elif $(file "${1}" | grep -qi ": lzip"); then
+    lzip -cd "${1}"
   fi
 }
 
