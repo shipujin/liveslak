@@ -38,7 +38,10 @@ MEDIALABEL="@MEDIALABEL@"
 
 LIVEMAIN="@LIVEMAIN@"
 MARKER="@MARKER@"
+
 PERSISTENCE="@PERSISTENCE@"
+PERSISTPART=""
+PERSISTPATH="."
 
 DISTRO="@DISTRO@"
 CDISTRO="@CDISTRO@"
@@ -65,7 +68,8 @@ DEF_TZ=@DEF_TZ@
 
 # By default, let the media determine if we can write persistent changes:
 # However, if we define TORAM=1, we will also set VIRGIN=1 when we want
-# to avoid anything that writes to disk after we copy the OS to RAM.
+# to avoid anything that writes to disk after we copy the OS to RAM;
+# unless we explicitly use a persistence directory on the computer's local disk.
 VIRGIN=0
 
 # If set to '1', existing persistent data will be wiped:
@@ -105,6 +109,15 @@ HNMAC=""
 HNMAC_ALLOWED="YES"
 INTERFACE=""
 NFSHOST=""
+
+# Assume the default to be a readonly media - we write to RAM:
+UPPERDIR=/mnt/live/changes
+OVLWORK=/mnt/live/.ovlwork
+
+# Persistence directory on writable media gets mounted on/mnt/media.
+# If the user specifies a system partition instead,
+# then the mount point will be a subdirectory of /mnt/live instead:
+PPATHINTERNAL=/mnt/media
 
 # Password handling, assign random initialization:
 DEFPW="7af0aed2-d900-4ed8-89f0"
@@ -180,6 +193,7 @@ for ARG in $(cat /proc/cmdline); do
     livemedia=*)
       # generic syntax: livemedia=/dev/sdX
       # ISO syntax: livemedia=/dev/sdX:/path/to/slackwarelive.iso
+      # Scan partitions for ISO: livemedia=scandev:/path/to/slackwarelive.iso
       LM=$(echo $ARG | cut -f2 -d=)
       LIVEMEDIA=$(echo $LM | cut -f1 -d:)
       LIVEPATH=$(echo $LM | cut -f2 -d:)
@@ -229,7 +243,22 @@ for ARG in $(cat /proc/cmdline); do
       fi
     ;;
     persistence=*)
-      PERSISTENCE=$(echo $ARG | cut -f2 -d=)
+      # Generic syntax: persistence=/path/to/persistencedir
+      # Dir on harddisk partition: persistence=/dev/sdX:/path/to/persistencedir
+      # Instead of device name, the value of its LABEL or UUID can be used too.
+      PD=$(echo $ARG | cut -f2 -d=)
+      PERSISTPART=$(echo $PD | cut -f1 -d:)
+      PERSISTPATH=$(dirname $(echo $PD | cut -f2 -d:))
+      PERSISTENCE=$(basename $(echo $PD | cut -f2 -d:))
+      unset PD
+      if [ "${PERSISTENCE})" = "changes" ]; then
+        echo "${MARKER}:  Persistence directory cannot be called 'changes'."
+        echo "${MARKER}:  Disabling persistence and recording changes in RAM."
+        PERSISTPART=""
+        PERSISTPATH="."
+        PERSISTENCE="@PERSISTENCE@"
+        VIRGIN=1
+      fi
     ;;
     rescue)
       RESCUE=1
@@ -908,63 +937,159 @@ if [ "$RESCUE" = "" ]; then
   fi
 
   # Setup persistence in case our media is writable, *and* the user
-  # has created a directory "persistence" in the root of the media.
+  # has created a persistence directory or container on the media,
   # otherwise we let the block changes accumulate in RAM only.
 
-  # Create the mount point for the writable upper directory of the overlay:
-  # Assume the default to be a readonly media - we write to RAM:
-  UPPERDIR=/mnt/live/changes
-  OVLWORK=/mnt/live/.ovlwork
-  if [ $VIRGIN -eq 0 ]; then
-    if [ "LIVEFS" != "iso9660" -a -d /mnt/media/${PERSISTENCE} ]; then
-      # Looks OK, but we need to remount the media in order to write
-      # to the persistence directory:
-      mount -o remount,rw /mnt/media
-      # Try a write... just to be dead sure:
-      if touch /mnt/media/${PERSISTENCE}/.rwtest 2>/dev/null && rm /mnt/media/${PERSISTENCE}/.rwtest 2>/dev/null ; then
-        # Writable media and we are allowed to write to it.
-        if [ "$WIPE_PERSISTENCE" = "1" -o -f /mnt/media/${PERSISTENCE}/.wipe ]; then
-          echo "${MARKER}:  Wiping existing persistent data in '/${PERSISTENCE}'."
-          rm -f /mnt/media/${PERSISTENCE}/.wipe 2>/dev/null
-          find /mnt/media/${PERSISTENCE}/ -mindepth 1 -exec rm -rf {} \; 2>/dev/null
-        fi
-        echo "${MARKER}:  Writing persistent changes to media directory '/${PERSISTENCE}'."
-        UPPERDIR=/mnt/media/${PERSISTENCE}
-        OVLWORK=/mnt/media/.ovlwork
+  # Was a partition specified containing a persistence directory,
+  # and is it different from the live medium?
+  if [ -n "${PERSISTPART}" ]; then
+    # If partition was specified as UUID/LABEL, or as 'scandev',
+    # we need to figure out the partition device ourselves:
+    if [ "${PERSISTPART}" != "scandev" -a ! -b "${PERSISTPART}" ]; then
+      TEMPP=$(findfs UUID=${PERSISTPART} 2>/dev/null) || TEMPP=$(findfs LABEL=${PERSISTPART} 2>/dev/null)
+      if [ -n "${TEMPP}" ]; then
+        PERSISTPART=${TEMPP}
+      else
+        echo "${MARKER}:  Partition '${PERSISTPART}' needed for persistence was not found."
+        echo "${MARKER}:  Falling back to recording changes in RAM."
+        PERSISTPART=""
+        VIRGIN=1
       fi
-    elif [ "LIVEFS" != "iso9660" -a -f /mnt/media/${PERSISTENCE}.img ]; then
-      # Use a container file; the filesystem needs to be writable:
-      mount -o remount,rw /mnt/media
+      unset TEMPP
+    elif [ "${PERSISTPART}" = "scandev" ]; then
+      # Scan partitions to find the one with the persistence directory:
+      echo "${MARKER}:  Scanning for partition with '${PERSISTENCE}'..."
+      ppartdir=".${PERSISTENCE}_$(od -An -N1 -tu1 /dev/urandom|tr -d ' ')"
+      mkdir -p /mnt/live/${ppartdir}
+      for PPART in $(ret_partition $(blkid |cut -d: -f1)) ; do
+        PPARTFS=$(blkid $PPART |rev |cut -d'"' -f2 |rev)
+        # Mount the partition and peek inside for a directory or container:
+        mount -t $PPARTFS -o ro ${PPART} /mnt/live/${ppartdir}
+        if [ -d /mnt/live/${ppartdir}/${PERSISTPATH}/${PERSISTENCE} ] || [ -f /mnt/live/${ppartdir}/${PERSISTPATH}/${PERSISTENCE}.img ]; then
+          # Found our persistence directory/container!
+          PERSISTPART=$PPART
+          unset PPART
+          umount /mnt/live/${ppartdir}
+          break
+        else
+          umount /mnt/live/${ppartdir}
+        fi
+      done
+      rmdir /mnt/live/${ppartdir}
+      if [ -n "$PPART" ]; then
+        echo "${MARKER}:  Partition scan unable to find persistence."
+        echo "${MARKER}:  Falling back to recording changes in RAM."
+        PERSISTPART=""
+        VIRGIN=1
+      fi
+    fi
+  fi
+
+  # At this point, we either have determined the persistence partition
+  # via UUID/LABEL/scandev, or else we failed to find one,
+  # and then VIRGIN has been set to '1' and PERSISTPART to "".
+
+  if [ -n "${PERSISTPART}" ]; then
+    # Canonicalize the input and the media devices,
+    # to ensure that we are talking about two different devices:
+    MPDEV=$(df /mnt/media |tail -1 |tr -s ' ' |cut -d' ' -f1)
+    REALMP=$(readlink -f ${MPDEV})
+    REALPP=$(readlink -f ${PERSISTPART})
+    if [ "${REALMP}" != "${REALPP}" ]; then
+      # Mount the partition readonly to access the persistence directory:
+      ppdir=".${PERSISTENCE}_$(od -An -N1 -tu1 /dev/urandom|tr -d ' ')"
+      mkdir -p /mnt/live/${ppdir}
+      mount -o ro ${PERSISTPART} /mnt/live/${ppdir}
+      if [ $? -ne 0 ]; then
+        echo "${MARKER}:  Failed to mount persistence partition '${PERSISTPART}' read/write."
+        echo "${MARKER}:  Falling back to recording changes in RAM."
+        rmdir /mnt/live/${ppdir}
+        VIRGIN=1
+      else
+        # Explicitly configured persistence has priority over regular
+        # persistence settings, and also overrides the boot parameter 'nop':
+        PPATHINTERNAL=/mnt/live/${ppdir}
+        VIRGIN=0
+      fi
+    fi
+  fi
+
+  # At this point, if we use persistence then its partition is either
+  # the live media (mounted on /mnt/media) or a system partition
+  # (mounted on /mnt/live/${ppdir}).
+  # The variable ${PPATHINTERNAL} points to its mount point,
+  # and the partition is mounted read-only.
+
+  # Create the mount point for the writable upper directory of the overlay.
+  # First, we deal with the case of persistence (VIRGIN=0) and then we
+  # deal with a pure Live system without persistence (VIRGIN=1):
+
+  if [ $VIRGIN -eq 0 ]; then
+    if [ -d ${PPATHINTERNAL}/${PERSISTPATH}/${PERSISTENCE} ] || [ -f ${PPATHINTERNAL}/${PERSISTPATH}/${PERSISTENCE}.img ]; then
+      # Remount the partition r/w - we need to write to the persistence area.
+      # The value of PPATHINTERNAL will be different for USB stick or harddisk:
+      mount -o remount,rw ${PPATHINTERNAL}
+      if [ $? -ne 0 ]; then
+        echo "${MARKER}:  Failed to mount persistence partition '${PERSISTPART}' read/write."
+        echo "${MARKER}:  Falling back to recording changes in RAM."
+        VIRGIN=1
+      fi
+    fi
+  fi
+
+  # We have now checked whether the persistence area is actually writable.
+
+  if [ $VIRGIN -eq 0 ]; then
+    # Persistence directory (either on writable USB or else on system harddisk):
+    if [ -d ${PPATHINTERNAL}/${PERSISTPATH}/${PERSISTENCE} ]; then
+      # Try a write... just to be dead sure:
+      if touch ${PPATHINTERNAL}/${PERSISTPATH}/${PERSISTENCE}/.rwtest 2>/dev/null && rm ${PPATHINTERNAL}/${PERSISTPATH}/${PERSISTENCE}/.rwtest 2>/dev/null ; then
+        # Writable media and we are allowed to write to it.
+        if [ "$WIPE_PERSISTENCE" = "1" -o -f ${PPATHINTERNAL}/${PERSISTPATH}/${PERSISTENCE}/.wipe ]; then
+          echo "${MARKER}:  Wiping existing persistent data in '${PERSISTPATH}/${PERSISTENCE}'."
+          rm -f ${PPATHINTERNAL}/${PERSISTPATH}/${PERSISTENCE}/.wipe 2>/dev/null
+          find ${PPATHINTERNAL}/${PERSISTPATH}/${PERSISTENCE}/ -mindepth 1 -exec rm -rf {} \; 2>/dev/null
+        fi
+        echo "${MARKER}:  Writing persistent changes to media directory '${PERSISTENCE}'."
+        UPPERDIR=${PPATHINTERNAL}/${PERSISTPATH}/${PERSISTENCE}
+        OVLWORK=${PPATHINTERNAL}/${PERSISTPATH}/.ovlwork
+      else
+        echo "${MARKER}:  Failed to write to persistence directory '${PERSISTENSE}'."
+        echo "${MARKER}:  Falling back to recording changes in RAM."
+        VIRGIN=1
+      fi
+    # Use a container file instead of a dorectory for persistence:
+    elif [ -f ${PPATHINTERNAL}/${PERSISTPATH}/${PERSISTENCE}.img ]; then
       # Find a free loop device to mount the persistence container file:
       prdev=$(find_loop)
-      prdir=$(basename ${PERSISTENCE})_$(od -An -N1 -tu1 /dev/urandom |tr -d ' ')
+      prdir=${PERSISTENCE}_$(od -An -N1 -tu1 /dev/urandom |tr -d ' ')
       mkdir -p /mnt/live/${prdir}
-      losetup $prdev /mnt/media/${PERSISTENCE}.img
+      losetup $prdev ${PPATHINTERNAL}/${PERSISTPATH}/${PERSISTENCE}.img
       # Check if the persistence container is LUKS encrypted:
       if cryptsetup isLuks $prdev 1>/dev/null 2>/dev/null ; then
-        echo "${MARKER}:  Unlocking LUKS encrypted persistence file '/${PERSISTENCE}.img'"
-        cryptsetup luksOpen $prdev $(basename ${PERSISTENCE}) </dev/tty0 >/dev/tty0 2>&1
+        echo "${MARKER}:  Unlocking LUKS encrypted persistence file '${PERSISTPATH}/${PERSISTENCE}.img'"
+        cryptsetup luksOpen $prdev ${PERSISTENCE} </dev/tty0 >/dev/tty0 2>&1
         if [ $? -ne 0 ]; then
-          echo "${MARKER}:  Failed to unlock persistence file '/${PERSISTENCE}.img'."
+          echo "${MARKER}:  Failed to unlock persistence file '${PERSISTPATH}/${PERSISTENCE}.img'."
           echo "${MARKER}:  Falling back to RAM."
         else
           # LUKS properly unlocked; from now on use the mapper device instead:
-          prdev=/dev/mapper/$(basename ${PERSISTENCE})
+          prdev=/dev/mapper/${PERSISTENCE}
         fi
       fi
       prfs=$(blkid $prdev |rev |cut -d'"' -f2 |rev)
       mount -t $prfs $prdev /mnt/live/${prdir} 2>/dev/null
       if [ $? -ne 0 ]; then
-        echo "${MARKER}:  Failed to mount persistence file '/${PERSISTENCE}.img'."
+        echo "${MARKER}:  Failed to mount persistence file '${PERSISTPATH}/${PERSISTENCE}.img'."
         echo "${MARKER}:  Falling back to RAM."
       else
-        if [ "$WIPE_PERSISTENCE" = "1" -o -f /mnt/live/${prdir}/$(basename ${PERSISTENCE})/.wipe ]; then
-          echo "${MARKER}:  Wiping existing persistent data in '/${PERSISTENCE}.img'."
-          rm -f /mnt/live/${prdir}/$(basename ${PERSISTENCE})/.wipe 2>/dev/null
-          find /mnt/live/${prdir}/$(basename ${PERSISTENCE})/ -mindepth 1 -exec rm -rf {} \; 2>/dev/null
+        if [ "$WIPE_PERSISTENCE" = "1" -o -f /mnt/live/${prdir}/${PERSISTENCE}/.wipe ]; then
+          echo "${MARKER}:  Wiping existing persistent data in '${PERSISTPATH}/${PERSISTENCE}.img'."
+          rm -f /mnt/live/${prdir}/${PERSISTENCE}/.wipe 2>/dev/null
+          find /mnt/live/${prdir}/${PERSISTENCE}/ -mindepth 1 -exec rm -rf {} \; 2>/dev/null
         fi
-        echo "${MARKER}:  Writing persistent changes to file '/${PERSISTENCE}.img'."
-        UPPERDIR=/mnt/live/${prdir}/$(basename ${PERSISTENCE})
+        echo "${MARKER}:  Writing persistent changes to file '${PERSISTPATH}/${PERSISTENCE}.img'."
+        UPPERDIR=/mnt/live/${prdir}/${PERSISTENCE}
         OVLWORK=/mnt/live/${prdir}/.ovlwork
       fi
     fi
