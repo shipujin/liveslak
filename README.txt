@@ -120,6 +120,7 @@ This script, called 'iso2usb.sh', accepts the following parameters: <code>
   -i|--infile <filename>     Full path to the ISO image file.
   -o|--outdev <filename>     The device name of your USB drive.
   -p|--persistence <name>    Custom name of the 'persistence' directory/file.
+                             If it does not exist yet, create it manually.
   -r|--refresh               Refresh the USB stick with the ISO content.
                              No formatting, do not touch user content.
   -s|--scan                  Scan for insertion of new USB device instead of
@@ -390,6 +391,12 @@ nop=wipe => Wipe all data from persistence directory or container.
 
 persistence=name => Use this if you are using a different
   directory/file than "persistence" for storing persistent data.
+
+persistence=/dev/sdX:/path/to/mypersistence
+persistence=scandev:/path/to/mypersistence => Use this if
+  the persistence directory or container is not located on the USB stick,
+  but on a local hard disk partition. Useful for network (PXE) boot
+  where you still want to offer users persistence.
 
 toram => copy the OS from the media to to RAM before running it.
   You can remove the boot media after booting.

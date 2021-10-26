@@ -8,11 +8,15 @@
 kbd=fr xkb=ch,fr => Example of custom X keyboard layout.
  
 livepw="somestring" => Change the password for user "live".
+  The password is passed as a cleartext string.
+  You can pass an empty string (livepw=) to remove the password.
 
 locale=nl_NL kbd=nl tz=Europe/Amsterdam => Example of language, 
   keyboard and/or timezone customization. 
  
 rootpw="somestring" => Change the password for user "root".
+  The password is passed as a cleartext string.
+  You can pass an empty string (rootpw=) to remove the password.
 
 === Custom software ===
 

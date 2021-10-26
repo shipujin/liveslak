@@ -10,11 +10,15 @@ To boot with default values just press ENTER.
 kbd=fr xkb=ch,fr => Example of custom X keyboard layout.
  
 livepw="somestring" => Change the password for user "live".
+  The password is passed as a cleartext string.
+  You can pass an empty string (livepw=) to remove the password.
 
 locale=nl_NL kbd=nl tz=Europe/Amsterdam => Example of language, 
   keyboard and/or timezone customization. 
  
 rootpw="somestring" => Change the password for user "root".
+  The password is passed as a cleartext string.
+  You can pass an empty string (rootpw=) to remove the password.
 
 === Custom software ===
 
@@ -52,8 +56,10 @@ localhd => initialize RAID/LVM on local hard drives.
 
 tweaks=tweak1[,tweak2,[,...]] => Implemented tweaks:
   nga - no glamor 2D acceleration, avoids error "EGL_MESA_drm_image required".
+  nsh - no sub-pixel hinting in freetype.
   tpb - enable TrackPoint scrolling while holding down middle mouse button.
   syn - start the syndaemon for better support of Synaptics touchpads.
+  ssh - start SSH daemon (disabled by default).
 
 nomodeset => Boot without kernel mode setting, needed with 
   some machines. 
@@ -83,7 +89,8 @@ livemedia=/dev/sdX => Tell the init script which partition
   become necessary if you have another copy of Slackware Live
   installed in another partition.
 
-livemedia=/dev/sdX:/path/to/live.iso => Use this if you want to
+livemedia=/dev/sdX:/path/to/live.iso
+livemedia=scandev:/path/to/live.iso => Use this if you want to
   load the live OS from an ISO file on a local harddisk partition.
 
 livemain=directoryname => Use this if you copied the content
@@ -94,12 +101,23 @@ luksvol=file1[:/mountpoint1][,file1[:/mountpoint2],...] =>
   Multiple files should be separated with comma.
   Specify "luksvol=" to *prevent* mounting any LUKS container.
 
-nop => No persistence, i.e. boot the virgin installation in 
-  case your "persistence" directory got corrupted. 
+nop => No persistence, i.e. boot the virgin installation in
+  case your "persistence" directory got corrupted.
+  If you want to ignore any persistent data during boot,
+  including LUKS data, specify "nop luksvol=" .
+
+nop=wipe => Wipe all data from persistence directory or container.
+  Useful in cases where your persistent data got corrupted.
  
 persistence=directoryname => Use this if you want to use
   a different directory than "persistence" for storing
   persistent data.
+
+persistence=/dev/sdX:/path/to/mypersistence
+persistence=scandev:/path/to/mypersistence => Use this if
+  the persistence directory or container is not located on the USB stick,
+  but on a local hard disk partition. Useful for network (PXE) boot
+  where you still want to offer users persistence.
 
 toram => copy the OS from the media to to RAM before running it.
   You can remove the boot media after booting.
