@@ -3103,22 +3103,10 @@ cp -a ${LIVE_ROOTDIR}/etc/slackware-version ${LIVE_ROOTDIR}/etc/os-release \
   ${LIVE_ROOTDIR}/boot/initrd-tree/etc/
 if [ "$NFSROOTSUP" = "YES" ]; then
   # Add just the right kernel network modules by pruning unneeded stuff:
-  if [ "$SL_ARCH" = "x86_64" -o "$SMP32" = "NO" ]; then
-    KMODS_PKG=$(find ${DEF_SL_PKGROOT}/../ -name "kernel-modules-*$(echo $KGEN |tr - _)*.t?z" |grep -v smp |head -1)
-  else
-    KMODS_PKG=$(find ${DEF_SL_PKGROOT}/../ -name "kernel-modules-*$(echo $KGEN |tr - _)*.t?z" |grep smp |head -1)
-  fi
-  KMODS_TEMP=$(mktemp -d -p /mnt -t liveslak.XXXXXX)
-  if [ ! -d $KMODS_TEMP ]; then
-    echo "*** Failed to create a temporary extraction directory for the initrd!"
-    cleanup
-    exit 1
-  fi
-  # We need to extract the full kernel-modules package for deps resolving:
-  tar -C ${KMODS_TEMP} -xf ${KMODS_PKG}
+  # We need the full kernel-modules package for deps resolving:
   # Get the kernel modules:
   for NETMODPATH in ${NETMODS} ; do 
-    cd ${KMODS_TEMP}
+    cd ${LIVE_ROOTDIR}
       cp -a --parents lib/modules/${KVER}/${NETMODPATH} \
         ${LIVE_ROOTDIR}/boot/initrd-tree/
     cd - 1>/dev/null
@@ -3129,19 +3117,17 @@ if [ "$NFSROOTSUP" = "YES" ]; then
     done
     # Add any dependency modules:
     for MODULE in $(find ${LIVE_ROOTDIR}/boot/initrd-tree/lib/modules/${KVER}/${NETMODPATH} -type f -exec basename {} .ko \;) ; do
-      /sbin/modprobe --dirname ${KMODS_TEMP} --set-version $KVER --show-depends --ignore-install $MODULE 2>/dev/null |grep "^insmod " |cut -f 2 -d ' ' |while read SRCMOD; do
+      /sbin/modprobe --dirname ${LIVE_ROOTDIR} --set-version $KVER --show-depends --ignore-install $MODULE 2>/dev/null |grep "^insmod " |cut -f 2 -d ' ' |while read SRCMOD; do
         if [ "$(basename $SRCMOD .ko)" != "$MODULE" ]; then
-          cd ${KMODS_TEMP}
-            # Need to strip ${KMODS_TEMP} from the start of ${SRCMOD}:
-            cp -a --parents $(echo $SRCMOD |sed 's|'${KMODS_TEMP}'/|./|' ) \
+          cd ${LIVE_ROOTDIR}
+            # Need to strip ${LIVE_ROOTDIR} from the start of ${SRCMOD}:
+            cp -a --parents $(echo $SRCMOD |sed 's|'${LIVE_ROOTDIR}'/|./|' ) \
               ${LIVE_ROOTDIR}/boot/initrd-tree/
           cd - 1>/dev/null
         fi
       done
     done
   done
-  # Remove the temporary tree:
-  rm -rf ${KMODS_TEMP}
   # We added extra modules to the initrd, so we run depmod again:
   chroot ${LIVE_ROOTDIR}/boot/initrd-tree /sbin/depmod $KVER
   # Add the firmware for network cards that need them:
