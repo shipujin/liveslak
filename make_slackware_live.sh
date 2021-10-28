@@ -221,6 +221,10 @@ BLACKLIST_DAW="seamonkey"
 BLACKLIST_LEAN="seamonkey"
 BLACKLIST_XFCE="lynx mc mozilla-firefox pidgin"
 
+# Potentially we will use package(s) from 'testing' instead of regular repo:
+#TESTINGLIST_DAW="kernel-generic kernel-modules kernel-headers kernel-source"
+TESTINGLIST_DAW=""
+
 # -- START: Used verbatim in upslak.sh -- #
 # List of kernel modules required for a live medium to boot properly;
 # Lots of HID modules added to support keyboard input for LUKS password entry;
@@ -464,6 +468,13 @@ function install_pkgs() {
           break
         fi
       done
+      # Sometimes we want to use a package in 'testing' instead:
+      for PTST in ${TESTINGLIST} TSTNONE; do
+        if [ "$PKG" == "$PTST" ]; then
+          # Found a package to install from 'testing'.
+          break
+        fi
+      done
       # Now decide what to do:
       if [ -z "${PKG}" ]; then
         # Package removal:
@@ -471,17 +482,25 @@ function install_pkgs() {
       elif [ "${PKG}" == "${BLST}" ]; then
         echo "-- Not installing blacklisted package '$PKG'."
       else
-        # Package install/upgrade:
-        # Look in ./patches ; then ./${DISTRO}$DIRSUFFIX ; then ./extra
-        # Need to escape any '+' in package names such a 'gtk+2'.
-        if [ ! -z "${SL_PATCHROOT}" ]; then
-          FULLPKG=$(full_pkgname ${PKG} ${SL_PATCHROOT})
+        if [ "${PKG}" == "${PTST}" ]; then
+          echo "-- Installing package '$PKG' from 'testing'."
+          FULLPKG=$(full_pkgname ${PKG} $(dirname ${SL_PKGROOT})/testing)
         else
           FULLPKG=""
         fi
+        # Package install/upgrade:
+        # Look in ./patches ; then ./${DISTRO}$DIRSUFFIX ; then ./extra
+        # Need to escape any '+' in package names such a 'gtk+2'.
+        if [ "x${FULLPKG}" = "x" ]; then
+          if [ ! -z "${SL_PATCHROOT}" ]; then
+            FULLPKG=$(full_pkgname ${PKG} ${SL_PATCHROOT})
+          else
+            FULLPKG=""
+          fi
+        fi
         if [ "x${FULLPKG}" = "x" ]; then
           FULLPKG=$(full_pkgname ${PKG} ${SL_PKGROOT})
-        else
+        elif [ "${PKG}" != "${PTST}" ]; then
           echo "-- $PKG found in patches"
         fi
         if [ "x${FULLPKG}" = "x" ]; then
@@ -1319,6 +1338,11 @@ fi
 # Determine possible blacklist to use:
 if [ -z "${BLACKLIST}" ]; then
   eval BLACKLIST=\$BLACKLIST_${LIVEDE}
+fi
+
+# Determine possible package list from 'testing' to use:
+if [ -z "${TESTINGLIST}" ]; then
+  eval TESTINGLIST=\$TESTINGLIST_${LIVEDE}
 fi
 
 # Create output directory for image file:
