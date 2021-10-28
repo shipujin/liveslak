@@ -2710,6 +2710,16 @@ fs.inotify.max_user_watches = 524288
 vm.swappiness = 10
 EOT
   fi
+  # Enable full preemption on boot:
+  cat <<EOT >> ${LIVE_ROOTDIR}/etc/rc.d/rc.local
+
+# Enable full preemption model in the kernel
+# (possible values to use are 'none', 'voluntary', 'full'):
+mount -t debugfs none /sys/kernel/debug
+echo full > /sys/kernel/debug/sched/preempt
+umount /sys/kernel/debug
+
+EOT
 
   #  # This would benefit a DAW, but if the user runs the Live OS on a laptop,
   #  # she might want to decide about this herself:
