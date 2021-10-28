@@ -23,7 +23,8 @@ dssi
 eq10q
 faad2
 faust
-frescobaldi
+# Currently does not work with Python310:
+#frescobaldi
 geonkick
 giada
 glfw
