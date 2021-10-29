@@ -2625,6 +2625,12 @@ EOT
     ln -s /usr/share/vcvrack/$(basename ${PLUGIN}) ${LIVE_ROOTDIR}/home/${LIVEUID}/.Rack/plugins-v1/
   done
 
+  # The new Kickoff application launcher that replaced the old Kickoff,
+  # does not adhere to the XDG Desktop standards.
+  # Therefore we will switch the DAW desktop to Kicker instead, to preserve
+  # our 'Slackware DAW' menu structure in the 'Multimedia' menu:
+  sed -e 's/kickoff/kicker/g' -i ${LIVE_ROOTDIR}/usr/share/plasma/layout-templates/org.kde.plasma.desktop.defaultPanel/contents/layout.js
+
 fi # End LIVEDE = DAW
 
 if [ "$LIVEDE" = "STUDIOWARE" ]; then
