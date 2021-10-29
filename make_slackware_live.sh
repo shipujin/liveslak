@@ -245,8 +245,8 @@ NETFIRMWARE="3com acenic adaptec bnx tigon e100 sun kaweth tr_smctr cxgb3 rtl_ni
 # either using a variable name 'KAPPEND_<LIVEDE>', or by defining 'KAPPEND' in the .conf file:
 KAPPEND_SLACKWARE=""
 KAPPEND_KTOWN="threadirqs"
-KAPPEND_DAW="threadirqs"
-KAPPEND_STUDIOWARE="threadirqs"
+KAPPEND_DAW="threadirqs preempt=full"
+KAPPEND_STUDIOWARE="threadirqs preempt=full"
 
 # Add CACert root certificates yes/no?
 ADD_CACERT=${ADD_CACERT:-"NO"}
@@ -2710,16 +2710,17 @@ fs.inotify.max_user_watches = 524288
 vm.swappiness = 10
 EOT
   fi
-  # Enable full preemption on boot:
-  cat <<EOT >> ${LIVE_ROOTDIR}/etc/rc.d/rc.local
 
-# Enable full preemption model in the kernel
-# (possible values to use are 'none', 'voluntary', 'full'):
-mount -t debugfs none /sys/kernel/debug
-echo full > /sys/kernel/debug/sched/preempt
-umount /sys/kernel/debug
-
-EOT
+#  # Enable full preemption on boot:
+#  cat <<EOT >> ${LIVE_ROOTDIR}/etc/rc.d/rc.local
+#
+## Enable full preemption model in the kernel
+## (possible values to use are 'none', 'voluntary', 'full'):
+#mount -t debugfs none /sys/kernel/debug
+#echo full > /sys/kernel/debug/sched/preempt
+#umount /sys/kernel/debug
+#
+#EOT
 
   #  # This would benefit a DAW, but if the user runs the Live OS on a laptop,
   #  # she might want to decide about this herself:
