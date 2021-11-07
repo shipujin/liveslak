@@ -85,6 +85,7 @@ lilo
 logrotate
 lvm2
 lz4
+lzip
 lzlib
 mc
 mdadm

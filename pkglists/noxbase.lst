@@ -15,6 +15,7 @@ db48
 dbus
 dbus-glib
 ddrescue
+efivar
 elfutils
 elogind
 exiv2

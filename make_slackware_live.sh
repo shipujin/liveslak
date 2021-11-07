@@ -219,7 +219,7 @@ SEQ_STUDW="tagfile:a,ap,d,e,f,k,kde,l,n,t,tcl,x,xap,xfce,y pkglist:slackextra,sl
 # Package blacklists for variants:
 BLACKLIST_DAW="seamonkey"
 BLACKLIST_LEAN="seamonkey"
-BLACKLIST_XFCE="lynx mc mozilla-firefox pidgin"
+BLACKLIST_XFCE="gst-plugins-bad-free lynx mc motif mozilla-firefox pidgin xlockmore"
 
 # Potentially we will use package(s) from 'testing' instead of regular repo:
 #TESTINGLIST_DAW="kernel-generic kernel-modules kernel-headers kernel-source"
