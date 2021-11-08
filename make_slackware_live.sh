@@ -67,6 +67,23 @@ BOOTLOADSIZE=${BOOTLOADSIZE:-4}
 # Therefore we disable 32bit EFI by default. Enable at your own peril:
 EFI32=${EFI32:-"NO"}
 
+# Set to '1' using the "-S" parameter to the script,
+# if the liveslak ISO should support SecureBoot-enabled computers:
+SECUREBOOT=0
+
+# Which shim to download and install?
+# Supported are 'debian' 'fedora' 'opensuse'.
+SHIM_3RDP=${SHIM_3RDP:-"fedora"}
+
+# When enabling SecureBoot support, we need a MOK certificate plus private key,
+# which we use to sign grub and kernel.
+# MOKCERT contains the location of the certificate,
+# to be defined through the '-S' parameter:
+MOKCERT=""
+# MOKPRIVKEY points to the location of the private key,
+# to be defined through the '-S' parameter:
+MOKPRIVKEY=""
+
 # Set to YES if you want to use the SMP kernel on 32bit Slackware:
 SMP32=${SMP32:-"NO"}
 
@@ -892,6 +909,130 @@ EOL
 
 } # End of gen_uefimenu()
 
+
+#
+# Add UEFI SecureBoot support:
+#
+function secureboot() {
+  # Liveslak uses Fedora's shim (for now), which is signed by
+  # 'Microsoft UEFI CA' and contains Fedora's CA certificate.
+  # We sign liveslak's grub and kernel with our own key/certificate pair.
+  # This means that the user of liveslak will have to enroll liveslak's
+  # public certificate via MokManager. This needs to be done only once.
+
+  # Note that we use the generic fallback directory /EFI/BOOT/ for the Live ISO
+  # instead of a custom distro entry for UEFI such as /EFI/BOOT/Slackware/
+  # When shim is booted with  path /EFI/BOOT/bootx64.efi, and there is a
+  # Fallback binary (fbx64.efi) , shim will load that one instead of grub,
+  # so Fallback can create a NVRAM boot entry for a custom distro directory
+  # (which we do not have) causing a reset boot loop.
+  # This is why liveslak does not install fbx64.efi. A regular distro should
+  # install that file in its distro subdirectory!
+
+  SHIM_VENDOR="$1"
+  [ -z "${SHIM_VENDOR}" ] && SHIM_VENDOR="fedora"
+
+  case $SHIM_VENDOR in
+    opensuse)      GRUB_SIGNED="grub.efi"
+                   ;;
+    *)             GRUB_SIGNED="grubx64.efi"
+                   ;;
+  esac
+  mkdir -p ${LIVE_WORK}/shim
+  cd ${LIVE_WORK}/shim
+
+  echo "-- Signing grub+kernel with '${LIVE_STAGING}/EFI/BOOT/liveslak.pem'."
+  # Sign grub:
+  # The Grub EFI image must be renamed appropriately for shim to find it,
+  # since some distros change the default 'grubx64.efi' filename:
+  mv -i ${LIVE_STAGING}/EFI/BOOT/bootx64.efi \
+    ${LIVE_WORK}/shim/grubx64.efi.unsigned
+  sbsign --key ${MOKPRIVKEY} --cert ${MOKCERT} \
+    --output ${LIVE_STAGING}/EFI/BOOT/${GRUB_SIGNED} \
+    ${LIVE_WORK}/shim/grubx64.efi.unsigned 
+  # Sign the kernel:
+  mv ${LIVE_STAGING}/boot/generic ${LIVE_WORK}/shim/generic.unsigned 
+  sbsign --key ${MOKPRIVKEY} --cert ${MOKCERT} \
+    --output ${LIVE_STAGING}/boot/generic \
+    ${LIVE_WORK}/shim/generic.unsigned 
+
+  if [ "${SHIM_VENDOR}" = "fedora" ]; then
+    # The version of Fedora's shim package - always use the latest!
+    SHIM_MAJVER=15.4
+    SHIM_MINVER=5
+    SHIMSRC="https://kojipkgs.fedoraproject.org/packages/shim/${SHIM_MAJVER}/${SHIM_MINVER}/x86_64/shim-x64-${SHIM_MAJVER}-${SHIM_MINVER}.x86_64.rpm"
+    echo "-- Downloading/installing the SecureBoot signed shim from Fedora."
+    wget -q --progress=dot:mega --show-progress ${SHIMSRC} -O - \
+      | rpm2cpio - | cpio -dim
+    echo ""
+    # Install signed efi files into UEFI BOOT directory of the esp partition:
+    # The name of the shim in the ISO, *must* be 'bootx64.efi':
+    install -D -m0644 boot/efi/EFI/fedora/shimx64.efi \
+      ${LIVE_STAGING}/EFI/BOOT/bootx64.efi
+    install -D -m0644 boot/efi/EFI/fedora/mmx64.efi \
+      ${LIVE_STAGING}/EFI/BOOT/mmx64.efi
+    #install -D -m0644 boot/efi/EFI/BOOT/fbx64.efi \
+    #  ${LIVE_STAGING}/EFI/BOOT/fbx64.efi
+  elif [ "${SHIM_VENDOR}" = "opensuse" ]; then
+    SHIM_MAJVER=15.4
+    SHIM_MINVER=4.2
+    SHIMSRC="https://download.opensuse.org/repositories/openSUSE:/Factory/standard/x86_64/shim-${SHIM_MAJVER}-${SHIM_MINVER}.x86_64.rpm"
+    echo "-- Downloading/installing the SecureBoot signed shim from openSUSE."
+    wget -q --progress=dot:mega --show-progress ${SHIMSRC} -O - \
+      | rpm2cpio - | cpio -dim
+    echo ""
+    # Install signed efi files into UEFI BOOT directory of the esp partition:
+    # The name of the shim in the ISO, *must* be 'bootx64.efi':
+    install -D -m0644 usr/share/efi/x86_64/shim-opensuse.efi \
+      ${LIVE_STAGING}/EFI/BOOT/bootx64.efi
+    install -D -m0644 usr/share/efi/x86_64/MokManager.efi \
+      ${LIVE_STAGING}/EFI/BOOT/MokManager.efi
+    #install -D -m0644 usr/share/efi/x86_64/fallback.efi \
+    #  ${LIVE_STAGING}/EFI/BOOT/fallback.efi
+  elif [ "${SHIM_VENDOR}" = "debian" ]; then
+    DEBSHIM_VER=1.38
+    DEBMOKM_VER=1
+    SHIM_MAJVER=15.4
+    SHIM_MINVER=7
+    SHIMSRC="http://ftp.de.debian.org/debian/pool/main/s/shim-signed/shim-signed_${DEBSHIM_VER}+${SHIM_MAJVER}-${SHIM_MINVER}_amd64.deb"
+    MOKMSRC="http://ftp.de.debian.org/debian/pool/main/s/shim-helpers-amd64-signed/shim-helpers-amd64-signed_${DEBMOKM_VER}+${SHIM_MAJVER}+${SHIM_MINVER}_amd64.deb"
+    echo "-- Downloading the SecureBoot signed shim from Debian."
+    wget -q --progress=dot:mega --show-progress ${SHIMSRC}
+    echo ""
+    echo "-- Installing the SecureBoot signed shim to the ESP."
+    # Extract discarding any directory structure:
+    ar p $(basename ${SHIMSRC}) data.tar.xz | tar --xform='s#^.+/##x' -Jxf - \
+      ./usr/lib/shim/shimx64.efi.signed
+    echo "-- Downloading the SecureBoot signed mokmanager from Debian."
+    wget -q  --progress=dot:mega --show-progress ${MOKMSRC}
+    echo ""
+    echo "-- Installing the SecureBoot signed mokmanager to the ESP."
+    # Extract discarding any directory structure:
+    ar p $(basename ${MOKMSRC}) data.tar.xz | tar --xform='s#^.+/##x' -Jxf - \
+      ./usr/lib/shim/fbx64.efi.signed ./usr/lib/shim/mmx64.efi.signed
+    # Install signed efi files into UEFI BOOT directory of the esp partition:
+    # The name of the shim in the ISO, *must* be 'bootx64.efi':
+    install -D -m0644 ./shimx64.efi.signed \
+      ${LIVE_STAGING}/EFI/BOOT/bootx64.efi
+    install -D -m0644 ./mmx64.efi.signed \
+      ${LIVE_STAGING}/EFI/BOOT/mmx64.efi
+    #install -D -m0644 ./fbx64.efi.signed \
+    #  ${LIVE_STAGING}/EFI/BOOT/fbx64.efi
+  else
+    echo ">> A '${SHIM_VENDOR}' shim was requested, but only 'opensuse' 'fedora' or 'debian' shim/mokmanager are supported."
+    echo ">> Expect trouble ahead."
+  fi
+  cd - 1>/dev/null
+
+  ## Write CSV file for the Fallback EFI program so that it knows what to boot:
+  #echo -n "bootx64.efi,SHIM,,SecureBoot UEFI entry for liveslak" \
+  #  | iconv -t UCS-2 > ${LIVE_STAGING}/EFI/BOOT/BOOT.CSV
+
+  # Cleanup:
+  rm -rf ${LIVE_WORK}/shim
+
+} # End of secureboot()
+
 #
 # Create an ISO file from a directory's content:
 #
@@ -1079,7 +1220,7 @@ EOT
 # Action!
 # ---------------------------------------------------------------------------
 
-while getopts "a:c:d:efhl:m:r:s:t:vz:CGH:MO:R:X" Option
+while getopts "a:c:d:efhl:m:r:s:t:vz:CGH:MO:R:S:X" Option
 do
   case $Option in
     h )
@@ -1122,6 +1263,9 @@ do
         echo " -M                 Add multilib (x86_64 only)."
         echo " -O outfile         Custom filename for the ISO."
         echo " -R runlevel        Runlevel to boot into (default: $RUNLEVEL)."
+        echo " -S privkey:cert    Enable SecureBoot support and sign binaries"
+        echo "                    using the full path to colon-separated"
+        echo "                    private key and certificate files"
         echo " -X                 Use xorriso instead of mkisofs/isohybrid."
         exit
         ;;
@@ -1161,6 +1305,12 @@ do
         OUTPUT="$(cd $(dirname "${OUTFILE}"); pwd)"
         ;;
     R ) RUNLEVEL=${OPTARG}
+        ;;
+    S ) MOKPRIVKEY=$(readlink -f $(echo ${OPTARG} |cut -d: -f1))
+        MOKCERT=$(readlink -f $(echo ${OPTARG} |cut -d: -f2))
+        TEMP_3RDP=$(echo ${OPTARG} |cut -d: -f3)
+        [ -n "${TEMP_3RDP}" ] && SHIM_3RDP=${TEMP_3RDP}
+        unset TEMP_3RDP
         ;;
     X ) USEXORR="YES"
         ;;
@@ -1204,6 +1354,16 @@ fi
 if [ "$SL_ARCH" != "x86_64" -a "$MULTILIB" = "YES" ]; then
   echo ">> Multilib is only supported on x86_64 architecture."
   exit 1
+fi
+
+if [ -n "${MOKPRIVKEY}" ] && [ -n "${MOKCERT}" ]; then
+  if [ -f ${MOKPRIVKEY} ] && [ -f ${MOKCERT} ]; then
+    echo "-- Enabling SecureBoot support (${SHIM_3RDP} shim)."
+    SECUREBOOT=1
+  else
+    echo ">> SecureBoot can not be enabled; MOK key and/or cert not found."
+    exit 1
+  fi
 fi
 
 # Determine which module sequence we have to build:
@@ -1282,7 +1442,11 @@ DEF_SL_PATCHROOT=${SL_PATCHROOT}
 # Are all the required add-on tools present?
 [ "$USEXORR" = "NO" ] && ISOGEN="mkisofs isohybrid" || ISOGEN="xorriso"
 PROG_MISSING=""
-for PROGN in mksquashfs unsquashfs grub-mkfont grub-mkimage syslinux $ISOGEN installpkg upgradepkg keytab-lilo rsync mkdosfs ; do
+REQTOOLS="mksquashfs unsquashfs grub-mkfont grub-mkimage syslinux $ISOGEN installpkg upgradepkg keytab-lilo rsync wget mkdosfs"
+if [ $SECUREBOOT -eq 1 ]; then
+   REQTOOLS="${REQTOOLS} openssl sbsign"
+fi
+for PROGN in ${REQTOOLS} ; do
   if ! which $PROGN 1>/dev/null 2>/dev/null ; then
     PROG_MISSING="${PROG_MISSING}--   $PROGN\n"
   fi
@@ -1403,6 +1567,12 @@ unset INSTDIR
 RODIRS="${LIVE_BOOT}"
 # Create the verification file for the install_pkgs function:
 echo "${THEDATE} (${BUILDER})" > ${LIVE_BOOT}/${MARKER}
+
+# Do we need to include secureboot module?
+if [ $SECUREBOOT -eq 1 ]; then
+  echo "-- Adding secureboot module."
+  MSEQ="${MSEQ} pkglist:secureboot"
+fi
 
 # Do we need to create/include additional module(s) defined by a pkglist:
 if [ -n "$SEQ_ADDMOD" ]; then
@@ -3056,6 +3226,10 @@ else
   KVER=$(ls --indicator-style=none ${LIVE_ROOTDIR}/lib/modules/ |grep smp |head -1)
 fi
 
+# Determine Slackware's GRUB version and build (we will use this later):
+GRUBVER=$(find ${DEF_SL_PKGROOT}/../ -name "grub-*.t?z" |rev |cut -d- -f3 |rev)
+GRUBBLD=$(find ${DEF_SL_PKGROOT}/../ -name "grub-*.t?z" |rev |cut -d- -f1 |cut -d. -f2 |rev)
+
 # Create an initrd for the generic kernel, using a modified init script:
 echo "-- Creating initrd for kernel-generic $KVER ..."
 chroot ${LIVE_ROOTDIR} /sbin/mkinitrd -c -w ${WAIT} -l us -o /boot/initrd_${KVER}.img -k ${KVER} -m ${KMODS} -L -C dummy 1>${DBGOUT} 2>${DBGOUT}
@@ -3166,8 +3340,13 @@ cp -a ${LIVE_TOOLDIR}/syslinux ${LIVE_STAGING}/boot/
 # EFI support always for 64bit architecture, but conditional for 32bit.
 if [ "$SL_ARCH" = "x86_64" -o "$EFI32" = "YES" ]; then
   # Copy the UEFI boot directory structure:
+  rm -rf ${LIVE_STAGING}/EFI/BOOT
   mkdir -p ${LIVE_STAGING}/EFI/BOOT
   cp -a ${LIVE_TOOLDIR}/EFI/BOOT/{grub-embedded.cfg,make-grub.sh,*.txt,theme} ${LIVE_STAGING}/EFI/BOOT/
+  if [ ${SECUREBOOT} -eq 1 ]; then
+    # User needs a DER-encoded copy of the signing cert for MOK enrollment:
+    openssl x509 -outform der -in ${MOKCERT} -out ${LIVE_STAGING}/EFI/BOOT/liveslak.der
+  fi
   if [ "$LIVEDE" = "XFCE" ]; then
     # We do not use the unicode font, so it can be removed to save space:
     rm -f ${LIVE_STAGING}/EFI/BOOT/theme/unicode.pf2
@@ -3188,6 +3367,12 @@ if [ "$SL_ARCH" = "x86_64" -o "$EFI32" = "YES" ]; then
   # Generate the UEFI grub boot image if needed:
   if [ ! -f ${LIVE_STAGING}/EFI/BOOT/boot${EFISUFF}.efi -o ! -f ${LIVE_STAGING}/boot/syslinux/efiboot.img ]; then
     ( cd ${LIVE_STAGING}/EFI/BOOT
+      # Create a SBAT file 'grub_sbat.csv' to be used by make-grub.sh :
+      cat <<HSBAT > ${LIVE_STAGING}/EFI/BOOT/grub_sbat.csv
+sbat,1,SBAT Version,sbat,1,https://github.com/rhboot/shim/blob/main/SBAT.md
+grub,1,Free Software Foundation,grub,2.06,https://www.gnu.org/software/grub/
+grub.liveslak,1,The liveslak project,grub,${GRUBVER}-${GRUBBLD},https://download.liveslak.org/
+HSBAT
       sed -i -e "s/SLACKWARELIVE/${MARKER}/g" grub-embedded.cfg
       sh make-grub.sh EFIFORM=${EFIFORM} EFISUFF=${EFISUFF}
     )
@@ -3195,6 +3380,12 @@ if [ "$SL_ARCH" = "x86_64" -o "$EFI32" = "YES" ]; then
 
   # Generate the grub configuration for UEFI boot:
   gen_uefimenu ${LIVE_STAGING}/EFI/BOOT
+
+  # Add SecureBoot support if requested:
+  if [ ${SECUREBOOT} -eq 1 ]; then
+    secureboot ${SHIM_3RDP}
+  fi
+
 fi # End EFI support menu.
 
 if [ "$SYSMENU" = "NO" ]; then

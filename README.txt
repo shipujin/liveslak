@@ -101,6 +101,35 @@ Editing a Grub menu before booting it is possible by pressing the "e" key.  Afte
 Another difference between Syslinux and Grub2 menus: in Grub2 you can select a non-US keyboard, language and/or timezone and you will return to the main menu every time.  You still have to select "Start SLACKWARE Live" to boot the computer.  In the Syslinux menu, only the keyboard selection menu will return you to the main menu.  Any non-US *language* selection on the other hand will boot you into Slackware Live immediately; without returning to the main menu.  This is a limitation of syslinux which would require exponentially more menu files to construct a menu with more choices.  Grub2 supports variables which make it easy to modify a menu entry's characteristics.
 
 
+=== UEFI Secure Boot ===
+
+
+On computers with Secure Boot enabled, extra measures may be required to boot an Operating System.  Slackware for instance, is unable to boot on a computer that has Secure Boot enabled. Historic liveslak based ISOs are also not able to boot there. From liveslak-1.5.0 and onwards, Secure Boot is supported for the 64-bit ISO images.
+
+Secure Boot enforces that the first-stage bootloader is signed with an encryption key known to Microsoft.  For Linux based Operating Systems, the most widely used solution is to place an small single-purpose bootloader before the regular Linux bootloader.  This EFI bootloader is called 'shim'.  Shim must be cryptographically signed by Microsoft for it to successfully boot a computer.  This is not a trivial process, Microsoft is very strict about the signing process because in essence your signed bootloader will boot anything on a Secure Boot enabled computer, including malware if that was signed by your 'distro key'.  That would create a huge security hole and defy the purpose of Secure Boot.
+
+Signing your Grub bootloader and your kernel also becomes mandatory, because the 'shim' refuses to load un-signed binaries.  This complicates the process of upgrading to a new kernel further.
+
+The Slackware Live OS boots on a Secure Boot enabled computer if created with liveslak-1.5.0 or newer, and only for the 64-bit liveslak ISO images.  The Slackware Linux distro does not ship a 'shim' which is signed by Microsoft, so how to get around the dilemma of requiring a signed 'shim'?
+
+To realize this, the Slackware Live ISO 'borrows' a 3rd-party 'shim'. The binaryis actually called ''bootx64.efi'' in the ''/EFI/BOOT/'' directory and has been extracted from another distro's officially signed 'shim' package; Fedora by default but the Debian and openSUSE shim are also supported by the ''make_slackware_live.sh'' script.  This 3rd-party 'shim' binary has been signed by 'Microsoft UEFI CA' which will allow it to boot on any computer. We just need to tell it that is OK to load Slackware's Grub and kernel into memory.
+
+A distro 'shim' like Fedora's contains an embedded distro SSL certificate and 'shim' will trust the signature of any binary (grub, kernel, etc) which has been signed using that certificate. Of course, 3rd-party 'shim' binaries do not embed a Slackware SSL certificate. Therefore, another means must be used to establish trust.  Secure Boot recognizes additional SSL certificates in the computer's MOK (Machine Owner Key) database as valid.  The 'shim' trusts custom SSL vertificates of signed binaries, if they are present in the MOK database.  It is up to the user (the Machine Owner) to enroll a custom SSL certificate into that database.
+
+The Grub and kernel images of Slackware Live Edition are signed with an 'Alien BOB' SSL certificate and private key.  This SSL certificate needs to be added to the MOK database of your Secure Boot enabled computer.  All liveslak ISOs use this specific certificate plus its associated private key. The private key will of course never be distributed but a 'DER-encoded' version of the public certificate is distributed as part of the ISO.  You can find it as ''/EFI/BOOT/liveslak.der'' inside the ISO. On a persistent USB stick which you created from the ISO, this will be on the second partition (the ESP).
+
+== Add the ''liveslak.der'' certificate to the MOK database ==
+
+There are two ways to add or enroll this certificate.
+  * When you boot a Secure Boot enabled liveslak ISO for the first time, the 'shim' will fail to validate the certificate of liveslak's Grub. It will then start the 'MokManager' showing you a nice blue screen with a dialog requesting you to enroll a public key (aka the SSL certificate) from disk. You can use the file selector to browse to the 'efi' partition and there to the ''./EFI/BOOT/'' directory. Select the ''liveslak.der'' and confirm that this is the correct certificate. The computer will then reboot and after reboot, you will automatically end up in the Grub boot menu without any further intervention.
+  * If you already have a Linux OS up and running on that computer, you can use the program ''mokutil'' to enroll the key before you boot a liveslak ISO:<code>
+# mokutil --import liveslak.der</code>.  This command will schedule a request to shim, and the first time you boot a liveslak ISO the MokManager will ask confirmation to enroll the scheduled key.  In other words, you won't have to 'enroll from disk'.
+
+Note that MOK key enrollment is a one-time action for the official liveslak based ISOs.  All future liveslak ISOs will also be signed using this ''liveslak.der'' certificate and as long as it stays in your computer's MOK database, the 'shim' will load Grub and the kernel without complaint.
+
+Note that you can create your own SSL certificate plus private key and use those to generate custom liveslak ISO images with Secure Boot support.  All you need to do is to enroll the public key (the DER-encoded version of your SSL certificate) into the MOK database of your computer.  The MOK database has room for multiple keys so yours as well as liveslak's keys (and more) will fit there.
+
+
 ==== Transfering ISO content to USB stick ====
 
 
@@ -736,6 +765,9 @@ The script's parameters are:
  -M                 Add multilib (x86_64 only).
  -O outfile         Custom filename for the ISO.
  -R runlevel        Runlevel to boot into (default: 4).
+ -S privkey:cert    Enable SecureBoot support and sign binaries
+                    using the full path to colon-separated
+                    private key and certificate files.
  -X                 Use xorriso instead of mkisofs/isohybrid.
 </code>
 
@@ -749,6 +781,9 @@ When all pre-reqs are met, you issue a single command to generate the ISO.  The 
 
 Another example which creates a MATE variant, configuring runlevel '3' as default and specifying a custom path for the Slackware package repository root (note that the script will look for a subdirectory "slackware64-current" below this directory if you are generating this ISO for slackware64-current):
   # ./make_slackware_live.sh -d MATE -R 3 -s ~ftp/pub/Slackware
+
+An example on how to create a DAW Live ISO which supports UEFI SecureBoot (since liveslak 1.5.0 and only for 64-bit), is compressed using 'zstd' instead of the default 'xz' and is generated using xorriso instead of mkisofs. You need to provide the full path to a SSL private key and certificate file:
+  # ./make_slackware_live.sh -d DAW -c zstd -X -S /root/liveslak.key:/root/liveslak.pem
 
 If you want to know what package sets are included in any of these Desktop Environments, run the following command:
   # grep ^SEQ_ make_slackware_live.sh

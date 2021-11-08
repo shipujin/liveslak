@@ -44,12 +44,13 @@ echo "Building ${EFIDIR}/boot${EFISUFF}.efi and /boot/syslinux/efiboot.img."
 # works with mutiple grub releases (grub-2.02 added the 'disk' module):
 GMODDIR="$(dirname $(LANG=C grub-mkimage -O ${EFIFORM}-efi -p ${EFIDIR} alienbob 2>&1 | cut -d\` -f2 |cut -d\' -f1) )"
 GMODLIST=""
-for GMOD in part_gpt part_msdos fat ext2 iso9660 ntfs chain linux boot configfile normal regexp extcmd minicmd reboot halt search search_fs_file search_fs_uuid search_label gfxterm gfxmenu gfxterm_background efi_gop efi_uga all_video loadbios gzio echo true probe loadenv bitmap_scale font cat help ls png jpeg tga test at_keyboard usb_keyboard disk memdisk nativedisk file loopback tar tftp net efinet efifwsetup ; do
+# 'shim_lock' is built into grub, not a module anymore:
+for GMOD in part_gpt part_msdos fat ext2 f2fs iso9660 ntfs chain linux boot configfile normal regexp extcmd minicmd reboot halt search search_fs_file search_fs_uuid search_label gfxterm gfxmenu gfxterm_menu gfxterm_background efi_gop efi_uga all_video loadbios gzio echo true probe loadenv bitmap_scale font cat help ls png jpeg tga test at_keyboard usb_keyboard disk memdisk nativedisk file loopback tar tftp net efinet efifwsetup zstd ; do
   [ -f ${GMODDIR}/${GMOD}.mod ] && GMODLIST="${GMODLIST} ${GMOD}" || echo ">> ${GMOD} not found"
 done
 
 # Build bootx64.efi/bootia32.efi, which will be installed here in ${EFIDIR}.
-grub-mkimage --format=${EFIFORM}-efi --output=boot${EFISUFF}.efi --config=grub-embedded.cfg --compression=xz --prefix=${EFIDIR} ${GMODLIST}
+grub-mkimage --format=${EFIFORM}-efi --output=boot${EFISUFF}.efi --config=grub-embedded.cfg --sbat=grub_sbat.csv --compression=xz --prefix=${EFIDIR} ${GMODLIST}
 
 # Then, create a FAT formatted image that contains bootx64.efi in the
 # ${EFIDIR} directory.  This is used to bootstrap GRUB from the ISO image.

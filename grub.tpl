@@ -22,6 +22,12 @@ if [ -z "$sl_locale" ]; then
   export sl_locale
 fi
 
+# Check whether we are in a Secure Boot scenario:
+if [ "x$lockdown" != "x" ]; then
+  set check_signatures=enforce
+  export check_signatures
+fi
+
 # Determine whether we can show a graphical themed menu:
 insmod font
 if loadfont $prefix/theme/dejavusansmono12.pf2 ; then
