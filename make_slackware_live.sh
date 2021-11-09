@@ -1871,6 +1871,14 @@ chmod 640 ${LIVE_ROOTDIR}/etc/sudoers
 sed -i ${LIVE_ROOTDIR}/etc/sudoers -e 's/# *\(%wheel\sALL=(ALL)\sALL\)/\1/'
 chmod 440 ${LIVE_ROOTDIR}/etc/sudoers
 
+# Also treat members of the 'wheel' group as admins next to root:
+mkdir -p ${LIVE_ROOTDIR}/etc/polkit-1/rules.d
+cat <<EOT > ${LIVE_ROOTDIR}/etc/polkit-1/rules.d/10-wheel-admin.rules
+polkit.addAdminRule(function(action, subject) {
+    return ["unix-group:wheel"];
+});
+EOT
+
 # Add some convenience to the bash shell:
 mkdir -p  ${LIVE_ROOTDIR}/etc/skel/
 cat << "EOT" > ${LIVE_ROOTDIR}/etc/skel/.bashrc
@@ -2226,14 +2234,6 @@ echo "-- Configuring the X base system."
 # Reduce the number of local consoles, two should be enough:
 sed -i -e '/^c3\|^c4\|^c5\|^c6/s/^/# /' ${LIVE_ROOTDIR}/etc/inittab
 
-# Also treat members of the 'wheel' group as admins next to root:
-mkdir -p ${LIVE_ROOTDIR}/etc/polkit-1/rules.d
-cat <<EOT > ${LIVE_ROOTDIR}/etc/polkit-1/rules.d/10-wheel-admin.rules
-polkit.addAdminRule(function(action, subject) {
-    return ["unix-group:wheel"];
-});
-EOT
-
 # Give the 'live' user a face:
 if [ -f "${LIVE_TOOLDIR}/media/${LIVEDE,,}/icons/default.png" ]; then
   # Use custom face icon if available for the Live variant:
@@ -2268,9 +2268,10 @@ fi
 # missing modules:
 echo "mode:           blank" > ${LIVE_ROOTDIR}/home/${LIVEUID}/.xscreensaver
 
-# Make the EmojiOne TTF font universally available:
-mkdir -p ${LIVE_ROOTDIR}/etc/fonts
-cat << EOT > ${LIVE_ROOTDIR}/etc/fonts/local.conf
+if [ -x /usr/bin/fc-cache ]; then
+  # Make the EmojiOne TTF font universally available:
+  mkdir -p ${LIVE_ROOTDIR}/etc/fonts
+  cat << EOT > ${LIVE_ROOTDIR}/etc/fonts/local.conf
 <?xml version="1.0"?>
 <!DOCTYPE fontconfig SYSTEM "fonts.dtd">
 <!-- /etc/fonts/local.conf file to customize system font access -->
@@ -2279,7 +2280,8 @@ cat << EOT > ${LIVE_ROOTDIR}/etc/fonts/local.conf
 <dir>/usr/lib${DIRSUFFIX}/firefox/fonts</dir>
 </fontconfig>
 EOT
-chroot ${LIVE_ROOTDIR} fc-cache -f
+  chroot ${LIVE_ROOTDIR} fc-cache -f
+fi
 
 # Allow direct scanning via xsane (no temporary intermediate files) in Gimp:
 if [ ! -L ${LIVE_ROOTDIR}/usr/lib${DIRSUFFIX}/gimp/2.0/plug-ins/xsane  ]; then
