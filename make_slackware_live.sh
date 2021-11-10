@@ -2268,7 +2268,7 @@ fi
 # missing modules:
 echo "mode:           blank" > ${LIVE_ROOTDIR}/home/${LIVEUID}/.xscreensaver
 
-if [ -x /usr/bin/fc-cache ]; then
+if [ -x ${LIVE_ROOTDIR}/usr/bin/fc-cache ]; then
   # Make the EmojiOne TTF font universally available:
   mkdir -p ${LIVE_ROOTDIR}/etc/fonts
   cat << EOT > ${LIVE_ROOTDIR}/etc/fonts/local.conf
