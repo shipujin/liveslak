@@ -130,6 +130,22 @@ Note that MOK key enrollment is a one-time action for the official liveslak base
 Note that you can create your own SSL certificate plus private key and use those to generate custom liveslak ISO images with Secure Boot support.  All you need to do is to enroll the public key (the DER-encoded version of your SSL certificate) into the MOK database of your computer.  The MOK database has room for multiple keys so yours as well as liveslak's keys (and more) will fit there.
 
 
+=== Boot from an ISO file on disk ===
+
+
+If you downloaded a liveslak ISO file and want to boot that ISO directly from its location on your computer's hard drive, you can use this Grub configuration block and add it to your ''/boot/grub/grub.cfg'':<code>
+menuentry " LIVESLAK ISO" --class gnu-linux --class os --class icon-linux {
+  set iso='/data/ISOS/slackware64-live-xfce-current.iso'
+  set bootparms='load_ramdisk=1 prompt_ramdisk=0 rw printk.time=0 kbd=us tz=Europe/Amsterdam lang=nl'
+ 
+  search -f $iso --set=root
+  loopback loop $iso
+  linux (loop)/boot/generic livemedia=scandev:$iso $bootparms
+  initrd (loop)/boot/initrd.img
+}</code>
+This example will add a 'LIVESLAK ISO' menu entry to your local computer's boot menu, through which you can start a downloaded XFCE Live ISO pre-configured for a US keyboard, Dutch language and Amsterdam timezone.
+
+
 ==== Transfering ISO content to USB stick ====
 
 
