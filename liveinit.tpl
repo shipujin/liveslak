@@ -896,6 +896,7 @@ if [ "$RESCUE" = "" ]; then
 
   if [ $CORE2RAM -eq 1 ]; then
     # Only load the Core OS modules:
+    echo "${MARKER}:  Loading Core OS into RAM."
     load_modules core2ram
   else
     # First, the base Slackware system components:
