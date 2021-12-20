@@ -264,6 +264,7 @@ NETFIRMWARE="3com acenic adaptec bnx tigon e100 sun kaweth tr_smctr cxgb3 rtl_ni
 KAPPEND_SLACKWARE=""
 KAPPEND_KTOWN="threadirqs"
 KAPPEND_DAW="threadirqs preempt=full loglevel=3 audit=0"
+KAPPEND_LEAN="threadirqs preempt=full loglevel=3 audit=0"
 KAPPEND_STUDIOWARE="threadirqs preempt=full loglevel=3 audit=0"
 
 # Add CACert root certificates yes/no?
