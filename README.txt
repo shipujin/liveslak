@@ -46,11 +46,9 @@ The "liveslak" scripts can generate a variety of Slackware flavors:
 
 
 Common download locations are:
-  * Primary site: http://download.liveslak.org/ (%%rsync://liveslak.org/liveslak/%%)
-  * Darren's http://slackware.uk/people/alien-slacklive/ (%%rsync://slackware.uk/people/alien-slacklive/%%)
+  * Primary site: https://download.liveslak.org/ (%%rsync://liveslak.org/liveslak/%%)
+  * Darren's https://slackware.uk/liveslak/ (%%rsync://slackware.uk/liveslak/%%)
   * Willy's http://repo.ukdw.ac.id/slackware-live/
-  * Ryan's https://seattleslack.ryanpcmcquen.org/mirrors/slackware-live/
-  * Shasta's http://ftp.slackware.pl/pub/slackware-live/ (%%rsync://ftp.slackware.pl/slackware-live/%%)
 
 
 ===== Enduser Documentation =====
