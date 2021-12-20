@@ -84,8 +84,9 @@ MOKCERT=""
 # to be defined through the '-S' parameter:
 MOKPRIVKEY=""
 
-# Set to YES if you want to use the SMP kernel on 32bit Slackware:
-SMP32=${SMP32:-"NO"}
+# Set to NO if you want to use the non-SMP kernel on 32bit Slackware.
+# note: unsupported option since Slackware enabled preemption in 5.14.15.
+SMP32=${SMP32:-"YES"}
 
 # Include support for NFS root (PXE boot), will increase size of the initrd:
 NFSROOTSUP=${NFSROOTSUP:-"YES"}
@@ -492,6 +493,12 @@ function install_pkgs() {
           break
         fi
       done
+      # Install a SMP kernel/modules if requested:
+      if [ "${PKG}" = "kernel-generic" ] && [ "$SL_ARCH" != "x86_64" -a "$SMP32" = "YES" ]; then
+        PKG="kernel-generic-smp"
+      elif [ "${PKG}" = "kernel-modules" ] && [ "$SL_ARCH" != "x86_64" -a "$SMP32" = "YES" ]; then
+        PKG="kernel-modules-smp"
+      fi
       # Now decide what to do:
       if [ -z "${PKG}" ]; then
         # Package removal:
