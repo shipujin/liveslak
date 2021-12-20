@@ -2166,7 +2166,7 @@ if [ -f ${DEF_SL_PKGROOT}/../isolinux/initrd.img ]; then
     -e '/.\/var\/log\/setup\/$SCRIPT $T_PX $ROOT_DEVICE/i # Skip stuff that was taken care of by liveslak\nif [ -f $TMP/SeTlive ] && echo $SCRIPT |grep -qE "(make-bootdisk|mouse|setconsolefont|xwmconfig)"; then true; else' \
     -e '/.\/var\/log\/setup\/$SCRIPT $T_PX $ROOT_DEVICE/a fi'
   # Add the Slackware Live HD installer scripts:
-  for USCRIPT in SeTuacct SeTudiskpart SeTumedia SeTupass SeTpasswd setup.liveslak setup.slackware ; do
+  for USCRIPT in SeTuacct SeTudiskpart SeTumedia SeTupass SeTpasswd SeTfirewall rc.firewall setup.liveslak setup.slackware ; do
     cat ${LIVE_TOOLDIR}/setup2hd/${USCRIPT}.tpl | sed \
       -e "s/@DIRSUFFIX@/$DIRSUFFIX/g" \
       -e "s/@DISTRO@/$DISTRO/g" \

@@ -125,6 +125,18 @@ EOT
       unset UPASS
     fi
 
+    # Add a rc.firewall script:
+    install -D -m0775 -t ${T_PX}/etc/rc.d/ /usr/share/@LIVEMAIN@/rc.firewall
+    # Install a firewall configuration script:
+    install -D -m755 /usr/share/@LIVEMAIN@/SeTfirewall ${T_PX}/usr/sbin/myfwconf
+    # Add a Slackware setup script invoking that 'myfwconf' script:
+    cat <<EOT >${T_PX}/var/log/setup/setup.firewall
+#!/bin/sh
+#BLURB="Configure a basic firewall."
+chroot . usr/sbin/myfwconf
+EOT
+    chmod 0775 ${T_PX}/var/log/setup/setup.firewall
+
     # Re-use some of the custom configuration from 0099-@DISTRO@_zzzconf-*.sxz
     # (some of these may not be present but the command will not fail):
     ${DIALOG} --backtitle "@CDISTRO@ Linux Setup (Live Edition)" \
