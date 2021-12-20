@@ -50,15 +50,12 @@ live_post_install () {
   cat << EOF > $TMP/tempmsg
 
  @CDISTRO@ Live Edition (@LIVEDE@) has been installed to your hard drive!
- We installed the ${ACT_MODS} active modules (out of ${TOT_MODS} available).
+ We installed the ${ACT_MODS} active modules.
  After rebooting, your installed computer will look exactly like the Live OS.
-
- After finishing system configuration and before rebooting, you can add any further Live modules from /@LIVEMAIN@/addons/ and /@LIVEMAIN@/optional/ to your hard drive, using a command similar to this:
-    # unsquashfs -f -dest $T_PX /mnt/livemedia/@LIVEMAIN@/addons/mymodule.sxz
 
 EOF
   dialog --title "POST INSTALL HINTS AND TIPS" --msgbox "`cat $TMP/tempmsg`" \
-    20 65
+    18 65
   rm $TMP/tempmsg
 
   # Setting MAINSELECT to "CONFIGURE" will call the usual Slackware

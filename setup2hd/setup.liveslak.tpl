@@ -108,7 +108,7 @@ After that, you will be asked to set the root password." 11 55
 root:${UACCOUNT}:OWNPASS
 root:ALL EXCEPT GROUP wheel:DENY
 EOT
-        chmod 600 ${LIVE_ROOTDIR}/etc/suauth
+        chmod 600 ${T_PX}/etc/suauth
       fi
 
       # Configure sudoers:
@@ -161,7 +161,7 @@ EOT
     # If nvi was not installed, do not use it as a default selection:
     if [ ! -x ${T_PX}/usr/bin/nvi ] && [ -e ${T_PX}/var/log/setup/setup.vi-ex ];
     then
-      sed -e 's/default-item "nvi/"default-item "elvis"/' -i ${T_PX}/var/log/setup/setup.vi-ex
+      sed -e 's/default-item "nvi/default-item "elvis/' -i ${T_PX}/var/log/setup/setup.vi-ex
     fi
     # Prevent SeTconfig from asking redundant questions later on:
     sed -i /usr/share/@LIVEMAIN@/SeTconfig \
@@ -239,13 +239,11 @@ EOT
   - default runlevel
   - keyboard layout
   - language setting
- After finishing system configuration and before rebooting, you can add any further Live modules from /@LIVEMAIN@/addons/ and /@LIVEMAIN@/optional/ to your hard drive, using a command similar to this:
-    # unsquashfs -f -dest $T_PX /mnt/livemedia/@LIVEMAIN@/addons/mymodule.sxz
 
 EOF
     ${DIALOG} --backtitle "@CDISTRO@ Linux Setup (Live Edition)" \
       --title "POST INSTALL HINTS AND TIPS" --msgbox "`cat $TMP/tempmsg`" \
-      20 65
+      18 65
     rm $TMP/tempmsg
 
     MAINSELECT="CONFIGURE"
