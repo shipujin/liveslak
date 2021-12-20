@@ -76,6 +76,10 @@ python2
 python2-module-collection
 python-six
 pyxdg
+python-Jinja2
+python-PyYAML
+python-doxypypy
+python-doxyqml
 qca
 qrencode
 qt5

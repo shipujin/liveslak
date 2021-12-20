@@ -208,6 +208,7 @@ pycairo
 pygobject
 pygobject3
 pygtk
+python-MarkupSafe
 python-distro
 randrproto
 recordproto
