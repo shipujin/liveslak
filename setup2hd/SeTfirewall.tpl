@@ -237,7 +237,7 @@ for example: 22,465,3000:3011,6660:6669,7000" \
 
     TCP_LIST=$(echo $TCP_LIST $CUSTOM_TCP_LIST | sed 's/^ *//g' | tr ' ' ',')
     UDP_LIST=$(echo $UDP_LIST $CUSTOM_UDP_LIST | sed 's/^ *//g' | tr ' ' ',')
-    DEV_LIST=$(for INDEV in ${!NETDEVARR[@]} ; do if [ "${NETDEVARR[$INDEV]}" = "on" ]; then echo -n $INDEV ; fi ; done)
+    DEV_LIST=$(for INDEV in ${!NETDEVARR[@]} ; do if [ "${NETDEVARR[$INDEV]}" = "on" ]; then echo -n $INDEV" " ; fi ; done)
 
     ${DIALOG} --backtitle "@UDISTRO@ (@LIVEDE@) Basic Firewall Setup" \
       --title "CONFIRM CONFIGURATION" \
