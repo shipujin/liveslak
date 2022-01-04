@@ -65,6 +65,7 @@ libgphoto2
 libical
 libieee1284
 libimobiledevice
+libimobiledevice-glue
 libjpeg-turbo
 libmad
 libmbim
