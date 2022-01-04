@@ -34,6 +34,7 @@ plzip-compat32
 util-linux-compat32
 xz-compat32
 # The AP/ series:
+cdparanoia-compat32
 cups-compat32
 cups-filters-compat32
 flac-compat32
@@ -53,6 +54,7 @@ SDL2_image-compat32
 SDL2_mixer-compat32
 SDL2_net-compat32
 SDL2_ttf-compat32
+aalib-compat32
 alsa-lib-compat32
 alsa-oss-compat32
 alsa-plugins-compat32
@@ -112,6 +114,7 @@ libcdio-paranoia-compat32
 libclc-compat32
 libcroco-compat32
 libdbusmenu-compat32
+libdvdnav-compat32
 libedit-compat32
 libexif-compat32
 libffi-compat32
@@ -125,6 +128,7 @@ libmad-compat32
 libmng-compat32
 libmpc-compat32
 libnl3-compat32
+libnice-compat32
 libnotify-compat32
 libnsl-compat32
 libnss_nis-compat32
@@ -156,6 +160,7 @@ mozilla-nss-compat32
 ncurses-compat32
 ocl-icd-compat32
 openal-soft-compat32
+openexr-compat32
 openjpeg-compat32
 opus-compat32
 orc-compat32
@@ -178,7 +183,12 @@ speex-compat32
 speexdsp-compat32
 startup-notification-compat32
 svgalib-compat32
+taglib-compat32
+talloc-compat32
+tdb-compat32
+tevent-compat32
 v4l-utils-compat32
+vid.stab-compat32
 wavpack-compat32
 woff2-compat32
 xxHash-compat32
