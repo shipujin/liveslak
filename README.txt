@@ -5,7 +5,7 @@
 ===== Preface =====
 
 
-Welcome to the Slackware Live Edition!  This is a version of Slackware 14.2 (and newer), that can be run from a DVD or a USB stick.  It is an ISO image meant to be a showcase of what Slackware is about.  You get the default install, no custom packages or kernel, but with all the power of Slackware.  The ISO is created from scratch using a Slackware package mirror, by the "liveslak" scripts.
+Welcome to the Slackware Live Edition!  All Slackware releases since 14.2, including the development version ''-current'', are supported versions for the ''liveslak'' project. The Live OS which liveslak creates from the Slackware Distro can be run from a DVD or a USB stick.  It is an ISO image meant to be a showcase of what Slackware is about.  You get the default install, no custom packages or kernel, but with all the power of Slackware.  The ISO is created from scratch using a Slackware package mirror, by the "liveslak" scripts.
 
 Slackware Live Edition does not have to be installed to a computer hard drive (however you do have that choice if you want to: using the setup2hd script).  You can carry the USB stick version with you in your pocket.  You'll have a pre-configured Slackware OS up & running in a minute wherever you can get your hands on a computer with a USB port.
 
@@ -31,14 +31,14 @@ The reasons I had for creating the Slackware Live Edition are as follows:
 
 
 The "liveslak" scripts can generate a variety of Slackware flavors:
-  - a complete 64bit Slackware-current Live Edition (in a 4.0 GB ISO);
+  - a complete 64bit Slackware-current Live Edition (in a 4.4 GB ISO);
   - a slimmed-down XFCE ISO (700 MB) with XDM as the graphical login manager.  It fits on a CDROM medium or a 1 GB USB stick;
-  -  a ISO image (4.3 GB) of Slackware64-current containing 'ktown' Plasma 5 instead of Slackware's KDE.
-  - A Digital Audio Workstation (DAW) based on a custom Slackware package set plus a basic Plasma5, containing a rich software collection for musicians, producers and live performance artists.
-  - a Mate variant (3.2 GB) where KDE 4 has been replaced by Mate (a Gnome 2 fork);
-  - a Cinnamon flavour (a fork of the Gnome 3 Shell replacing Slackware's KDE 4).
-  - a Dlackware variant, which is Gnome3 + PAM + systemd on top of Slackware and stripped of KDE4.
-  - a StudioWare edition containing all the project's audio, video and photo editing software packages.
+  - a LEAN ISO (2.1 GB) of Slackware-current with reduced package set and based on Plasma5 Desktop;
+  - A Digital Audio Workstation (DAW) based on a custom Slackware package set plus a basic Plasma5, containing a rich software collection for musicians, producers and live performance artists (3.4 GB).
+  - a Mate variant (3.7 GB) where KDE 4 has been replaced by Mate (a Gnome 2 fork);
+  - a Cinnamon flavour (a fork of the Gnome 3 Shell replacing Slackware's KDE) in an ISO file of 3.6 GB;
+  - a Dlackware variant, which is Gnome3 + PAM + systemd on top of Slackware and stripped of KDE (no longer developed after Slackware 14.2);
+  - a StudioWare edition containing all the project's audio, video and photo editing software packages (no longer developed after Slackware 14.2);
   - a "Custom" variant which you can give your own name, its own package list and custom post-install configuration.
 
 
