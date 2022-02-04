@@ -438,7 +438,9 @@ function install_pkgs() {
     fi
 
     if [ "${SL_REPO}" = "${DEF_SL_REPO}" ]; then
-      # We need only one release from the Slackware package mirror;
+      # SL_REPO was not re-defined in ${PKGCONF},
+      # so we are dealing with an actual Slackware repository rootdir.
+      # We select only the requested release in the Slackware package mirror;
       # This must *not* end with a '/' :
       SELECTION="${DISTRO}${DIRSUFFIX}-${SL_VERSION}"
     else
@@ -1294,6 +1296,7 @@ do
     r ) REFRESH="${OPTARG}"
         ;;
     s ) SL_REPO="${OPTARG}"
+        DEF_SL_REPO="${SL_REPO}"
         ;;
     t ) TRIM="${OPTARG}"
         ;;
