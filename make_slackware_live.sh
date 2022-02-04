@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021  Eric Hameleers, Eindhoven, NL 
+# Copyright 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022  Eric Hameleers, Eindhoven, NL 
 # All rights reserved.
 #
 #   Permission to use, copy, modify, and distribute this software for
@@ -35,7 +35,7 @@
 # -----------------------------------------------------------------------------
 
 # Version of the Live OS generator:
-VERSION="1.5.1"
+VERSION="1.5.1.5"
 
 # Timestamp:
 THEDATE=$(date +%Y%m%d)
