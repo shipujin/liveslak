@@ -1876,7 +1876,10 @@ fi
 
 # Configure sudoers:
 chmod 640 ${LIVE_ROOTDIR}/etc/sudoers
+# Slackware 14.2:
 sed -i ${LIVE_ROOTDIR}/etc/sudoers -e 's/# *\(%wheel\sALL=(ALL)\sALL\)/\1/'
+# Slackware 15.0:
+sed -i ${LIVE_ROOTDIR}/etc/sudoers -e 's/# *\(%wheel\sALL=(ALL:ALL)\sALL\)/\1/'
 chmod 440 ${LIVE_ROOTDIR}/etc/sudoers
 
 # Also treat members of the 'wheel' group as admins next to root:
