@@ -2765,8 +2765,13 @@ EOT
 
   # Autostart qjackctl:
   mkdir -p ${LIVE_ROOTDIR}/home/${LIVEUID}/.config/autostart
-  cp -a ${LIVE_ROOTDIR}/usr/share/applications/qjackctl.desktop \
-    ${LIVE_ROOTDIR}/home/${LIVEUID}/.config/autostart
+  if [ -f ${LIVE_ROOTDIR}/usr/share/applications/org.rncbc.qjackctl.desktop ]; then
+    QJCDF=/usr/share/applications/org.rncbc.qjackctl.desktop
+  else
+    QJCDF=/usr/share/applications/qjackctl.desktop
+  fi
+  cp -a ${QJCDF} \
+    ${LIVE_ROOTDIR}/home/${LIVEUID}/.config/autostart/
 
   # Add all our programs into their own submenu Applications>Multimedia>DAW
   # to avoid clutter in the Multimedia menu. We will use a custom category
