@@ -168,7 +168,7 @@ int_to_ip() {
   echo $(($1>>24)).$(($1>>16&0xff)).$(($1>>8&0xff)).$(($1&0xff))
 }
 
-# Find the location of the dhcpcd PID file:
+# Find out whether the interface is managed by DHCP:
 get_dhcpcd_pid() {
   # Find the location of the PID file of dhcpcd:
   MYDEV="$1"
@@ -180,6 +180,17 @@ get_dhcpcd_pid() {
     echo "/run/dhcpcd-${MYDEV}.pid"
   elif [ -s /run/dhcpcd-${MYDEV}-4.pid ]; then
     echo "/run/dhcpcd-${MYDEV}-4.pid"
+  else
+    echo UNKNOWNLOC
+  fi
+}
+
+# Find out whether the interface is managed by DHCP:
+get_nm_internal_lease() {
+  # Find the lease of NetworkManager internal dhcp client:
+  MYDEV="$1"
+  if [ -s /var/lib/NetworkManager/intern*-${MYDEV}.lease ]; then
+    echo "$(ls --indicator-style=none /var/lib/NetworkManager/intern*-${MYDEV}.lease)"
   else
     echo UNKNOWNLOC
   fi
@@ -392,9 +403,11 @@ Alternate keys may also be used: '+', '-', and TAB." 13 72 9 \
   # We now know what network interface to use.
   #
 
-  # If dhcpcd is running, it likely has a lease from a LAN DHCP server,
-  # so we should not activate another DHCP server ourselves now:
+  # If our interface is configured by DHCP, it likely has a lease from a
+  # LAN DHCP server, so we should not activate another DHCP server ourself now:
   if [ -s $(get_dhcpcd_pid ${INTERFACE}) -a -n "$(ps -q $(cat $(get_dhcpcd_pid ${INTERFACE})) -o comm=)" ]; then
+    OWNDHCP="no"
+  elif [ -s $(get_nm_internal_lease ${INTERFACE}) ]; then
     OWNDHCP="no"
   else
     # Assume nothing... we will ask the user for confirmation later!
