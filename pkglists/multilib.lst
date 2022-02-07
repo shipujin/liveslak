@@ -167,6 +167,7 @@ orc-compat32
 pango-compat32
 pcre-compat32
 pcre2-compat32
+pipewire-compat32
 polkit-compat32
 popt-compat32
 pulseaudio-compat32
