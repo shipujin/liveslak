@@ -97,6 +97,7 @@ gstreamer0-compat32
 harfbuzz-compat32
 icu4c-compat32
 isl-compat32
+jansson-compat32
 jasper-compat32
 json-c-compat32
 json-glib-compat32
