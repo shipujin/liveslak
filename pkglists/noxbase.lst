@@ -10,6 +10,7 @@ audiofile
 bc
 ##bison
 brotli
+c-ares
 cgmanager
 db48
 dbus
@@ -147,3 +148,4 @@ wireless-tools
 wireless_tools
 wpa_supplicant
 zd1211-firmware
+zlib
