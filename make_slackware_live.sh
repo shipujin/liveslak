@@ -2777,7 +2777,7 @@ EOT
   else
     QJCDF=/usr/share/applications/qjackctl.desktop
   fi
-  cp -a ${QJCDF} \
+  cp -a ${LIVE_ROOTDIR}/${QJCDF} \
     ${LIVE_ROOTDIR}/home/${LIVEUID}/.config/autostart/
 
   # Add all our programs into their own submenu Applications>Multimedia>DAW
