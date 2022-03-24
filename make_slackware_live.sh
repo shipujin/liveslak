@@ -2032,6 +2032,10 @@ EOT
 echo "-- Creating slackpkg cache, takes a few seconds..."
 chroot "${LIVE_ROOTDIR}" /bin/bash <<EOSL 2>${DBGOUT}
 
+# Rebuild SSL certificate database to prevent GPG verification errors
+# which are in fact triggered by SSL certificate errors:
+/usr/sbin/update-ca-certificates --fresh 1>/dev/null
+
 if [ -f var/log/packages/slackpkg+-* ] ; then
   cat <<EOPL > etc/slackpkg/slackpkgplus.conf
 SLACKPKGPLUS=on
@@ -3094,10 +3098,8 @@ sed -i -e '/systohc/s/^/# /' ${LIVE_ROOTDIR}/etc/rc.d/rc.6
 
 # Run some package setup scripts (usually run by the slackware installer),
 # as well as some of the delaying commands in rc.M and rc.modules:
-chroot ${LIVE_ROOTDIR} /bin/bash <<EOCR
-# Rebuild SSL certificate database:
-/usr/sbin/update-ca-certificates --fresh 1>/dev/null 2>${DBGOUT}
 
+chroot ${LIVE_ROOTDIR} /bin/bash <<EOCR
 # Run bits from rc.M so we won't need to run them again in the live system:
 /sbin/depmod $KVER
 /sbin/ldconfig
