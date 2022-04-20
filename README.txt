@@ -668,7 +668,7 @@ When the script is started, it will do some sanity checks and then extracts the 
   * the current USB wait time is checked.
 Depending on the parameters passed to the script, it will then perform one or more of the following actions:
 
-== Update the kernel and moules ==
+== Update the kernel and modules ==
 
 You can provide a new kernel and its modules in two ways.  The '-k' option accepts a kernel image file or else a Slackware package contaning a kernel.  The '-m' option accepts a directory tree of modules below "/lib/modules/, or else a Slackware package containing kernel modules.
 If there is sufficient space on the Linux and EFI partitions, the script will make a backup of the current kernel and modules by renaming the kernel and the module directory with a ".prev" suffix.  Sufficient space means that at least 10 MB of free space must remain on the partition(s) after making the backup and installing the new kernel plus modules. If space is an issue, you can skip making a backup by providing the '-b' parameter to the script (a possibly unsafe choice).
