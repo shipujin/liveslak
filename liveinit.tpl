@@ -1100,6 +1100,8 @@ if [ "$RESCUE" = "" ]; then
       # Even without persistence, we need to be able to write to the partition
       # if we are using a LUKS container file:
       mount -o remount,rw /mnt/media
+    else
+      mount -o remount,ro /mnt/media
     fi
   fi
 
