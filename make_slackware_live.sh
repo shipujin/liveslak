@@ -1199,7 +1199,14 @@ EOT
 
   # Now set our wallpaper to be the default. For this to work, we need to link
   # the name of the default theme to ours, so find out what the default is:
-  DEF_THEME="$(grep ^defaultWallpaperTheme ${LIVE_ROOTDIR}/usr/share/plasma/desktoptheme/default/metadata.desktop |cut -d= -f2-)"
+  if [ -f "${LIVE_ROOTDIR}/usr/share/plasma/desktoptheme/default/metadata.desktop" ]; then
+    # Frameworks before 5.94.0:
+    THEMEFIL=/usr/share/plasma/desktoptheme/default/metadata.deskop
+  else
+    # Frameworks 5.94.0 and newer:
+    THEMEFIL=/usr/share/plasma/desktoptheme/default/plasmarc
+  fi
+  DEF_THEME="$(grep ^defaultWallpaperTheme ${LIVE_ROOTDIR}/${THEMEFIL} |cut -d= -f2-)"
   mv ${LIVE_ROOTDIR}/usr/share/wallpapers/${DEF_THEME}{,.orig}
   ln -s ${LIVEDE,,} ${LIVE_ROOTDIR}/usr/share/wallpapers/${DEF_THEME}
 
