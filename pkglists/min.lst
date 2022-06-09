@@ -59,6 +59,7 @@ inotify-tools
 iproute2
 iptables
 iputils
+jemalloc
 kbd
 kernel-generic
 kernel-firmware
