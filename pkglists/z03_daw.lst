@@ -23,8 +23,7 @@ dssi
 eq10q
 faad2
 faust
-# Currently does not work with Python310:
-#frescobaldi
+frescobaldi
 geonkick
 giada
 glfw
@@ -82,6 +81,7 @@ python-pyliblo
 python-pyo
 qjackctl
 qmidiarp
+qpageview
 qsampler
 qsynth
 qtractor
