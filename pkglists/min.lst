@@ -10,7 +10,7 @@ bin
 binutils
 # Add 'bind' at the end because it does a chroot:
 #bind
-#bsd-games
+bsd-games
 bzip2
 ca-certificates
 coreutils
@@ -47,7 +47,7 @@ gnupg
 gnupg2
 gnutls
 gpgme
-#gpm
+gpm
 gptfdisk
 grep
 gzip

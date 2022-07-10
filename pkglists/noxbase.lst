@@ -34,6 +34,7 @@ glib
 glib2
 glibc-i18n
 ##guile
+htop
 icu4c
 ilmbase
 ##intltool
@@ -118,6 +119,8 @@ nettle
 newt
 nfs-utils
 nghttp2
+nmap
+nvme-cli
 openexr
 openjpeg
 orc
@@ -133,7 +136,7 @@ smartmontools
 speexdsp
 sqlite
 svgalib
-#tcl
+tcl
 udisks
 udisks2
 upower

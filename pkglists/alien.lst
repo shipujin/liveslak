@@ -73,7 +73,7 @@ libtorrent-rasterbar
 muparser
 netsurf
 nodejs
-nvme-cli
+#nvme-cli
 openconnect
 openjdk
 #oxygen-gtk2

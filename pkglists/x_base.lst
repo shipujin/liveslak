@@ -45,7 +45,7 @@ font-alias
 #font-bh-75dpi
 #font-bh-lucidatypewriter-100dpi
 #font-bh-lucidatypewriter-75dpi
-#font-bh-ttf
+font-bh-ttf
 #font-bitstream-75dpi
 font-bitstream-100dpi
 #font-bitstream-type1
@@ -65,8 +65,8 @@ gcr
 gd
 gegl
 gexiv2
-#ghostscript
-#ghostscript-fonts-std
+ghostscript
+ghostscript-fonts-std
 glew
 glproto
 glu
@@ -85,7 +85,7 @@ gst-plugins-good
 gst-plugins-good0
 gstreamer
 gstreamer0
-#gtk+
+gtk+
 gtk+2
 gtk+3
 gtksourceview3
@@ -152,7 +152,7 @@ libdbusmenu
 libdmx
 libdrm
 libepoxy
-#liberation-fonts-ttf
+liberation-fonts-ttf
 libevdev
 libfakekey
 libfontenc
@@ -216,7 +216,7 @@ rendercheck
 renderproto
 resourceproto
 rgb
-#sazanami-fonts-ttf
+sazanami-fonts-ttf
 sbc
 scrnsaverproto
 sdl
@@ -233,13 +233,13 @@ t1lib
 talloc
 tdb
 tevent
-#tibmachuni-font-ttf
+tibmachuni-font-ttf
 ttf-indic-fonts
 videoproto
 viewres
 vte
 wayland
-#wqy-zenhei-font-ttf
+wqy-zenhei-font-ttf
 x11-skel
 x11perf
 xauth
