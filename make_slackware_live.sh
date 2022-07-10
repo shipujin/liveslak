@@ -235,9 +235,9 @@ SEQ_DLACK="tagfile:a,ap,d,e,f,k,l,n,t,tcl,x,xap pkglist:dlackware,slackextra,sys
 SEQ_STUDW="tagfile:a,ap,d,e,f,k,kde,l,n,t,tcl,x,xap,xfce,y pkglist:slackextra,slackpkgplus,studioware"
 
 # Package blacklists for variants:
-BLACKLIST_DAW="seamonkey"
-BLACKLIST_LEAN="seamonkey"
-BLACKLIST_XFCE="gst-plugins-bad-free lynx mc motif mozilla-firefox pidgin xlockmore"
+#BLACKLIST_DAW="seamonkey"
+#BLACKLIST_LEAN="seamonkey"
+#BLACKLIST_XFCE="gst-plugins-bad-free lynx mc motif mozilla-firefox pidgin xlockmore"
 
 # Potentially we will use package(s) from 'testing' instead of regular repo:
 #TESTINGLIST_DAW="kernel-generic kernel-modules kernel-headers kernel-source"
