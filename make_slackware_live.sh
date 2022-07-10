@@ -207,7 +207,7 @@ SEQ_SLACKWARE="tagfile:a,ap,d,e,f,k,kde,l,n,t,tcl,x,xap,xfce,y pkglist:slackextr
 SEQ_XFCEBASE="${MINLIST},noxbase,x_base,xapbase,xfcebase local:mcpp"
 
 # Stripped-down Base Slackware:
-SEQ_LEAN="pkglist:${MINLIST},noxbase,x_base,xapbase,xfcebase,slackpkgplus,z00_plasma5supp,z01_plasma5base"
+SEQ_LEAN="pkglist:${MINLIST},noxbase,x_base,xapbase,xfcebase,slackpkgplus,z00_plasma5supp,z01_plasma5base,z01_swdev"
 
 # Stripped-down Slackware DAW with Plasma5 as the Desktop Environment:
 # - each series will become a squashfs module.
