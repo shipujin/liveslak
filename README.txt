@@ -32,7 +32,7 @@ The reasons I had for creating the Slackware Live Edition are as follows:
 
 The "liveslak" scripts can generate a variety of Slackware flavors:
   - a complete 64bit Slackware-current Live Edition (in a 4.4 GB ISO);
-  - a slimmed-down XFCE ISO (700 MB) with XDM as the graphical login manager.  It fits on a CDROM medium or a 1 GB USB stick;
+  - a slimmed-down XFCE ISO (1000 MB) with XDM as the graphical login manager.  It fits on a 1 GB USB stick;
   - a LEAN ISO (2.1 GB) of Slackware-current with reduced package set and based on Plasma5 Desktop;
   - A Digital Audio Workstation (DAW) based on a custom Slackware package set plus a basic Plasma5, containing a rich software collection for musicians, producers and live performance artists (3.4 GB).
   - a Mate variant (3.7 GB) where KDE 4 has been replaced by Mate (a Gnome 2 fork);
@@ -73,7 +73,7 @@ Slackware Live Edition deviates as little as possible from a regular Slackware b
 Slackware Live Edition uses syslinux to boot the Linux kernel on BIOS computers. To be precise, the "isolinux" variant is installed to the ISO image and the "extlinux" variant is installed into the Linux partition of the USB Live version.
 
 Syslinux shows a graphical boot menu with a nice Slackware-themed background and several options:
-  * Start (SLACKWARE | KTOWN | XFCE | MATE | DAW) Live (depending on which of the ISOs you boot)
+  * Start (SLACKWARE | KTOWN | XFCE | MATE | DAW | LEAN) Live (depending on which of the ISOs you boot)
   * Non-US Keyboard selection
   * Non-US Language selection
   * Memory test with memtest86+
@@ -87,7 +87,7 @@ If you stick to US English interface language you will probably still want to ch
 
 On UEFI computers, Grub2 handles the boot and it will show a menu similar (and similarly themed) to the Syslinux menu:
 
-  * Start (SLACKWARE | KTOWN | XFCE | MATE | DAW) Live (depending on which of the ISOs you boot)
+  * Start (SLACKWARE | KTOWN | XFCE | MATE | DAW | LEAN) Live (depending on which of the ISOs you boot)
   * Non-US Keyboard selection
   * Non-US Language selection
   * Non-US Timezone selection
@@ -769,8 +769,8 @@ The script's parameters are:
  -m pkglst[,pkglst] Add modules defined by pkglists/<pkglst>,...
  -r series[,series] Refresh only one or a few package series.
  -s slackrepo_dir   Directory containing Slackware repository.
- -t <none|doc|mandoc|bloat>
-                    Trim the ISO (remove man and/or doc and/or bloat).
+ -t <none|doc|mandoc|waste|bloat>
+                    Trim the ISO (remove man, doc, waste and/or bloat).
  -v                 Show debug/error output.
  -z version         Define your Slackware version (default: current).
  -C                 Add RAM-based Console OS to boot menu.
