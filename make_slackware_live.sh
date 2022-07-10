@@ -559,7 +559,7 @@ function install_pkgs() {
     done
   fi
 
-  if [ "$TRIM" = "doc" -o "$TRIM" = "mandoc" -o "$TRIM" = "bloat" ]; then
+  if [ "$TRIM" = "doc" -o "$TRIM" = "mandoc"  -o "$TRIM" = "waste" -o "$TRIM" = "bloat" ]; then
     # Remove undesired (too big for a live OS) document subdirectories,
     # but leave cups alone because it contains the CUPS service's web page:
     (cd "${2}/usr/doc" && find . -type d -mindepth 2 -maxdepth 2 |grep -v /cups- |xargs rm -rf)
@@ -574,13 +574,14 @@ function install_pkgs() {
     # Remove info pages:
     rm -rf "$2"/usr/info
   fi
-  if [ "$TRIM" = "mandoc" -o "$TRIM" = "bloat" ]; then
+  if [ "$TRIM" = "mandoc" -o "$TRIM" = "waste" -o "$TRIM" = "bloat" ]; then
     # Also remove man pages:
     rm -rf "$2"/usr/man
   fi
   if [ "$TRIM" = "bloat" ]; then
     # By pruning stuff that no one likely needs anyway,
     # we make room for packages we would otherwise not be able to add.
+    # We do this only if your ISO needs to be the smallest possible:
     # MySQL embedded is only used by Amarok:
     rm -f "$2"/usr/bin/mysql*embedded*
     # Also remove the big unused/esoteric static libraries:
@@ -614,7 +615,9 @@ function install_pkgs() {
     rm -rf "$2"/usr/lib${DIRSUFFIX}/d3d
     rm -rf "$2"/usr/lib${DIRSUFFIX}/guile
     rm -rf "$2"/usr/share/icons/HighContrast
-    # Nor these datacenter NIC firmwares and drivers:
+  fi
+  if [ "$TRIM" = "waste" -o "$TRIM" = "bloat" ]; then
+    # Get rid of these datacenter NIC firmwares and drivers:
     rm -rf "$2"/lib/firmware/{bnx*,cxgb4,libertas,liquidio,mellanox,netronome,qed}
     rm -rf "$2"/lib/modules/*/kernel/drivers/infiniband
     rm -rf "$2"/lib/modules/*/kernel/drivers/net/ethernet/{broadcom/bnx*,chelsio,mellanox,netronome,qlogic}
@@ -1270,7 +1273,7 @@ do
         echo " -m pkglst[,pkglst] Add modules defined by pkglists/<pkglst>,..."
         echo " -r series[,series] Refresh only one or a few package series."
         echo " -s slackrepo_dir   Directory containing ${DISTRO^} repository."
-        echo " -t <none|doc|mandoc|bloat>"
+        echo " -t <none|doc|mandoc|waste|bloat>"
         echo "                    Trim the ISO (remove man and/or doc and/or bloat)."
         echo " -v                 Show debug/error output."
         echo " -z version         Define your ${DISTRO^} version (default: $SL_VERSION)."
@@ -1508,9 +1511,9 @@ else
   RSYNCREP=" "
 fi
 
-# What to trim from the ISO file (none, doc, mandoc, bloat):
+# What to trim from the ISO file (none, doc, mandoc, waste, bloat):
 if [ "${LIVEDE}" == "XFCE" ] ; then
-  TRIM=${TRIM:-"bloat"}
+  TRIM=${TRIM:-"waste"}
 elif [ "${LIVEDE}" == "LEAN" ] ; then
   TRIM=${TRIM:-"doc"}
 else
