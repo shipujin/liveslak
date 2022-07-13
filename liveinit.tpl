@@ -368,6 +368,7 @@ fi
 
 # Sometimes the devices need extra time to be available.
 # A root filesystem on USB is a good example of that.
+echo "${MARKER}:  Sleeping $WAIT seconds to give slow USB devices some time."
 sleep $WAIT
 # Fire at least one blkid:
 blkid 1>/dev/null 2>/dev/null
