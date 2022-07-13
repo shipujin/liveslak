@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright 2015, 2016, 2017, 2019, 2020  Eric Hameleers, Eindhoven, NL
+# Copyright 2015, 2016, 2017, 2019, 2020, 2021, 2022  Eric Hameleers, Eindhoven, NL
 # All rights reserved.
 #
 # Redistribution and use of this script, with or without modification, is
