@@ -94,6 +94,7 @@ libsndfile
 libssh
 libssh2
 libsoup
+libsoup3
 libtasn1
 libtheora
 libtiff
