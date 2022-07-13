@@ -702,6 +702,15 @@ if [ "$RESCUE" = "" ]; then
     VIRGIN=1
   elif [ -z "$LIVEMEDIA" ]; then
     # LIVEMEDIA not specified on the boot commandline using "livemedia="
+    # Note:
+    #   If we boot an ISO via Ventoy, this creates a device-mapped file
+    #   '/dev/mapper/ventoy' which liveslak uses to mount that ISO,
+    #   but specifying '-t iso9660' will fail to mount it.
+    #   Omitting the '-t iso9660' makes the mount succceed.
+    if [ -e /dev/mapper/ventoy ]; then 
+      echo "${MARKER}:  Ventoy ISO boot detected..."
+    fi
+    # Start digging:
     # Filter out the block devices, only look at partitions at first:
     # The blkid function in busybox behaves differently than the regular blkid!
     # It will return all devices with filesystems and list LABEL UUID and TYPE.
@@ -720,14 +729,24 @@ if [ "$RESCUE" = "" ]; then
         # We found a block device with the correct label (non-UEFI media).
         # Determine filesystem type ('iso9660' means we found a CDROM/DVD)
         LIVEFS=$(blkid $LIVEMEDIA |rev |cut -d'"' -f2 |rev)
-        mount -t $LIVEFS -o ro $LIVEMEDIA /mnt/media
+        [ "$LIVEFS" = "swap" ] && continue
+        if [ -e /dev/mapper/ventoy ]; then 
+          mount -o ro $LIVEMEDIA /mnt/media
+        else
+          mount -t $LIVEFS -o ro $LIVEMEDIA /mnt/media
+        fi
       else
         # Bummer.. label not found; the ISO was extracted to a different device.
         # Separate partitions from block devices, look at partitions first:
         for SLDEVICE in $(ret_partition $(blkid |cut -d: -f1)) $(ret_blockdev $(blkid |cut -d: -f1)) ; do
           # We rely on the fact that busybox blkid puts TYPE"..." at the end:
           SLFS=$(blkid $SLDEVICE |rev |cut -d'"' -f2 |rev)
-          mount -t $SLFS -o ro $SLDEVICE /mnt/media
+          [ "$SLFS" = "swap" ] && continue
+          if [ -e /dev/mapper/ventoy ]; then
+            mount -o ro $SLDEVICE /mnt/media
+          else
+            mount -t $SLFS -o ro $SLDEVICE /mnt/media
+          fi
           if [ -d /mnt/media/${LIVEMAIN} ]; then
             # Found our media!
             LIVEALL=$SLDEVICE
