@@ -141,6 +141,7 @@ libXvMC
 libXxf86dga
 libXxf86misc
 libXxf86vm
+libappindicator
 libart_lgpl
 libbluray
 libcaca
@@ -161,6 +162,7 @@ libglvnd
 libgnome-keyring
 libgsf
 libidl
+libindicator
 libinput
 libiodbc
 libmng

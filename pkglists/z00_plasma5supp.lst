@@ -62,14 +62,12 @@ id3lib
 #json-glib
 kdsoap
 libXcm
-libappindicator
 libburn
 libdbusmenu-qt
 libdmtx
 # x_base:
 #liberation-fonts-ttf
 libid3tag
-libindicator
 libkkc
 libkkc-data
 # xapbase:
