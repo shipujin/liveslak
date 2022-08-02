@@ -883,7 +883,7 @@ if [ "$RESCUE" = "" ]; then
         BLACKLIST KEYMAP LIVE_HOSTNAME LOAD LOCALE LUKSVOL \
         NOLOAD RUNLEVEL TWEAKS TZ XKB ;
       do
-        if [ -n "$(eval echo \$${LIVEPARM})" ]; then
+        if [ -z "$(eval echo \$${LIVEPARM})" ]; then
           eval $(grep -w ^${LIVEPARM} /mnt/media/${LIVEMAIN}/${DISTROCFG})
         fi
       done
