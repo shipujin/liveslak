@@ -1010,7 +1010,7 @@ if [ "$RESCUE" = "" ]; then
     elif [ "${PERSISTPART}" = "scandev" ]; then
       # Scan partitions to find the one with the persistence directory:
       echo "${MARKER}:  Scanning for partition with '${PERSISTENCE}'..."
-      ppartdir=".${PERSISTENCE}_$(od -An -N1 -tu1 /dev/urandom|tr -d ' ')"
+      ppartdir=".persistence_$(od -An -N1 -tu1 /dev/urandom|tr -d ' ')"
       mkdir -p /mnt/live/${ppartdir}
       for PPART in $(ret_partition $(blkid |cut -d: -f1)) ; do
         PPARTFS=$(blkid $PPART |rev |cut -d'"' -f2 |rev)
@@ -1052,7 +1052,7 @@ if [ "$RESCUE" = "" ]; then
     REALPP=$(readlink -f ${PERSISTPART})
     if [ "${REALMP}" != "${REALPP}" ]; then
       # Mount the partition readonly to access the persistence directory:
-      ppdir=".${PERSISTENCE}_$(od -An -N1 -tu1 /dev/urandom|tr -d ' ')"
+      ppdir=".persistence_$(od -An -N1 -tu1 /dev/urandom|tr -d ' ')"
       mkdir -p /mnt/live/${ppdir}
       mount -o ro ${PERSISTPART} /mnt/live/${ppdir}
       if [ $? -ne 0 ]; then
