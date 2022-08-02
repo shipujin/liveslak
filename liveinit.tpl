@@ -983,9 +983,13 @@ if [ "$RESCUE" = "" ]; then
     fi
   fi
 
-  # Setup persistence in case our media is writable, *and* the user
-  # has created a persistence directory or container on the media,
-  # otherwise we let the block changes accumulate in RAM only.
+  # --------------------------------------------------------------- #
+  #                                                                 #
+  # Setup persistence in case our media is writable, *and* the user #
+  # has created a persistence directory or container on the media,  #
+  # otherwise we let the block changes accumulate in RAM only.      #
+  #                                                                 #
+  # --------------------------------------------------------------- #
 
   # Was a partition specified containing a persistence directory,
   # and is it different from the live medium?
@@ -1032,9 +1036,13 @@ if [ "$RESCUE" = "" ]; then
     fi
   fi
 
-  # At this point, we either have determined the persistence partition
-  # via UUID/LABEL/scandev, or else we failed to find one,
-  # and then VIRGIN has been set to '1' and PERSISTPART to "".
+  # ------------------------------------------------------------------ #
+  #                                                                    #
+  # At this point, we either have determined the persistence partition #
+  # via UUID/LABEL/scandev, or else we failed to find one,             #
+  # and then VIRGIN has been set to '1' and PERSISTPART to "".         #
+  #                                                                    #
+  # ------------------------------------------------------------------ #
 
   if [ -n "${PERSISTPART}" ]; then
     # Canonicalize the input and the media devices,
