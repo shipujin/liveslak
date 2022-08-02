@@ -1,4 +1,4 @@
-#!/bin/ash
+#!/bin/sh
 #
 # Copyright 2004  Slackware Linux, Inc., Concord, CA, USA
 # Copyright 2007, 2008, 2009, 2010, 2012  Patrick J. Volkerding, Sebeka, MN, USA
@@ -305,7 +305,17 @@ for ARG in $(cat /proc/cmdline); do
 done
 
 # Verbose boot script execution:
-[ $DEBUG -ge 2 ] && set -x
+if [ $DEBUG -ge 2 ]; then
+  if [ $DEBUG -ge 4 ]; then
+    # We save (verbose) shell output to local file;
+    # These busybox compile options make it possible:
+    # CONFIG_SH_IS_ASH=y
+    # CONFIG_ASH_BASH_COMPAT=y
+    exec 5> debug_init.log
+    export BASH_XTRACEFD="5"
+  fi
+  set -x
+fi
 
 debugit () {
   if [ $DEBUG -eq 0 -o $DEBUG -gt 3 ]; then
