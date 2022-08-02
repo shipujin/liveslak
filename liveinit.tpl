@@ -274,13 +274,29 @@ for ARG in $(cat /proc/cmdline); do
       VIRGIN=1 # prevent writes to disk since we are supposed to run from RAM
     ;;
     toram=*)
+      # Generic syntax: toram=type[,memperc]
+      #   type: string value; os,core,all,none
+      #   memperc: integer value, percentage RAM to reserve for liveslak
+      # You can use this parameter to change the percentage RAM
+      # used by liveslak, which is 50% for normal operation.
+      # For instance when you have an insane amount of RAM, you can specify
+      # a much lower percentage to be reserved for liveslak:
+      #   toram=none,12
       TORAM=1
-      if [ "$(echo $ARG | cut -f2 -d=)" = "os" ]; then
+      TRTYPE="$(echo $ARG |cut -f2 -d= |cut -f1 -d,)"
+      if [ "$TRTYPE" = "os" ]; then
         VIRGIN=0 # load OS modules into RAM, write persistent data to disk
-      elif [ "$(echo $ARG | cut -f2 -d=)" = "core" ]; then
+      elif [ "$TRTYPE" = "core" ]; then
         CORE2RAM=1 # load Core OS modules into RAM
-      elif [ "$(echo $ARG | cut -f2 -d=)" = "all" ]; then
+      elif [ "$TRTYPE" = "all" ]; then
         VIRGIN=1 # prevent writes to disk since we are supposed to run from RAM
+      elif [ "$TRTYPE" = "none" ]; then
+        TORAM=0 # we only want to change the percentage reserved memory
+      fi
+      RAMSIZE="$(echo $ARG |cut -f2 -d= |cut -f2 -d,)"
+      if [ "$RAMSIZE" = "$TRTYPE" ]; then
+        # memperc was not supplied on commandline:
+        unset RAMSIZE
       fi
     ;;
     tweaks=*)
@@ -688,9 +704,9 @@ if [ "$RESCUE" = "" ]; then
   # We need a mounted filesystem here to be able to do a switch_root later,
   # so we create one in RAM:
   if [ $TORAM -eq 1 ]; then
-    RAMSIZE=90%  # need to be able to load the entire OS in RAM
+    RAMSIZE="${RAMSIZE:-90}%"  # 90% by default to load the entire OS in RAM
   else
-    RAMSIZE=50%  # the default value.
+    RAMSIZE="${RAMSIZE:-50}%"  # 50% is the default value.
   fi
   mount -t tmpfs -o defaults,size=${RAMSIZE} none /mnt
 
