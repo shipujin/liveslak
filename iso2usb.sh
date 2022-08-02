@@ -188,6 +188,8 @@ cat <<EOT
 #                              as for the '-c' parameter.
 #   -P|--persistfile           Use a 'persistence' container file instead of
 #                              a directory (for use on FAT filesystem).
+#                              Persistent data will not be migrated
+#                              when switching from directory to container file.
 #
 # Examples:
 #
