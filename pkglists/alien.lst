@@ -17,7 +17,7 @@ dropbox-client
 #gnome-mplayer
 gst-plugins-ffmpeg0
 gst-plugins-libav
-#icedtea-web
+icedtea-web
 icu4c-compat
 keepassxc
 #lame
@@ -75,7 +75,7 @@ netsurf
 nodejs
 #nvme-cli
 openconnect
-openjdk
+openjdk11
 #oxygen-gtk2
 p7zip
 #palemoon
