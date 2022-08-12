@@ -77,7 +77,8 @@ WIPE_PERSISTENCE=0
 
 # Used for debugging the init;
 # Set DEBUG to '1' to enable explicit pauses; '2' enables verbose script exec;
-# and '4' dumps you into a debug shell right before the switch_root:
+# '4' dumps you into a debug shell right before the switch_root, and '5'
+# additionally saves the verbose init execution output to 'debug_init.log':
 DEBUG=0
 DEBUGV=" "
 
@@ -322,7 +323,7 @@ done
 
 # Verbose boot script execution:
 if [ $DEBUG -ge 2 ]; then
-  if [ $DEBUG -ge 4 ]; then
+  if [ $DEBUG -ge 5 ]; then
     # We save (verbose) shell output to local file;
     # These busybox compile options make it possible:
     # CONFIG_SH_IS_ASH=y
