@@ -1230,6 +1230,42 @@ if [ "$RESCUE" = "" ]; then
     done
   fi
 
+  if [ ! -z "$LUKSVOL" ]; then
+    # Bind any LUKS container into the Live filesystem:
+    for luksvol in $(echo $LUKSVOL |tr ',' ' '); do
+      luksfil="$(echo $luksvol |cut -d: -f1)"
+      luksmnt="$(echo $luksvol |cut -d: -f2)"
+      luksnam="$(echo $(basename $luksfil) |tr '.' '_')"
+      if [ "$luksmnt" = "$luksfil" ]; then
+        # No optional mount point specified, so we use the default: /home/
+        luksmnt="/home"
+      fi
+
+      # Find a free loop device:
+      lodev=$(find_loop)
+
+      losetup $lodev ${CPATHINTERNAL}/$luksfil
+      echo "Unlocking LUKS encrypted container '$luksfil' at mount point '$luksmnt'"
+      cryptsetup luksOpen $lodev $luksnam </dev/tty0 >/dev/tty0 2>&1
+      if [ $? -ne 0 ]; then
+        echo "${MARKER}:  Failed to unlock LUKS container '$luksfil'... trouble ahead."
+      else
+        # Create the mount directory if it does not exist (unlikely):
+        mkdir -p /mnt/overlay/$luksmnt
+
+        # Let Slackware mount the unlocked container:
+        luksfs=$(blkid /dev/mapper/$luksnam |rev |cut -d'"' -f2 |rev)
+        if ! grep -q /dev/mapper/$luksnam /mnt/overlay/etc/fstab ; then
+          echo "/dev/mapper/$luksnam  $luksmnt  $luksfs  defaults  1  1" >> /mnt/overlay/etc/fstab
+        fi
+        # On shutdown, ensure that the container gets locked again:
+        if ! grep -q "$luksnam $luksmnt" /mnt/overlay/etc/crypttab ; then
+          echo "$luksnam $luksmnt" >> /mnt/overlay/etc/crypttab
+        fi
+      fi
+    done
+  fi
+
   if [ ! -z "$KEYMAP" ]; then
     # Configure custom keyboard mapping in console and X:
     echo "${MARKER}:  Switching live console to '$KEYMAP' keyboard"
@@ -1581,42 +1617,6 @@ EOT
 
   # Copy contents of rootcopy directory (may be empty) to overlay:
   cp -af /mnt/media/${LIVEMAIN}/rootcopy/* /mnt/overlay/ 2>/dev/null
-
-  # Bind any LUKS container into the Live filesystem:
-  if [ ! -z "$LUKSVOL" ]; then
-    for luksvol in $(echo $LUKSVOL |tr ',' ' '); do
-      luksfil="$(echo $luksvol |cut -d: -f1)"
-      luksmnt="$(echo $luksvol |cut -d: -f2)"
-      luksnam="$(echo $(basename $luksfil) |tr '.' '_')"
-      if [ "$luksmnt" = "$luksfil" ]; then
-        # No optional mount point specified, so we use the default: /home/
-        luksmnt="/home"
-      fi
-
-      # Find a free loop device:
-      lodev=$(find_loop)
-
-      losetup $lodev /mnt/media/$luksfil
-      echo "Unlocking LUKS encrypted container '$luksfil' at mount point '$luksmnt'"
-      cryptsetup luksOpen $lodev $luksnam </dev/tty0 >/dev/tty0 2>&1
-      if [ $? -ne 0 ]; then
-        echo "${MARKER}:  Failed to unlock LUKS container '$luksfil'... trouble ahead."
-      else
-        # Create the mount directory if it does not exist (unlikely):
-        mkdir -p /mnt/overlay/$luksmnt
-
-        # Let Slackware mount the unlocked container:
-        luksfs=$(blkid /dev/mapper/$luksnam |rev |cut -d'"' -f2 |rev)
-        if ! grep -q /dev/mapper/$luksnam /mnt/overlay/etc/fstab ; then
-          echo "/dev/mapper/$luksnam  $luksmnt  $luksfs  defaults  1  1" >> /mnt/overlay/etc/fstab
-        fi
-        # On shutdown, ensure that the container gets locked again:
-        if ! grep -q "$luksnam $luksmnt" /mnt/overlay/etc/crypttab ; then
-          echo "$luksnam $luksmnt" >> /mnt/overlay/etc/crypttab
-        fi
-      fi
-    done
-  fi
 
   [ $DEBUG -gt 3 ] && rescue "DEBUG SHELL"
 
