@@ -6,7 +6,7 @@ fdk-aac
 gst-plugins-ffmpeg0
 mbedtls
 obs-studio
-openjdk
+openjdk11
 openconnect
 soxr
 unrar
