@@ -31,11 +31,11 @@ The reasons I had for creating the Slackware Live Edition are as follows:
 
 
 The "liveslak" scripts can generate a variety of Slackware flavors:
-  - a complete 64bit Slackware-current Live Edition (in a 4.4 GB ISO);
+  - a complete 64bit Slackware-current Live Edition (in a 4.6 GB ISO);
   - a slimmed-down XFCE ISO (1000 MB) with XDM as the graphical login manager.  It fits on a 1 GB USB stick;
-  - a LEAN ISO (2.1 GB) of Slackware-current with reduced package set and based on Plasma5 Desktop;
-  - A Digital Audio Workstation (DAW) based on a custom Slackware package set plus a basic Plasma5, containing a rich software collection for musicians, producers and live performance artists (3.4 GB).
-  - a Mate variant (3.7 GB) where KDE 4 has been replaced by Mate (a Gnome 2 fork);
+  - a LEAN ISO (2.2 GB) of Slackware-current with reduced package set and based on Plasma5 Desktop;
+  - A Digital Audio Workstation (DAW) based on a custom Slackware package set plus a basic Plasma5, containing a rich software collection for musicians, producers and live performance artists (3.5 GB).
+  - a Mate variant (3.7 GB) where KDE has been replaced by Mate (a Gnome 2 fork);
   - a Cinnamon flavour (a fork of the Gnome 3 Shell replacing Slackware's KDE) in an ISO file of 3.6 GB;
   - a Dlackware variant, which is Gnome3 + PAM + systemd on top of Slackware and stripped of KDE (no longer developed after Slackware 14.2);
   - a StudioWare edition containing all the project's audio, video and photo editing software packages (no longer developed after Slackware 14.2);
@@ -47,6 +47,7 @@ The "liveslak" scripts can generate a variety of Slackware flavors:
 
 Common download locations are:
   * Primary site: https://download.liveslak.org/ (%%rsync://liveslak.org/liveslak/%%)
+  * My US mirror: https://us.liveslak.org/ (%%rsync://us.liveslak.org/liveslak/%%)
   * Darren's https://slackware.uk/liveslak/ (%%rsync://slackware.uk/liveslak/%%)
   * Willy's http://repo.ukdw.ac.id/slackware-live/
 
@@ -59,7 +60,7 @@ Common download locations are:
 
 The ISO images are hybrid, which means you can either burn them to DVD, or use 'dd' or 'cp' to copy the ISO to a USB stick.  Both methods will give you a live environment which will allow you to make changes and  seemingly "write them to disk".  The changes will actually be kept in a RAM disk, so a reboot will "reset" the live OS to its original default state.  In other words, there is no persistence of data.
 
-Slackware Live Edition knows two user accounts: "root" and "live".  They have passwords, and by default these are... you guessed: "root" and "live".  Also by default, the ISOs will boot into runlevel 4, i.e. you will get a graphical login. The bootloader allows you to pick a non-US language and/or keyboard layout and (on boot of  an UEFI system) a custom timezone.
+Slackware Live Edition knows two user accounts: "root" and "live".  They have passwords, and by default these are... you guessed: "root" and "live".  Also by default, the ISOs will boot into runlevel 4, i.e. you will get a graphical login. The bootloader allows you to pick a non-US language and/or keyboard layout and (on boot of an UEFI system) a custom timezone.
 
 Slackware Live Edition deviates as little as possible from a regular Slackware boot.  Once you have passed the initial Liveboot stage and brought up the actual OS, you login as user "live".  From that moment onwards, you are in a regular Slackware environment.
 
@@ -73,7 +74,7 @@ Slackware Live Edition deviates as little as possible from a regular Slackware b
 Slackware Live Edition uses syslinux to boot the Linux kernel on BIOS computers. To be precise, the "isolinux" variant is installed to the ISO image and the "extlinux" variant is installed into the Linux partition of the USB Live version.
 
 Syslinux shows a graphical boot menu with a nice Slackware-themed background and several options:
-  * Start (SLACKWARE | KTOWN | XFCE | MATE | DAW | LEAN) Live (depending on which of the ISOs you boot)
+  * Start (SLACKWARE | XFCE | MATE | CINNAMON | DAW | LEAN) Live (depending on which of the ISOs you boot)
   * Non-US Keyboard selection
   * Non-US Language selection
   * Memory test with memtest86+
@@ -87,7 +88,7 @@ If you stick to US English interface language you will probably still want to ch
 
 On UEFI computers, Grub2 handles the boot and it will show a menu similar (and similarly themed) to the Syslinux menu:
 
-  * Start (SLACKWARE | KTOWN | XFCE | MATE | DAW | LEAN) Live (depending on which of the ISOs you boot)
+  * Start (SLACKWARE | XFCE | MATE | CINNAMON | DAW | LEAN) Live (depending on which of the ISOs you boot)
   * Non-US Keyboard selection
   * Non-US Language selection
   * Non-US Timezone selection
@@ -131,7 +132,7 @@ Note that you can create your own SSL certificate plus private key and use those
 === Boot from an ISO file on disk ===
 
 
-If you downloaded a liveslak ISO file and want to boot that ISO directly from its location on your computer's hard drive, you can use this Grub configuration block and add it to your ''/boot/grub/grub.cfg'':<code>
+If you downloaded a liveslak ISO file and want to boot that ISO directly from its location on your computer's hard drive, you can use the following Grub configuration block and add it to your ''/boot/grub/grub.cfg'':<code>
 menuentry " LIVESLAK ISO" --class gnu-linux --class os --class icon-linux {
   set iso='/data/ISOS/slackware64-live-xfce-current.iso'
   set bootparms='load_ramdisk=1 prompt_ramdisk=0 rw printk.time=0 kbd=us tz=Europe/Amsterdam lang=nl'
@@ -461,9 +462,12 @@ blacklist=mod1[,mod2[...]]  => Add one or more kernel modules
 
 debug => During init, pause at strategic locations while
   assembling the overlay filesystem and show mount information.
+  Equivalent to 'debug=1'.
 
-debug=<number> => '2' enables verbose script execution;
-  '4' dumps you into a debug shell right before the switch_root.
+debug=<number> =>  '2' and higher enable verbose script execution;
+  '3' adds pauses like '1' or '2' but won't show blkid/mount info;
+  '4' dumps you into a debug shell right before the switch_root;
+  '5' saves verbose init execution output to 'debug_init.log'
 
 rescue => After initialization, you will be dropped in a
   rescue shell to perform lowlevel maintenance.
@@ -973,7 +977,7 @@ Naturally, there have been many who went before me, and since I started as a n00
 
 Website: https://www.slax.org/
 
-SLAX was the original Live variant of Slackware.  The linux-live scripts which are used to create a SLAX ISO were generalized so that they can create a Live version of any OS that is already installed to a harddrive.  SLAX development stalled a couple of years ago but its creator seems to have warmed up recently.  However, the current SLAX is no longer based on Slackware - Debian is its base now.
+SLAX was the original Live variant of Slackware.  The linux-live scripts which are used to create a SLAX ISO were generalized so that they can create a Live version of any OS that is already installed to a harddrive.  SLAX development stalled a couple of years ago but its creator seems to have warmed up recently.  New versions of SLAX were no longer based on Slackware but used Debian as its base.  In 2022, a new SLAX variant emerged which is again based on Slackware.
 
 The Live functionality of SLAX is based on aufs and unionfs which requires a custom-built kernel with aufs support compiled-in.  It is small and has its boot scripts tweaked for startup speed.
 
