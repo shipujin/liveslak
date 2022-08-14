@@ -76,9 +76,11 @@ VIRGIN=0
 WIPE_PERSISTENCE=0
 
 # Used for debugging the init;
-# Set DEBUG to '1' to enable explicit pauses; '2' enables verbose script exec;
-# '4' dumps you into a debug shell right before the switch_root, and '5'
-# additionally saves the verbose init execution output to 'debug_init.log':
+# Set DEBUG to '1' to enable explicit pauses showing blkid/mount info;
+# '2' and higher enable verbose script execution;
+# '3' pauses like '1' or '2' but won't show blkid/mount info;
+# '4' dumps you into a debug shell right before the switch_root;
+# '5' additionally saves the verbose init execution output to 'debug_init.log':
 DEBUG=0
 DEBUGV=" "
 
