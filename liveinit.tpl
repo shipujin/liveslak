@@ -122,6 +122,12 @@ OVLWORK=/mnt/live/.ovlwork
 # then the mount point will be a subdirectory of /mnt/live instead:
 PPATHINTERNAL=/mnt/media
 
+# LUKS containers on writable media are found below /mnt/media,
+# unless liveslak boots off an ISO image, in which case the container files
+# are found below /mnt/super - the filesystem of the USB partition containing
+# our ISO:
+CPATHINTERNAL=/mnt/media
+
 # Password handling, assign random initialization:
 DEFPW="7af0aed2-d900-4ed8-89f0"
 ROOTPW=$DEFPW
