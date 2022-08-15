@@ -18,6 +18,7 @@ cracklib
 dbus-python3
 gnome-menus
 graphviz
+gsound
 json-glib
 krb5
 libcroco
@@ -55,4 +56,5 @@ tinycss
 vala
 xapp
 xapps
+xdotool
 zenity
