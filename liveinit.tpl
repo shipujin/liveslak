@@ -117,16 +117,30 @@ NFSHOST=""
 UPPERDIR=/mnt/live/changes
 OVLWORK=/mnt/live/.ovlwork
 
-# Persistence directory on writable media gets mounted on/mnt/media.
+# Persistence directory on writable media gets mounted below /mnt/media.
 # If the user specifies a system partition instead,
 # then the mount point will be a subdirectory of /mnt/live instead:
 PPATHINTERNAL=/mnt/media
+
+# Where will we mount the partition containing the ISO we are booting?
+SUPERMNT=/mnt/super
 
 # LUKS containers on writable media are found below /mnt/media,
 # unless liveslak boots off an ISO image, in which case the container files
 # are found below /mnt/super - the filesystem of the USB partition containing
 # our ISO:
 CPATHINTERNAL=/mnt/media
+
+# If we boot directly off the ISO file, we want to know to enable extras.
+# Possible values for ISOBOOT are 'diskpart','ventoy':
+ISOBOOT=""
+# The configuration file with customization for an ISO boot.
+# Defaults to full pathname of the ISO, with extension 'cfg' instead of 'iso'.
+ISOCFG=""
+
+# The extension for containerfiles accompanying an ISO is '.icc',
+# for a persistent USB stick the extension is '.img' and this is the default:
+CNTEXT=".img"
 
 # Password handling, assign random initialization:
 DEFPW="7af0aed2-d900-4ed8-89f0"
@@ -564,7 +578,7 @@ if [ "$RESCUE" = "" ]; then
 
   find_loop() {
     # The losetup of busybox is different from the real losetup - watch out!
-    lodev=$(losetup -f)
+    lodev=$(losetup -f 2>/dev/null)
     if [ -z "$lodev" ]; then
       # We exhausted the available loop devices, so create the block device:
       for NOD in $(seq 0 ${MAXLOOPS}); do
@@ -632,7 +646,7 @@ if [ "$RESCUE" = "" ]; then
     SUBSYS="$1"
 
     # Find all supported modules:
-    for MODULE in $(find_mod /mnt/media/${LIVEMAIN}/${SUBSYS}/) ; do
+    for MODULE in $(find_mod /mnt/media/${LIVEMAIN}/${SUBSYS}/) $(find_mod ${SUPERMNT}/${LIVESLAKROOT}/${LIVEMAIN}/${SUBSYS}/) ; do
       # Strip path and extension from the modulename:
       MODBASE="$(mod_base ${MODULE})"
       if [ "$SUBSYS" = "optional" ]; then
@@ -708,6 +722,69 @@ if [ "$RESCUE" = "" ]; then
     echo $OUTPUT |cat
   }
 
+  # Return device node of Ventoy partition if found:
+  # Function input:
+  # (param 1) Ventoy OS parameter block (512 bytes file).
+  # (param 2) action
+  # 'isopath' request: return full path to the ISO on the USB filesystem;
+  # 'devpartition' request:
+  #    return the device node for the partition containing the ISO file;
+  # 'diskuuid' request: return the UUID for the disk;
+  # 'partnr' request: return the number of the partition containing the ISO;
+  ret_ventoy () {
+    local VOSPARMS="$1"
+    local VACTION="$2"
+    local DISKSIZE=""
+    local BDEV=""
+    local IPART=""
+    local VENTPART=""
+
+    if [ "$VACTION" == "isopath" ]; then
+      echo $(hexdump -s 45 -n 384 -e '384/1 "%01c""\n"' $VOSPARMS)
+    elif [ "$VACTION" == "diskuuid" ]; then
+      echo $(hexdump -s 481 -n 4 -e '4/1 "%02x "' ${VOSPARMS} \
+        | awk '{ for (i=NF; i>1; i--) printf("%s",$i); print $i; }' )
+    elif [ "$VACTION" == "partnr" ]; then
+      echo $(( 0x$(hexdump -s 41 -n 2 -e '2/1 "%02x "' ${VOSPARMS} \
+        | awk '{ for (i=NF; i>1; i--) printf("%s",$i); print $i; }' )
+      ))
+    elif [ "$VACTION" == "devpartition" ]; then
+      PARTNR=$(( 0x$(hexdump -s 41 -n 2 -e '2/1 "%02x "' ${VOSPARMS} \
+        | awk '{ for (i=NF; i>1; i--) printf("%s",$i); print $i; }' )
+      ))
+      DISKSIZE=$(( 0x$(hexdump -s 33 -n 8 -e '8/1 "%02x "' ${VOSPARMS} \
+        | awk '{ for (i=NF; i>1; i--) printf("%s",$i); print $i; }' )
+      ))
+      # Determine which block device (only one!) reports this disk size (bytes):
+      for BDEV in $(find /sys/block/* |grep -Ev '(ram|loop)') ; do
+        BDEV=$(basename $BDEV) 
+        # The 'size' value is sectors, not bytes!
+        # Logical block size in Linux is commonly 512 bytes:
+        BDEVSIZE=$(( $(cat /sys/block/${BDEV}/size) * $(cat /sys/block/${BDEV}/queue/logical_block_size) ))
+        if [ $BDEVSIZE -eq $DISKSIZE ]; then
+          # Found a block device with matching size in bytes:
+          for IPART in $(ret_partition $(blkid |cut -d: -f1) | grep -v loop) ;
+          do
+            if [ -e /sys/block/$BDEV/$(basename $IPART)/partition ]; then
+              if [ $(cat /sys/block/$BDEV/$(basename $IPART)/partition) -eq $PARTNR ]; then
+                # Found the correct partition number on matching disk:
+                VENTPART="$IPART $VENTPART"
+              fi
+            fi
+          done
+        fi
+      done
+      if [ $(echo $VENTPART |wc -w) -eq 1 ]; then
+        # We found the Ventoy ISO-containing partition.
+        # Trim leading/trailing spaces:
+        echo $VENTPART |xargs
+      else
+        # Zero or multiple matching block devices found, fall back to 'scandev':
+        echo scandev
+      fi
+    fi
+  }
+
   ## End support functions ##
 
   # We need a mounted filesystem here to be able to do a switch_root later,
@@ -722,6 +799,54 @@ if [ "$RESCUE" = "" ]; then
   # Find the Slackware Live media.
   # TIP: Increase WAIT to give USB devices a chance to be seen by the kernel.
   mkdir /mnt/media
+
+  # Multi ISO boot managers first.
+
+  # --- Ventoy ---
+  # If we boot an ISO via Ventoy, this creates a device-mapped file
+  # '/dev/mapper/ventoy' which liveslak could use to mount that ISO,
+  # but specifying '-t iso9660' will fail to mount it.
+  # Omitting the '-t iso9660' makes the mount succceed.
+  # liveslak is 'Ventoy compatible':
+  # Ventoy will not execute its hooks and leaves all the detection to us.
+  # It will create the device-mapped file /dev/mapper/ventoy still.
+  VENTID="VentoyOsParam-77772020-2e77-6576-6e74-6f792e6e6574"
+  VENTVAR="/sys/firmware/efi/vars/${VENTID}"
+  if [ ! -d "${VENTVAR}" ]; then
+    VENTVAR="/sys/firmware/efi/efivars/${VENTID}"
+  fi
+  if [ -d "${VENTVAR}" ]; then
+    echo "${MARKER}:  (UEFI) Ventoy ISO boot detected..."
+    ISOBOOT="ventoy"
+    VENTOSPARM="${VENTVAR}/data"
+  else
+    # Detect Ventoy in memory (don't use the provided hooks), see
+    # https://www.ventoy.net/en/doc_compatible_format.html:
+    dd if=/dev/mem of=/vent.dmp bs=1 skip=$((0x80000)) count=$((0xA0000-0x80000)) 2>/dev/null
+    # With 'xargs' we remove leading and ending spaces:
+    OFFSET=$(strings -t d /vent.dmp |grep '  www.ventoy.net' |xargs |cut -d' ' -f1)
+    if [ -n "${OFFSET}" ]; then
+      echo "${MARKER}:  (BIOS) Ventoy ISO boot detected..."
+      ISOBOOT="ventoy"
+      # Save the 512-byte Ventoy OS Parameter block:
+      dd if=/vent.dmp of=/vent_os_parms bs=1 count=512 skip=$OFFSET 2>/dev/null
+      VENTOSPARM="/vent_os_parms"
+    fi
+  fi
+  if [ "$ISOBOOT" == "ventoy" ]; then
+    LIVEPATH=$(ret_ventoy $VENTOSPARM isopath)
+    if [ -e /dev/mapper/ventoy ]; then
+      LIVEMEDIA=$(dmsetup table /dev/mapper/ventoy |tr -s ' ' |cut -d' ' -f 4)
+      LIVEMEDIA=$(readlink -f /dev/block/${LIVEMEDIA})
+      # Having the ISO device-mapped to /dev/dm-0 prevents liveslak from
+      # mounting the underlying partition, so we delete the mapped device:
+      dmsetup remove /dev/mapper/ventoy
+    else
+      # Return Ventoy device partition (or 'scandev'):
+      LIVEMEDIA=$(ret_ventoy $VENTOSPARM devpartition)
+    fi
+  fi
+
   if [ -n "$NFSHOST" ]; then
     # NFS root.  First configure our network interface:
     setnet
@@ -737,14 +862,6 @@ if [ "$RESCUE" = "" ]; then
     VIRGIN=1
   elif [ -z "$LIVEMEDIA" ]; then
     # LIVEMEDIA not specified on the boot commandline using "livemedia="
-    # Note:
-    #   If we boot an ISO via Ventoy, this creates a device-mapped file
-    #   '/dev/mapper/ventoy' which liveslak uses to mount that ISO,
-    #   but specifying '-t iso9660' will fail to mount it.
-    #   Omitting the '-t iso9660' makes the mount succceed.
-    if [ -e /dev/mapper/ventoy ]; then 
-      echo "${MARKER}:  Ventoy ISO boot detected..."
-    fi
     # Start digging:
     # Filter out the block devices, only look at partitions at first:
     # The blkid function in busybox behaves differently than the regular blkid!
@@ -765,11 +882,7 @@ if [ "$RESCUE" = "" ]; then
         # Determine filesystem type ('iso9660' means we found a CDROM/DVD)
         LIVEFS=$(blkid $LIVEMEDIA |rev |cut -d'"' -f2 |rev)
         [ "$LIVEFS" = "swap" ] && continue
-        if [ -e /dev/mapper/ventoy ]; then 
-          mount -o ro $LIVEMEDIA /mnt/media
-        else
-          mount -t $LIVEFS -o ro $LIVEMEDIA /mnt/media
-        fi
+        mount -t $LIVEFS -o ro $LIVEMEDIA /mnt/media
       else
         # Bummer.. label not found; the ISO was extracted to a different device.
         # Separate partitions from block devices, look at partitions first:
@@ -777,12 +890,9 @@ if [ "$RESCUE" = "" ]; then
           # We rely on the fact that busybox blkid puts TYPE"..." at the end:
           SLFS=$(blkid $SLDEVICE |rev |cut -d'"' -f2 |rev)
           [ "$SLFS" = "swap" ] && continue
-          if [ -e /dev/mapper/ventoy ]; then
-            mount -o ro $SLDEVICE /mnt/media
-          else
-            mount -t $SLFS -o ro $SLDEVICE /mnt/media
-          fi
-          if [ -d /mnt/media/${LIVEMAIN} ]; then
+          mount -t $SLFS -o ro $SLDEVICE /mnt/media
+          if [ -f /mnt/media/${LIVEMAIN}/system/0099-${DISTRO}_zzzconf-*.s* ];
+          then
             # Found our media!
             LIVEALL=$SLDEVICE
             LIVEMEDIA=$SLDEVICE
@@ -801,7 +911,8 @@ if [ "$RESCUE" = "" ]; then
     fi
     sleep 1
   else
-    # LIVEMEDIA was specified on the boot commandline using "livemedia="
+    # LIVEMEDIA was specified on the boot commandline using "livemedia=",
+    # or ISO was booted by a compatible multi ISO bootmanager:
     if [ "$LIVEMEDIA" != "scandev" -a ! -b "$LIVEMEDIA" ]; then
       # Passed a UUID or LABEL?
       LIVEALL=$(findfs UUID=$LIVEMEDIA 2>/dev/null) || LIVEALL=$(findfs LABEL=$LIVEMEDIA 2>/dev/null)
@@ -818,7 +929,6 @@ if [ "$RESCUE" = "" ]; then
         # instead of just: "livemedia=/dev/sdX".
         #
         # First mount the partition and then loopmount the ISO:
-        SUPERMNT=/mnt/super_$(od -An -N1 -tu1 /dev/urandom |tr -d ' ')
         mkdir -p ${SUPERMNT}
         #
         if [ "$LIVEMEDIA" = "scandev" ]; then
@@ -843,14 +953,20 @@ if [ "$RESCUE" = "" ]; then
           fi
         fi
         # At this point we know $LIVEMEDIA - either because the bootparameter
-        # specified it or else because the 'scandev' found it for us:
+        # specified it or else because the 'scandev' found it for us.
+        # Next we will re-define LIVEMEDIA to point to the actual ISO file
+        # on the mounted live media:
         SUPERFS=$(blkid $LIVEMEDIA |rev |cut -d'"' -f2 |rev)
-        mount -t $SUPERFS -o ro $LIVEMEDIA ${SUPERMNT}
-        if [ -f "${SUPERMNT}/$LIVEPATH" ]; then
-          LIVEFS=$(blkid "${SUPERMNT}/$LIVEPATH" |rev |cut -d'"' -f2 |rev)
-          LIVEALL="${SUPERMNT}/$LIVEPATH"
+        SUPERPART=$LIVEMEDIA
+        mount -t ${SUPERFS} -o ro ${SUPERPART} ${SUPERMNT}
+        if [ -f "${SUPERMNT}/${LIVEPATH}" ]; then
+          LIVEFS=$(blkid "${SUPERMNT}/${LIVEPATH}" |rev |cut -d'"' -f2 |rev)
+          LIVEALL="${SUPERMNT}/${LIVEPATH}"
           LIVEMEDIA="$LIVEALL"
           MOUNTOPTS="loop"
+          if [ -z "$ISOBOOT" ]; then
+            ISOBOOT="diskpart"
+          fi
         fi
       fi
       LIVEFS=$(blkid $LIVEMEDIA |rev |cut -d'"' -f2 |rev)
@@ -858,11 +974,23 @@ if [ "$RESCUE" = "" ]; then
     fi
   fi
 
-  # Finished determining the media availability, it should be mounted now.
+  if [ -n "${ISOBOOT}" ]; then
+    # Containerfiles used in conjunction with ISO files have '.icc' extension,
+    # aka 'ISO Container Companion' ;-)
+    CNTEXT=".icc"
+    # Search for containers in another place than the default /mnt/media:
+    CPATHINTERNAL=${SUPERMNT}
+  fi
+
+  # ---------------------------------------------------------------------- #
+  #                                                                        #
+  # Finished determining the media availability, it should be mounted now. #
+  #                                                                        # 
+  # ---------------------------------------------------------------------- #
 
   if [ ! -z "$LIVEMEDIA" ]; then
     echo "${MARKER}:  Live media found at ${LIVEMEDIA}."
-    if [ ! -d /mnt/media/${LIVEMAIN} ]; then
+    if [ ! -f /mnt/media/${LIVEMAIN}/system/0099-${DISTRO}_zzzconf-*.s* ]; then
       echo "${MARKER}:  However, live media was not mounted... trouble ahead."
     fi
     if [ "$LIVEMEDIA" != "$LIVEALL" ]; then
@@ -912,6 +1040,32 @@ if [ "$RESCUE" = "" ]; then
           echo $LIVEPARM=$(eval echo \$$LIVEPARM) >> /mnt/media/${LIVEMAIN}/${DISTROCFG}
         fi 
       done
+    fi
+  fi
+
+  # When booted from an ISO, liveslak optionally reads parameters
+  # from a file with the same full filename as the ISO,
+  # but with '.cfg' extension instead of '.iso':
+  if [ -n "$ISOBOOT" ] && [ -z "$CFGACTION" ]; then
+    # The partition's filesystem containing the ISO is mounted at ${SUPERMNT}:
+    ISOCFG="${SUPERMNT}/$(dirname ${LIVEPATH})/$(basename ${LIVEPATH} .iso).cfg"
+    if [ -f "$ISOCFG" ]; then
+      # Read ISO live customization from disk file if present,
+      # and set any variable from that file:
+      echo "${MARKER}:  Reading ISO boot config from ${ISOCFG#$SUPERMNT})"
+      for LISOPARM in \
+        BLACKLIST KEYMAP LIVE_HOSTNAME LIVESLAKROOT LOAD LOCALE LUKSVOL \
+        NOLOAD ISOPERSISTENCE RUNLEVEL TWEAKS TZ XKB ;
+      do
+        eval $(grep -w ^${LISOPARM} ${ISOCFG})
+      done
+      # Handle any customization.
+      if [ -n "${ISOPERSISTENCE}" ]; then
+        # Persistence container located on the USB stick - strip the extension:
+        PERSISTENCE=$(basename ${ISOPERSISTENCE%.*})
+        PERSISTPATH=$(dirname ${ISOPERSISTENCE})
+        PERSISTPART=${SUPERPART}
+      fi
     fi
   fi
 
@@ -1025,7 +1179,7 @@ if [ "$RESCUE" = "" ]; then
         PPARTFS=$(blkid $PPART |rev |cut -d'"' -f2 |rev)
         # Mount the partition and peek inside for a directory or container:
         mount -t $PPARTFS -o ro ${PPART} /mnt/live/${ppartdir}
-        if [ -d /mnt/live/${ppartdir}/${PERSISTPATH}/${PERSISTENCE} ] || [ -f /mnt/live/${ppartdir}/${PERSISTPATH}/${PERSISTENCE}.img ]; then
+        if [ -d /mnt/live/${ppartdir}/${PERSISTPATH}/${PERSISTENCE} ] || [ -f /mnt/live/${ppartdir}/${PERSISTPATH}/${PERSISTENCE}${CNTEXT} ]; then
           # Found our persistence directory/container!
           PERSISTPART=$PPART
           unset PPART
@@ -1045,6 +1199,8 @@ if [ "$RESCUE" = "" ]; then
     fi
   fi
 
+  debugit
+
   # ------------------------------------------------------------------ #
   #                                                                    #
   # At this point, we either have determined the persistence partition #
@@ -1060,27 +1216,37 @@ if [ "$RESCUE" = "" ]; then
     REALMP=$(readlink -f ${MPDEV})
     REALPP=$(readlink -f ${PERSISTPART})
     if [ "${REALMP}" != "${REALPP}" ]; then
+      # The liveslak media is different from the persistence partition.
       # Mount the partition readonly to access the persistence directory:
       ppdir=".persistence_$(od -An -N1 -tu1 /dev/urandom|tr -d ' ')"
       mkdir -p /mnt/live/${ppdir}
       mount -o ro ${PERSISTPART} /mnt/live/${ppdir}
       if [ $? -ne 0 ]; then
-        echo "${MARKER}:  Failed to mount persistence partition '${PERSISTPART}' read/write."
+        echo "${MARKER}:  Failed to mount persistence partition '${PERSISTPART}' readonly."
         echo "${MARKER}:  Falling back to recording changes in RAM."
         rmdir /mnt/live/${ppdir}
         VIRGIN=1
       else
         # Explicitly configured persistence has priority over regular
         # persistence settings, and also overrides the boot parameter 'nop':
-        PPATHINTERNAL=/mnt/live/${ppdir}
+        if [ -n "${ISOBOOT}" ]; then
+          # Boot from ISO, persistence is on the filesystem containing the ISO:
+          PPATHINTERNAL=${SUPERMNT}
+        else
+          # We use the above created directory:
+          PPATHINTERNAL=/mnt/live/${ppdir}
+        fi
         VIRGIN=0
       fi
     fi
   fi
 
+  debugit
+
   # At this point, if we use persistence then its partition is either
-  # the live media (mounted on /mnt/media) or a system partition
-  # (mounted on /mnt/live/${ppdir}).
+  # the live media (mounted on /mnt/media), a system partition
+  # (mounted on /mnt/live/${ppdir}) or the partition containing the ISO if we
+  # booted off that.
   # The variable ${PPATHINTERNAL} points to its mount point,
   # and the partition is mounted read-only.
 
@@ -1089,7 +1255,7 @@ if [ "$RESCUE" = "" ]; then
   # deal with a pure Live system without persistence (VIRGIN=1):
 
   if [ $VIRGIN -eq 0 ]; then
-    if [ -d ${PPATHINTERNAL}/${PERSISTPATH}/${PERSISTENCE} ] || [ -f ${PPATHINTERNAL}/${PERSISTPATH}/${PERSISTENCE}.img ]; then
+    if [ -d ${PPATHINTERNAL}/${PERSISTPATH}/${PERSISTENCE} ] || [ -f ${PPATHINTERNAL}/${PERSISTPATH}/${PERSISTENCE}${CNTEXT} ]; then
       # Remount the partition r/w - we need to write to the persistence area.
       # The value of PPATHINTERNAL will be different for USB stick or harddisk:
       mount -o remount,rw ${PPATHINTERNAL}
@@ -1122,37 +1288,37 @@ if [ "$RESCUE" = "" ]; then
         echo "${MARKER}:  Falling back to recording changes in RAM."
         VIRGIN=1
       fi
-    # Use a container file instead of a dorectory for persistence:
-    elif [ -f ${PPATHINTERNAL}/${PERSISTPATH}/${PERSISTENCE}.img ]; then
+    # Use a container file instead of a directory for persistence:
+    elif [ -f ${PPATHINTERNAL}/${PERSISTPATH}/${PERSISTENCE}${CNTEXT} ]; then
       # Find a free loop device to mount the persistence container file:
       prdev=$(find_loop)
-      prdir=${PERSISTENCE}_$(od -An -N1 -tu1 /dev/urandom |tr -d ' ')
+      prdir=persistence_$(od -An -N1 -tu1 /dev/urandom |tr -d ' ')
       mkdir -p /mnt/live/${prdir}
-      losetup $prdev ${PPATHINTERNAL}/${PERSISTPATH}/${PERSISTENCE}.img
+      losetup $prdev ${PPATHINTERNAL}/${PERSISTPATH}/${PERSISTENCE}${CNTEXT}
       # Check if the persistence container is LUKS encrypted:
       if cryptsetup isLuks $prdev 1>/dev/null 2>/dev/null ; then
-        echo "${MARKER}:  Unlocking LUKS encrypted persistence file '${PERSISTPATH}/${PERSISTENCE}.img'"
+        echo "${MARKER}:  Unlocking LUKS encrypted persistence file '${PERSISTPATH}/${PERSISTENCE}${CNTEXT}'"
         cryptsetup luksOpen $prdev ${PERSISTENCE} </dev/tty0 >/dev/tty0 2>&1
         if [ $? -ne 0 ]; then
-          echo "${MARKER}:  Failed to unlock persistence file '${PERSISTPATH}/${PERSISTENCE}.img'."
+          echo "${MARKER}:  Failed to unlock persistence file '${PERSISTPATH}/${PERSISTENCE}${CNTEXT}'."
           echo "${MARKER}:  Falling back to RAM."
         else
           # LUKS properly unlocked; from now on use the mapper device instead:
           prdev=/dev/mapper/${PERSISTENCE}
         fi
       fi
-      prfs=$(blkid $prdev |rev |cut -d'"' -f2 |rev)
+      prfs=$(blkid $prdev 2>/dev/null |rev |cut -d'"' -f2 |rev)
       mount -t $prfs $prdev /mnt/live/${prdir} 2>/dev/null
       if [ $? -ne 0 ]; then
-        echo "${MARKER}:  Failed to mount persistence file '${PERSISTPATH}/${PERSISTENCE}.img'."
+        echo "${MARKER}:  Failed to mount persistence file '${PERSISTPATH}/${PERSISTENCE}${CNTEXT}'."
         echo "${MARKER}:  Falling back to RAM."
       else
         if [ "$WIPE_PERSISTENCE" = "1" -o -f /mnt/live/${prdir}/${PERSISTENCE}/.wipe ]; then
-          echo "${MARKER}:  Wiping existing persistent data in '${PERSISTPATH}/${PERSISTENCE}.img'."
+          echo "${MARKER}:  Wiping existing persistent data in '${PERSISTPATH}/${PERSISTENCE}${CNTEXT}'."
           rm -f /mnt/live/${prdir}/${PERSISTENCE}/.wipe 2>/dev/null
           find /mnt/live/${prdir}/${PERSISTENCE}/ -mindepth 1 -exec rm -rf {} \; 2>/dev/null
         fi
-        echo "${MARKER}:  Writing persistent changes to file '${PERSISTPATH}/${PERSISTENCE}.img'."
+        echo "${MARKER}:  Writing persistent changes to file '${PERSISTPATH}/${PERSISTENCE}${CNTEXT}'."
         UPPERDIR=/mnt/live/${prdir}/${PERSISTENCE}
         OVLWORK=/mnt/live/${prdir}/.ovlwork
       fi
@@ -1162,7 +1328,11 @@ if [ "$RESCUE" = "" ]; then
     if [ ! -z "$LUKSVOL" ]; then
       # Even without persistence, we need to be able to write to the partition
       # if we are using a LUKS container file:
-      mount -o remount,rw /mnt/media
+      if [ -n "$ISOBOOT" ]; then
+        mount -o remount,rw ${SUPERMNT}
+      else
+        mount -o remount,rw /mnt/media
+      fi
     else
       mount -o remount,ro /mnt/media
     fi
@@ -1230,6 +1400,12 @@ if [ "$RESCUE" = "" ]; then
     mount --bind /mnt/live/toram /mnt/overlay/mnt/livemedia
   fi
 
+  if [ -n "$ISOBOOT" ]; then
+    # Expose the filesystem on the USB stick when we booted off an ISO there:
+    mkdir -p /mnt/overlay/mnt/supermedia
+    mount --bind ${SUPERMNT} /mnt/overlay/mnt/supermedia
+  fi
+
   if [ ! -z "$USE_SWAP" ]; then
     # Use any available swap device:
     for SWAPD in $(blkid |grep TYPE="\"swap\"" |cut -d: -f1) ; do
@@ -1252,7 +1428,7 @@ if [ "$RESCUE" = "" ]; then
       # Find a free loop device:
       lodev=$(find_loop)
 
-      losetup $lodev ${CPATHINTERNAL}/$luksfil
+      losetup $lodev ${CPATHINTERNAL}$luksfil
       echo "Unlocking LUKS encrypted container '$luksfil' at mount point '$luksmnt'"
       cryptsetup luksOpen $lodev $luksnam </dev/tty0 >/dev/tty0 2>&1
       if [ $? -ne 0 ]; then
@@ -1273,6 +1449,8 @@ if [ "$RESCUE" = "" ]; then
       fi
     done
   fi
+
+  debugit
 
   if [ ! -z "$KEYMAP" ]; then
     # Configure custom keyboard mapping in console and X:

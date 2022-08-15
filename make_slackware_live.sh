@@ -2092,7 +2092,7 @@ EOSL
 
 # Add our scripts to the Live OS:
 mkdir -p  ${LIVE_ROOTDIR}/usr/local/sbin
-install -m0755 ${LIVE_TOOLDIR}/makemod ${LIVE_TOOLDIR}/iso2usb.sh ${LIVE_TOOLDIR}/upslak.sh ${LIVE_ROOTDIR}/usr/local/sbin/
+install -m0755 ${LIVE_TOOLDIR}/makemod ${LIVE_TOOLDIR}/iso2usb.sh ${LIVE_TOOLDIR}/isocomp.sh ${LIVE_TOOLDIR}/upslak.sh ${LIVE_ROOTDIR}/usr/local/sbin/
 
 # Add PXE Server infrastructure:
 mkdir -p ${LIVE_ROOTDIR}/var/lib/tftpboot/pxelinux.cfg
@@ -3496,6 +3496,9 @@ fi
 # Directory for rootcopy files (everything placed here will be copied
 # verbatim into the overlay root):
 mkdir -p ${LIVE_STAGING}/${LIVEMAIN}/rootcopy
+
+# Mark our ISO as 'ventoy-compatible':
+echo "This ISO is compatible with Ventoy. See https://www.ventoy.net/en/compatible.html" >${LIVE_STAGING}/ventoy.dat
 
 # Create an ISO file from the directories found below ${LIVE_STAGING}:
 create_iso ${LIVE_STAGING}

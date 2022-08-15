@@ -13,6 +13,8 @@ The USB version is "persistent" - meaning that the OS stores your updates on the
 
 In order to protect your sensitive private data in case you lose your USB stick (or in case it gets stolen) you can enhance your persistent USB Live OS with an encrypted homedirectory and/or an encrypted persistence file, to be unlocked on boot with a passphrase that only you know.
 
+And even booting directly from the ISO file (see chapter ''Boot from an ISO file on disk'') you can use persistence and enjoy an encrypted homedirectory, without the need for any modification to the ISO file.
+
 
 ===== Why yet another Slackware Live =====
 
@@ -142,7 +144,9 @@ menuentry " LIVESLAK ISO" --class gnu-linux --class os --class icon-linux {
   linux (loop)/boot/generic livemedia=scandev:$iso $bootparms
   initrd (loop)/boot/initrd.img
 }</code>
-This example will add a 'LIVESLAK ISO' menu entry to your local computer's boot menu, through which you can start a downloaded XFCE Live ISO pre-configured for a US keyboard, Dutch language and Amsterdam timezone.
+This example will add a 'LIVESLAK ISO' menu entry to your local computer's boot menu, through which you can start a XFCE Live ISO which you previously downloaded to directory ''/data/ISOS/'', pre-configured for a US keyboard, Dutch language and Amsterdam timezone.
+
+Alternatively you could look into Ventoy, which is a tool to create a bootable USB drive containing multiple ISO files.  Ventoy allows you to boot from any of these ISOs by automatically generating on every boot a Grub menu containing all the images found on disk.  Liveslak is fully Ventoy-compatible.  Website: https://www.ventoy.net/ .
 
 
 ==== Transfering ISO content to USB stick ====
@@ -194,6 +198,80 @@ Examples:
     # ./iso2usb.sh -i slackware64-live-current.iso -r -s
 
 You might have noticed that the "-P" parameter does not accept a size parameter.  This is because the unencrypted container file is created as a 'sparse' file that starts at zero size and is allowed to grow dynmically to a maximum of 90% of the initial free space on the Linux partition of the USB stick.
+
+
+==== Adding functionality when booting directly off an ISO on disk ====
+
+
+An ISO companion script is available which enables you to add functionality in cases where you want to boot directly from an ISO file. For instance, when having added the ISO file as a selection in your Grub menu, or when using a 3rd-party boot manager like Ventoy.  Typically, a Live ISO is immutable (its ISO-9660 filesystem is read-only) and when you boot off it, the Live OS does not have persistence.  The system starts in a virgin state, every boot.
+
+The ISO companion script can add encrypted persistence and homedirectory container files to the disk partition which can be VFAT or EXFAT if you want.  It also can create a directory structure on-disk from which liveslak can load additional live modules that are not present inside the ISO (both 'addons' and 'optional').
+
+The script is called 'isocomp.sh', and it accepts the following parameters: <code>
+  -d|--directory <path>         Create a liveslak directory structure to store
+                                additional modules. The parameter value is
+                                used as the root path below which the
+                                liveslak/{addons,optional} subdirectories
+                                will be created.
+  -e|--examples                 Show some common usage examples.
+  -f|--force                    Force execution in some cases where the script
+                                reports an issue.
+  -h|--help                     This help text.
+  -i|--iso <fullpath>           Full path to your liveslak ISO image.
+  -l|--lukscontainer <fullpath> Full path to encrypted container file to be
+                                created by this script, and to be mounted
+                                in the live OS under /home
+                                (or any other mountpoint you supply).
+                                (filename needs to end in '.icc'!).
+  -p|--persistence <fullpath  > Full path to encrypted persistence container
+                                file to be created in the filesystem
+                                (filename extension must be '.icc'!).
+  -x|--extend <fullpath>        Full path to existing (encrypted) container
+                                file that you want to extend in size
+                                (filename needs to end in '.icc'!).
+                                Limitations:
+                                - container needs to be LUKS encrypted, and
+                                - internal filesystem needs to be ext{2,3,4}.
+  -L|--lcsize <size|perc>       Size of LUKS encrypted /home ; value is the
+                                requested size of the container in kB, MB, GB,
+                                or as a percentage of free space
+                                (integer numbers only).
+                                Examples: '-L 125M', '-L 2G', '-L 20%'.
+  -P|--perssize <size|perc>     Size of persistence container ; value is the
+                                requested size of the container in kB, MB, GB,
+                                or as a percentage of free space
+                                (integer numbers only).
+                                Examples: '-P 125M', '-P 2G', '-P 20%'.
+  -X|--extendsize <size|perc>   Extend size of existing container; value
+                                is the requested extension of the container
+                                in kB, MB, GB, or as percentage of free space
+                                (integer numbers only).
+                                Examples: '-X 125M', '-X 2G', '-X 20%'.
+</code>
+Some examples of what the script can do, are given when you run the script with the '-e' or '--examples' parameter.  Here is an overview of those example commands.  First, mount your USB partition, for instance a Ventoy disk will be mounted for you at /run/media/<user>/Ventoy/.  Then:
+
+  * Create a 1GB encrypted persistence container:
+    # ./isocomp.sh -p /run/media/<user>/Ventoy/myfiles/persistence.icc -P 1G
+  * Create a 4GB encrypted home:
+    # ./isocomp.sh -l /run/media/<user>/Ventoy/somedir/lukscontainers.icc -L 4000M -i /run/media/<user>/Ventoy/slackware64-live-current.iso
+  * Increase the size of that encrypted home container with another 2GB:
+    # ./isocomp.sh -x /run/media/<user>/Ventoy/somedir/lukscontainers.icc -X 2G -i /run/media/<user>/Ventoy/slackware64-live-current.iso
+  * Create a 10GB encrypted container to be mounted on /data in the Live OS:
+    # ./isocomp.sh -l /run/media/<user>/Ventoy/somedir/mydata.icc:/data -L 10G -i /run/media/<user>/Ventoy/slackware64-live-current.iso
+  * Create a liveslak directory structure for adding extra live modules:
+    # ./isocomp.sh -d /run/media/<user>/Ventoy/myliveslak  -i /run/media/<user>/Ventoy/slackware64-live-current.iso
+
+These enhancements are recorded in a configuration file next to the ISO, with the exact same name as that ISO but with extension '.cfg' instead of '.iso'.  You can manually edit this configuration file if you want; the script will not change, remove or overwrite your customizations.
+
+Here is an example configuration file content: <code>
+# Liveslak ISO configuration file for  SLACKWARE-CURRENT FOR X86_64 (LEAN LIVE 1.5.4)
+# Generated by isocomp.sh on 20220814_1554
+LIVESLAKROOT=/liveslak
+LUKSVOL=/liveslak/myhome.icc:/home
+ISOPERSISTENCE=/liveslak/persistence.icc
+TZ=Europe/Amsterdam
+</code>
+Note that this configuration file example is not complete; you can manually add custom values for the following additional liveslak parameters which avoids having to enter the corresponding boot parameters manually every time: BLACKLIST, KEYMAP, LIVE_HOSTNAME, LIVESLAKROOT, LOAD, LOCALE, LUKSVOL, NOLOAD, ISOPERSISTENCE, RUNLEVEL, TWEAKS, TZ and XKB.
 
 
 ==== Using the Live OS to install Slackware to hard disk ====
@@ -535,7 +613,7 @@ Stage two:
     * 'root' and 'live' user accounts are created,
     * an initial environment for the accounts is configured,
     * the desktop environment is pre-configured for first use,
-    * the liveslak scripts "makemod", "iso2usb.sh" and "upslak.sh" are copied to "/usr/local/sbin/" in the ISO for your convenience,
+    * the liveslak scripts "makemod", "iso2usb.sh", "isocomp.sh" and "upslak.sh" are copied to "/usr/local/sbin/" in the ISO for your convenience,
     * The "setup2hd" script and the Slackware installer files are copied to "/usr/local/sbin" and "/usr/share/liveslak" respectively.
     * slackpkg is configured,
     * a locate database is created,
@@ -601,10 +679,47 @@ A second type of encrypted container exists, which can be used for storing your 
 For slow USB media, the default 5 seconds wait time during boot are sometimes insufficient to allow the kernel to detect the partitions on your USB device.  The script can optionally add more wait time.  It does this by editing the file "wait-for-root" in the initrd and updating the value which is stored there (by default "5" is written there by the "make_slackware_live.sh" script).
 
 
-=== makemod ===
+=== isocomp.sh ===
 
 
 The third script:
+
+The "isocomp.sh" script's runtime usage is explained in detail in a previous paragraph "Adding functionality when booting directly off an ISO on disk".
+
+This section explains the inner workings of the script to enhance the functionality of booting directly from ISO.
+
+== Secondary liveslak root directory ==
+
+A secondary liveslak root directory can be created by the 'isocomp.sh' script: in the same filsystem where the ISO file is also present. The ISO contains the primary liveslak root, below which you will find directories 'system', 'addons', 'optional', 'core2ram' and so on.  The secondary liveslak root can not contain a 'system' subdirectory but it can contain 'addons', 'optional', 'core2ram'.
+
+Additional Live modules can be placed in these directories.  These will be loaded by the Live init after processing corresponding module locations below the primary liveslak root.  Meaning, you can load all kinds of additional software without having to modify the official Live ISO.
+
+== Using container files for persistence or homedirectory ==
+
+Two types of encrypted container are supported by 'isocomp.sh', just like with the 'iso2usb.sh' script: to be used either for storing the Live OS persistence data, or for providing (additional) persistent storage space at a mount point such as ''/home''.  Also, the functionality of the Live init has been extended to deal with all this.
+
+The sequence is as follows:
+  - Live init checks if the OS was booted from an ISO file.
+  - If yes, init will additionally check for the existence of an ISO configuration file with the same name as the ISO except its extension (which needs to be '.cfg' instead of '.iso').
+  - If the configuration file defines the ISOPERSISTENCE variable, Live init expects its value to be a container file which will be used to store the modifications to the Live OS persistently, instead of writing those to a RAM disk.
+  - If the configuration file defines the LUKSVOL variable, Live init parses it and mounts all container files defined in there at the mountpoints specified (or ''/home'' if not specified).
+  - If init determines that it deals with a LUKS-encrypted container, init asks you for its unlock passphrase.
+
+== Creating an encrypted container ==
+
+The script will create a file of requested size in the same disk partition that also contains the Live ISO, using the 'dd' command.  A new loopback device is requested from the OS and the freshly created container file is mapped to the loop device using 'losetup'.  The 'cryptsetup luksCreate' command initializes the encryption on this loop device, which causes the script to prompt you with "are you sure, type uppercase YES".  After receiving your confirmation, cryptsetup requests you to enter an encryption passphrase three times (two for intializing, and one for unlocking the container subsequently).
+
+If the container is used for an encrypted /home, the script will copy the existing content of the ISO's /home into the container's filesystem which will later be mounted on top of the ISO's /home (thereby masking the existing /home).
+
+== Extending the size of an existing container file ==
+
+The 'isocomp.sh' script is able to extend your encrypted containers if you are running out of space on their enclosed filesystems.  It does this by appending random bytes to the end of the file, unlocking and mounting the filesystem inside, and then resizing that filesystem so it grows to the new size of the container. Note that only containers with an internal ''ext4'' filesystem are supported.
+
+
+=== makemod ===
+
+
+The fourth script:
 
 The "makemod" script allows you to create a Slackware Live module easily, with a Slackware package or a directory tree as its input parameter.
 
@@ -622,7 +737,7 @@ You can copy the module you just created (minding the filename conventions for a
 === setup2hd ===
 
 
-The fourth script:
+The fifth script:
 
 The "setup2hd" script is a modified Slackware installer, so you will be comfortable with the process.  The 'SOURCE' section offers two types of choices:  a regular Slackware network installation using a NFS, HTTP, FTP or Samba server, as well as a choice of installing the Live OS which you are running. The script knows where to find the squashfs modules, so the "Install Live OS" selection will not prompt further inputs.
   * The Slackware network installation is identical to that of the official Slackware installation medium.
@@ -632,7 +747,7 @@ The "setup2hd" script is a modified Slackware installer, so you will be comforta
 === pxeserver ===
 
 
-The fifth script:
+The sixth script:
 
 The ''pxeserver'' script works as follows:
   * It requires a wired network; wireless PXE boot is impossible.
@@ -660,7 +775,7 @@ kbd=<server_kbd_layout>
 === upslak.sh ===
 
 
-The sixth script:
+The seventh script:
 
 The "upslak.sh" script's runtime usage is explained in detail in a previous paragraph "Updating the kernel (and more) on a USB stick".
 
@@ -705,7 +820,7 @@ Creating an ISO image of Slackware Live Edition requires that you are running Sl
 
 You also need the "liveslak" script collection which can be downloaded from any of the links at the bottom of this page.
 
-Liveslak is a directory tree containing scripts, bitmaps and configuration files.  Only 6 scripts are meant to be run by you, the user.  These scripts ("make_slackware_live.sh", "iso2usb.sh", "makemod", "setup2hd", "pxeserver" and "upslak.sh) are explained in more detail in the section "Scripts and tools" higher up.  When creating a Live ISO from scratch, you only need to run the "make_slackware_live.sh" script.
+Liveslak is a directory tree containing scripts, bitmaps and configuration files.  Only 7 scripts are meant to be run by you, the user.  These scripts ("make_slackware_live.sh", "iso2usb.sh", "isocomp.sh", "makemod", "setup2hd", "pxeserver" and "upslak.sh) are explained in more detail in the section "Scripts and tools" higher up.  When creating a Live ISO from scratch, you only need to run the "make_slackware_live.sh" script.
 
 
 === Liveslak sources layout ===
@@ -731,6 +846,7 @@ The toplevel 'liveslak' directory contains the following files:
   * blueSW-128px.png , blueSW-64px.png - these are bitmaps of the Slackware "Blue S" logo, used for the "live" user icon and in the XDM theme.
   * grub.tpl - the template file which is used to generate the grub menu for UEFI boot.
   * iso2usb.sh - this script creates a bootable USB version wih persistence from a Slackware Live ISO.
+  * isocomp.sh - when you boot directly from a Slackware Live ISO using Grub or a multi-boot manager like Ventoy, this script adds capabilities like persistence, an encrypted home, and the ability to load further live modules from disk.
   * languages - this file contains the input configuration for language support.  One language per line contains the following fields: "code:name:kbd:tz:locale:xkb".  Example: "nl:nederlands:nl:Europe/Amsterdam:nl_NL.utf8:"
     * code = 2-letter language code
     * name = descriptive name of the language
