@@ -643,6 +643,20 @@ USBPFREE=$(get_part_mb_free ${USBMNT})
 VERSION=$(isoinfo -d -i "${SLISO}" 2>/dev/null |grep Application |cut -d: -f2-)
 echo "--- The ISO on medium '${USBPART}' is '${VERSION}'"
 
+# Try a write to the partition:
+if touch ${USBMNT}/.rwtest 2>/dev/null && rm ${USBMNT}/.rwtest 2>/dev/null
+then
+  echo "--- The medium '${USBPART}' is writable."
+else
+  echo "--- Trying to remount readonly medium '${USBPART}' as writable..."
+  mount -o remount,rw ${USBMNT}
+  if [ $? -ne 0 ]; then
+    echo "*** Failed to remount '${USBPART}' writable, unable to continue!"
+    cleanup
+    exit 1
+  fi
+fi
+
 # Create a mount point for the ISO:
 ISOMNT=$(mktemp -d -p /var/tmp -t alieniso.XXXXXX)
 if [ ! -d $ISOMNT ]; then
