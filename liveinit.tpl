@@ -1428,7 +1428,7 @@ if [ "$RESCUE" = "" ]; then
       # Find a free loop device:
       lodev=$(find_loop)
 
-      losetup $lodev ${CPATHINTERNAL}$luksfil
+      losetup $lodev ${CPATHINTERNAL}/$luksfil
       echo "Unlocking LUKS encrypted container '$luksfil' at mount point '$luksmnt'"
       cryptsetup luksOpen $lodev $luksnam </dev/tty0 >/dev/tty0 2>&1
       if [ $? -ne 0 ]; then
