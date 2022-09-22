@@ -7,6 +7,7 @@ ardour
 aubio
 audacity
 avldrums.lv2
+boca
 cadence
 calf
 capnproto
@@ -24,6 +25,7 @@ elektroid
 eq10q
 faad2
 faust
+freac
 frescobaldi
 geonkick
 giada
@@ -52,6 +54,7 @@ libmicrohttpd
 libmodplug
 libmp4v2
 libmpdclient
+libsbsms
 libsmf
 libwebsockets
 lilv
@@ -72,8 +75,10 @@ ntk
 pipewire-jack
 portaudio
 portmidi
+portsmf
 protobuf
 pulseaudio-jack
+python-attrdict
 python-ly
 python-numpy
 python-pathlib2
@@ -97,14 +102,18 @@ rubberband
 sc3-plugins
 serd
 shntool
+smooth
 sonic-pi
 sonic-visualiser
 sord
 soundfont-unison
 soundtouch
+speex
 sratom
 suil
 supercollider
+twolame
+uriparser
 vamp-aubio-plugins
 vamp-plugin-sdk
 vcvrack
