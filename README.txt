@@ -984,6 +984,23 @@ This is the section in ''make_slackware_live.conf'' which deals with these custo
 #}
 </code>
 
+=== Customizing the list of used packages ===
+
+Any liveslak ISO variant contains a specific set of Slackware packages, as defined in the various ''SEQ_*'' variables used in the ''make_slackware_live.sh'' script.  Your customized Live OS will be using variable "''SEQ_CUSTOM''".
+
+Let's breakdown the definition of such a variable to explain how to customize the package set for your own live ISO.
+
+The list of packages in the MATE ISO for instance, is defined by the ''SEQ_MSB'' variable (//MSB// stands for //Mate Slack Build//).  Its value is as follows: <code>
+# grep ^SEQ_MSB make_slackware_live.sh
+SEQ_MSB="tagfile:a,ap,d,e,f,k,l,n,t,tcl,x,xap,xfce,y pkglist:slackextra,mate local:slackpkg+"</code>
+
+Three keywords can be identified in the value of a ''SEQ_*'' variable, and these determine where the packages to be installed are going to be searched for:
+  * tagfile - this is an Slackware tagfile for a complete package series.  For instance, using "tagfile:ap" means: install all packages in the **AP** series.
+  * pkglist - this is a list of packages to be installed from the Slackware distro itself or from a Slackware-compatible 3rd-party repository.  The file containing that package list is searched in the ''./pkglists/'' subdirectory of the liveslak toplevel directory.  For instance, using "pkglist:mate" means: install all packages mentioned in the file ''./pkglists/mate.lst''.  If there is no matching ''./pkglists/mate.conf'' file then the packages are assumed to be present in the Slackware distro directory.  Else the ".conf" file is parsed and the variables that are defined in the ".conf" file will be used while generating the ISO.  Most importantly, "''SL_REPO_URL''" will contain the rsync URI pointing to the 3rd-party repository where the requested packages can be downloaded.
+  * local - some packages can not be found in Slackware-compatible repositories.  The "local" keyword alows you to install packages from a subdirectory of the liveslak toplevel directory.  For instance, using "local:slackpkg+" means: install all packages found in subdirectory ''./local/slackpkg+/'' or if you are generating a 64bit live ISO, install all packages found in directory ''./local64/slackpkg+/''.
+
+For the value of a ''SEQ_*'' variable, any combination of these keywords can be used. Every keyword is followed by a colon, and that is followed by a comma-separated list of relevant package definitions. They are all separated by spaces.
+
 === Custom background images ===
 
 The Plasma5 based Live variants allow customization of the background image used for the login greeter, the desktop wallpaper and the lock screen. The image you want to use for this purpose, must have a 16:9 aspect ratio and its dimensions should at least be 1920x1080 pixels. You  must store the custom image inside the liveslak source tree: in the subdirectory ''./media/<variant>/bg/'' where "<variant>" is the lower-case name of the Live variant (variant 'KTOWN' equals directory 'ktown', 'DAW' becomes 'daw', etc).
