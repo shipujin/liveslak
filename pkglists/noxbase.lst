@@ -37,6 +37,7 @@ glibc-i18n
 htop
 icu4c
 ilmbase
+iniparser
 ##intltool
 inxi
 ipw2100-fw
