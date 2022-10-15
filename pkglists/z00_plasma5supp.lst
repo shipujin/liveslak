@@ -1,6 +1,7 @@
 #
 # Libraries and programs to support a basic Plasma5 installation:
 #
+Imath
 #LibRaw
 PyQt5
 QScintilla
