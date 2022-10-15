@@ -158,6 +158,7 @@ khelpcenter
 khotkeys
 kinfocenter
 kmenuedit
+kpipewire
 kscreen
 kscreenlocker
 ksshaskpass
@@ -273,6 +274,7 @@ kgpg
 #killbots
 kimagemapeditor
 kio-extras
+kio-zeroconf
 kirigami-gallery
 #kiriki
 #kiten
@@ -310,6 +312,7 @@ krdc
 #kreversi
 krfb
 #kruler
+ksanecore
 #kshisen
 #ksirk
 #ksnakeduel
@@ -351,6 +354,8 @@ okular
 #poxml
 print-manager
 #rocs
+skanlite
+skanpage
 spectacle
 #step
 #svgpart
@@ -365,6 +370,8 @@ zeroconf-ioslave
 #calligraplan
 #digikam
 falkon
+kColorPicker
+kImageAnnotator
 #krita
 #kdev-php
 #kdev-python
@@ -385,7 +392,6 @@ falkon
 #kuser
 libktorrent
 #partitionmanager
-skanlite
 
 # Issues with 3 files in the squashfs module missing the last character:
 plasma-workspace
