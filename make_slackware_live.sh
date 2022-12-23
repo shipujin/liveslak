@@ -1204,7 +1204,7 @@ EOT
   # the name of the default theme to ours, so find out what the default is:
   if [ -f "${LIVE_ROOTDIR}/usr/share/plasma/desktoptheme/default/metadata.desktop" ]; then
     # Frameworks before 5.94.0:
-    THEMEFIL=/usr/share/plasma/desktoptheme/default/metadata.deskop
+    THEMEFIL=/usr/share/plasma/desktoptheme/default/metadata.desktop
   else
     # Frameworks 5.94.0 and newer:
     THEMEFIL=/usr/share/plasma/desktoptheme/default/plasmarc
