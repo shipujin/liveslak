@@ -110,6 +110,7 @@ libxslt
 llvm
 lm_sensors
 lmdb
+lsof
 lynx
 lzo
 ##make
