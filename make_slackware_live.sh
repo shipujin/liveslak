@@ -2056,7 +2056,7 @@ WGETOPTS="--timeout=20 --tries=2"
 GREYLIST=on
 PKGS_PRIORITY=( restricted alienbob ktown mate )
 REPOPLUS=( slackpkgplus restricted alienbob ktown mate )
-MIRRORPLUS['slackpkgplus']=http://slakfinder.org/slackpkg+/
+MIRRORPLUS['slackpkgplus']=https://slackware.nl/slackpkgplus/
 MIRRORPLUS['restricted']=http://slackware.nl/people/alien/restricted_sbrepos/${SL_VERSION}/${SL_ARCH}/
 MIRRORPLUS['alienbob']=http://slackware.nl/people/alien/sbrepos/${SL_VERSION}/${SL_ARCH}/
 MIRRORPLUS['mate']=http://slackware.uk/msb/${SL_VERSION}/latest/${SL_ARCH}/ 
