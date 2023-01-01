@@ -1766,7 +1766,7 @@ echo "LANG=${DEF_LOCALE}" > ${LIVE_ROOTDIR}/etc/locale.conf
 echo "KEYMAP=${DEF_KBD}" > ${LIVE_ROOTDIR}/etc/vconsole.conf
 
 # Set timezone to UTC, mimicking the 'timeconfig' script in Slackware:
-ln -s /usr/share/zoneinfo/UTC ${LIVE_ROOTDIR}/etc/localtime
+ln -sf /usr/share/zoneinfo/UTC ${LIVE_ROOTDIR}/etc/localtime
 # Could be absent so 'rm -f' to avoid script aborts:
 rm -f ${LIVE_ROOTDIR}/etc/localtime-copied-from
 
