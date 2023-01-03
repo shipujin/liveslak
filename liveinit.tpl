@@ -2,7 +2,7 @@
 #
 # Copyright 2004  Slackware Linux, Inc., Concord, CA, USA
 # Copyright 2007, 2008, 2009, 2010, 2012  Patrick J. Volkerding, Sebeka, MN, USA
-# Copyright 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022  Eric Hameleers, Eindhoven, NL
+# Copyright 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023  Eric Hameleers, Eindhoven, NL
 # All rights reserved.
 #
 # Redistribution and use of this script, with or without modification, is
