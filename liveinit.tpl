@@ -823,8 +823,15 @@ if [ "$RESCUE" = "" ]; then
     # Detect Ventoy in memory (don't use the provided hooks), see
     # https://www.ventoy.net/en/doc_compatible_format.html:
     dd if=/dev/mem of=/vent.dmp bs=1 skip=$((0x80000)) count=$((0xA0000-0x80000)) 2>/dev/null
+    # Use 'strings' to find the decimal offset of the magic string;
     # With 'xargs' we remove leading and ending spaces:
-    OFFSET=$(strings -t d /vent.dmp |grep '  www.ventoy.net' |xargs |cut -d' ' -f1)
+    if strings -t d /vent.dmp 1>/dev/null 2>/dev/null ; then
+      # Busybox in Slackware 15.0 or newer:
+      OFFSET=$(strings -t d /vent.dmp |grep '  www.ventoy.net' |xargs |cut -d' ' -f1)
+    else
+      # Busybox in Slackware 14.2 or older:
+      OFFSET=$(strings -o /vent.dmp |grep '  www.ventoy.net' |xargs |cut -d' ' -f1)
+    fi
     if [ -n "${OFFSET}" ]; then
       echo "${MARKER}:  (BIOS) Ventoy ISO boot detected..."
       ISOBOOT="ventoy"
