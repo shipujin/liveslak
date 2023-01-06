@@ -705,7 +705,7 @@ if [ $REFRESH -eq 0 ]; then
   # Create filesystems:
   # Not enough clusters for a 32 bit FAT:
   mkdosfs -s 2 -n "DOS" ${TARGETP1}
-  mkdosfs -F32 -s 2 -n "EFI" ${TARGETP2}
+  mkdosfs -F32 -s 2 -n "ESP" ${TARGETP2}
   # KDE tends to automount.. so try an umount:
   if mount |grep -qw ${TARGETP3} ; then
     umount ${TARGETP3} || true
