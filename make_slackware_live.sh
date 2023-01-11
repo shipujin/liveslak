@@ -200,7 +200,7 @@ SL_REPO_URL=${SL_REPO_URL:-"rsync.osuosl.org::slackware"}
 DEF_SL_REPO_URL=${SL_REPO_URL}
 
 # List of Slackware package series - each will become a squashfs module:
-if [ $(echo ${SL_VERSION}|cut -d. -f1) -eq 14 ]; then
+if [ "$(echo ${SL_VERSION}|cut -d. -f1)" == "14" ]; then
   # Slackware up and until 14.2 has KDE4 which includes the 'kdei' package set:
   SEQ_SLACKWARE="tagfile:a,ap,d,e,f,k,kde,kdei,l,n,t,tcl,x,xap,xfce,y pkglist:slackextra"
 else
