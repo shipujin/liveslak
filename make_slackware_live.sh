@@ -179,8 +179,9 @@ ONLY_ISO="NO"
 # The name of the directory used for storing persistence data:
 PERSISTENCE=${PERSISTENCE:-"persistence"}
 
-# Add a Core OS to load into RAM (currently supported for XFCE, LEAN, DAW):
+# Add a Core OS to load into RAM (value can be 'NO', 'YES' or 'NATIVE'):
 CORE2RAM=${CORE2RAM:-"NO"}
+# The MINLIST module must always be the first in CORE2RAMMODS:
 CORE2RAMMODS="${MINLIST} noxbase"
 
 # Slackware version to use (note: this won't work for Slackware <= 14.1):
@@ -487,6 +488,16 @@ function install_pkgs() {
       #   REP equal to PKG.
       # - If PKG is empty then this is a request to remove the package.
       REP=$(echo $PKGPAT |cut -d% -f1)
+      if [ "$CORE2RAM" != "NO" ] && [ -z "$(echo $CORE2RAMMODS |grep -w $(basename $PKGFILE .lst))" ]; then
+        # If we are adding core2ram modules,
+        # prevent re-installing their packages in another module:
+        PKGC2R="$(for MYLST in ${CORE2RAMMODS}; do grep "^${PKG}$" ${LIVE_TOOLDIR}/pkglists/${MYLST}.lst ; done)"
+        unset MYLST
+        if [ -n "${PKGC2R}" ]; then
+          # Found a package that is listed as a core2ram module:
+          continue
+        fi
+      fi
       # Skip installation on detecting a blacklisted package:
       for BLST in ${BLACKLIST} BLNONE; do
         if [ "$PKG" == "$BLST" ]; then
@@ -732,6 +743,7 @@ function gen_bootmenu() {
     -e "s/@VERSION@/$VERSION/g" \
     -e "s/@KAPPEND@/$KAPPEND/g" \
     -e "s/@C2RMH@/$C2RMH/g" \
+    -e "s/@C2RSH@/$C2RMS/g" \
     > ${MENUROOTDIR}/vesamenu.cfg
 
   for LANCOD in $(cat ${LIVE_TOOLDIR}/languages |grep -Ev "(^ *#|^$)" |cut -d: -f1)
@@ -777,6 +789,7 @@ EOL
       -e "s/@VERSION@/$VERSION/g" \
       -e "s/@KAPPEND@/$KAPPEND/g" \
       -e "s/@C2RMH@/$C2RMH/g" \
+      -e "s/@C2RMS@/$C2RMS/g" \
       > ${MENUROOTDIR}/menu_${LANCOD}.cfg
 
     # Generate custom language selection submenu for selected keyboard:
@@ -837,6 +850,7 @@ function gen_uefimenu() {
     -e "s/@VERSION@/$VERSION/g" \
     -e "s/@KAPPEND@/$KAPPEND/g" \
     -e "s/@C2RMH@/$C2RMH/g" \
+    -e "s/@C2RMS@/$C2RMS/g" \
     > ${GRUBDIR}/grub.cfg
 
   # Set a default keyboard selection:
@@ -1412,20 +1426,17 @@ case "$LIVEDE" in
              ;;
 esac
 
-if [ "${CORE2RAM}" == "YES" ] || [ "${LIVEDE}" == "XFCE" ] || [ "${LIVEDE}" == "LEAN" ] || [ "${LIVEDE}" == "DAW" ] ; then
-  # For now, allow CORE2RAM only for the variants that actually
-  # have the required modules in their system list.
-  # TODO: create these modules separately in the 'core2ram' subdirectory. 
-  for MY_MOD in ${CORE2RAMMODS} ; do
-    if ! echo ${MSEQ} | grep -wq ${MY_MOD} ; then
-      echo ">> Modules required for Core RAM-based OS (${CORE2RAMMODS}) not available."
-      exit 1
-    fi
-  done
-  # Whether to hide the Core OS menu on boot yes or no:
-  C2RMH="#"
+if [ "${MSEQ#pkglist:${CORE2RAMMODS/ /,}}" != "${MSEQ}" ]; then
+  # This live ISO contains core2ram modules out of the box:
+  CORE2RAM="NATIVE"
+fi
+if [ "${CORE2RAM}" != "NO" ]; then
+  # Whether to show the Core OS menu in syslinux/grub on boot yes/no:
+  C2RMH="#"    # syslinux
+  C2RMS=""     # grub
 else
-  C2RMH=""
+  C2RMH=""     # syslinux
+  C2RMS="#"    # grub
 fi
 
 if ! cat ${LIVE_TOOLDIR}/languages |grep -Ev '(^ *#|^$)' |grep -q ^${DEF_LANG}:
@@ -1594,6 +1605,12 @@ RODIRS="${LIVE_BOOT}"
 # Create the verification file for the install_pkgs function:
 echo "${THEDATE} (${BUILDER})" > ${LIVE_BOOT}/${MARKER}
 
+# Do we need to add core2ram:
+if [ "$CORE2RAM" == "YES" ]; then
+  echo "-- Adding core2ram."
+  MSEQ="pkglist:${CORE2RAMMODS/ /,} ${MSEQ}"
+fi
+
 # Do we need to include secureboot module?
 if [ $SECUREBOOT -eq 1 ]; then
   echo "-- Adding secureboot module."
@@ -1633,6 +1650,10 @@ for MSUBSEQ in ${MSEQ} ; do
       local) MNUM="0030" ;;
           *) echo "** Unknown package source '$MTYPE'"; exit 1 ;;
   esac
+  # For an explicitly added core2ram module, re-assign a lower prefix:
+  if [ "$CORE2RAM" == "YES" ] && [ "${SL_SERIES}" == "${CORE2RAMMODS}" ]; then
+    MNUM="0005"
+  fi
 
 for SPS in ${SL_SERIES} ; do
 
@@ -1657,7 +1678,7 @@ for SPS in ${SL_SERIES} ; do
     install_pkgs ${SPS} ${LIVE_ROOTDIR} ${MTYPE}
     umount ${LIVE_ROOTDIR} || true
 
-    if [ "$SPS" = "a" -o "$SPS" = "${MINLIST}" ]; then
+    if [ "$SPS" = "a" -a "$CORE2RAM" = "NO" ] || [ "$SPS" = "${MINLIST}" ]; then
 
       # We need to take care of a few things first:
       if [ "$SL_ARCH" = "x86_64" -o "$SMP32" = "NO" ]; then

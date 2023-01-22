@@ -646,7 +646,12 @@ if [ "$RESCUE" = "" ]; then
     SUBSYS="$1"
 
     # Find all supported modules:
-    for MODULE in $(find_mod /mnt/media/${LIVEMAIN}/${SUBSYS}/) $(find_mod ${SUPERMNT}/${LIVESLAKROOT}/${LIVEMAIN}/${SUBSYS}/) ; do
+    SUBSYSSET="$(find_mod /mnt/media/${LIVEMAIN}/${SUBSYS}/) $(find_mod ${SUPERMNT}/${LIVESLAKROOT}/${LIVEMAIN}/${SUBSYS}/)"
+    if [ "$SUBSYS" = "optional" ]; then
+      # We need to load any core2ram modules first:
+      SUBSYSSET="$(find_mod /mnt/media/${LIVEMAIN}/core2ram/) $(find_mod ${SUPERMNT}/${LIVESLAKROOT}/${LIVEMAIN}/core2ram/ ${SUBSYSSET})"
+    fi
+    for MODULE in ${SUBSYSSET} ; do
       # Strip path and extension from the modulename:
       MODBASE="$(mod_base ${MODULE})"
       if [ "$SUBSYS" = "optional" ]; then
