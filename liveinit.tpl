@@ -1095,7 +1095,7 @@ if [ "$RESCUE" = "" ]; then
 
   # Load a custom keyboard mapping:
   if [ -n "$KEYMAP" ]; then
-    echo "${MARKER}:  Loading '$KEYMAP' keyboard mapping:"
+    echo "${MARKER}:  Loading '$KEYMAP' keyboard mapping."
     tar xzOf /etc/keymaps.tar.gz ${KEYMAP}.bmap | loadkmap
   fi
 
