@@ -856,7 +856,7 @@ function gen_uefimenu() {
   # Set a default keyboard selection:
   cat <<EOL > ${GRUBDIR}/kbd.cfg
 # Keyboard selection:
-set default = $sl_lang
+set default = $sl_kbd
 
 EOL
 
