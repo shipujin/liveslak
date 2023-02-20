@@ -820,7 +820,7 @@ function gen_uefimenu() {
 
   GRUBDIR="$1"
 
-  # Generate the grub menu structure - many files because of the selection tree.
+  # Generate the grub menu structure.
   # I expect the directory to exist... but you never know.
   mkdir -p ${GRUBDIR}
 
@@ -902,6 +902,9 @@ EOL
   done
 
   # Create the timezone selection menu:
+  # Code used from Slackware script:
+  # source/a/glibc-zoneinfo/timezone-scripts/output-updated-timeconfig.sh
+  # Author: Patrick Volkerding <volkerdi@slackware.com>
   TZDIR="/usr/share/zoneinfo"
   TZLIST=$(mktemp -t alientz.XXXXXX)
   if [ ! -f $TZLIST ]; then
@@ -909,35 +912,46 @@ EOL
     cleanup
     exit 1
   fi
-  # First, create a list of timezones:
-  # This code taken from Slackware script:
-  # source/a/glibc-zoneinfo/timezone-scripts/output-updated-timeconfig.sh
-  # Author: Patrick Volkerding <volkerdi@slackware.com>
-  # US/ first:
-  ( cd $TZDIR
-    find . -type f | xargs file | grep "timezone data" | cut -f 1 -d : | cut -f 2- -d / | sort | grep "^US/" | while read zone ; do
-      echo "${zone}" >> $TZLIST
-    done
-  )
-  # Don't list right/ and posix/ zones:
-  ( cd $TZDIR
-    find . -type f | xargs file | grep "timezone data" | cut -f 1 -d : | cut -f 2- -d / | sort | grep -v "^US/" | grep -v "^posix/" | grep -v "^right/" | while read zone ; do
-      echo "${zone}" >> $TZLIST
-    done
-  )
-  for TZ in $(cat $TZLIST); do
-    # Add this entry to the keyboard selection menu:
+
+  # Structured tz select instead of dumping them all in one menu:
+  for TZ in US Africa America Asia Atlantic Australia Etc Europe Pacific; do
+    # First the submenu for this zone:
     cat <<EOL >> ${GRUBDIR}/tz.cfg
-menuentry "${TZ}" {
-  set sl_tz="$TZ"
+submenu "${TZ} >" {
+  configfile \$prefix/${TZ}/tz.cfg
+}
+
+EOL
+    # Then the locations for this zone:
+    mkdir ${GRUBDIR}/${TZ}
+    ( cd $TZDIR/$TZ
+      find . -type f | xargs file | grep "timezone data" | cut -f 1 -d : | cut -f2- -d / | sort | while read LOCN ; do
+        # Add this entry to the keyboard selection menu:
+        cat <<EOL >> ${GRUBDIR}/${TZ}/tz.cfg
+menuentry "${TZ}/${LOCN}" {
+  set sl_tz="${TZ}/${LOCN}"
   export sl_tz
   configfile \$prefix/grub.cfg
 }
 
 EOL
-  rm -f $TZLIST
-
+      done
+    )
   done
+  # Timezone data in rootdirectory follows:
+  ( cd $TZDIR
+    find . -type f -mindepth 1 -maxdepth 1 | xargs file | grep "timezone data" | cut -f 1 -d : | cut -f 2- -d / | sort | while read ZONE ; do
+      # Add this entry to the keyboard selection menu:
+      cat <<EOL >> ${GRUBDIR}/tz.cfg
+menuentry "${ZONE}" {
+  set sl_tz="$ZONE"
+  export sl_tz
+  configfile \$prefix/grub.cfg
+}
+
+EOL
+    done
+  )
 
 } # End of gen_uefimenu()
 
