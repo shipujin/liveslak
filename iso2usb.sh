@@ -723,7 +723,14 @@ if [ $REFRESH -eq 0 ]; then
   else
     FEAT_64BIT="-O ^64bit"
   fi
-  tune2fs -c 0 -i 0 -m 0 ${FEAT_64BIT} ${TARGETP3}
+  # Grub 2.0.6 stumbles over metadata_csum_seed which is enabled by default
+  # since E2fsprogs 1.47.0, so let's disable that too:
+  if ! tune2fs -O ^metadata_csum_seed ${TARGETP3} 1>/dev/null 2>/dev/null ; then
+    FEAT_CSUM=""
+  else
+    FEAT_CSUM="-O ^metadata_csum_seed"
+  fi
+  tune2fs -c 0 -i 0 -m 0 ${FEAT_64BIT} ${FEAT_CSUM} ${TARGETP3}
 else
   # Determine partition names independently of storage architecture:
   TARGETP1=$(fdisk -l $TARGET |grep ^$TARGET |cut -d' ' -f1 |grep -E '[^0-9]1$')
