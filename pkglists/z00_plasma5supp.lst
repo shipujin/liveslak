@@ -115,7 +115,7 @@ qt5
 qt5-webkit
 qtkeychain
 rttr
-ruby
+#ruby
 rxvt
 # xapbase:
 #rxvt-unicode
