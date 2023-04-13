@@ -79,6 +79,7 @@ libksba
 libmnl
 ##libmpc
 libpwquality
+libseccomp
 libtermcap
 libunistring
 libuv
