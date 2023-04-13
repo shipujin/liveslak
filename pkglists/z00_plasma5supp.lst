@@ -78,6 +78,7 @@ libpinyin
 libqalculate
 libraw1394
 libsass
+#libseccomp
 libspectre
 liburing
 libva-utils
