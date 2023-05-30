@@ -195,7 +195,7 @@ for ARG in $(cat /proc/cmdline); do
       # generic syntax: hostname=newname[,qualifier]
       LIVE_HOSTNAME=$(echo $ARG | cut -f2 -d= | cut -f1 -d,)
       # Allow for the user to (mistakenly) add a domain component:
-      if [ $(echo $LIVE_HOSTNAME |cut -d. -f1- --output-delimiter ' '|wc -w) -gt 1 ]; then
+      if [ -n "$(echo "$LIVE_HOSTNAME". |cut -d. -f2-)" ]; then
         LIVE_DOMAIN=$(echo $LIVE_HOSTNAME |cut -d. -f2-)
         LIVE_HOSTNAME=$(echo $LIVE_HOSTNAME |cut -d. -f1)
       fi
