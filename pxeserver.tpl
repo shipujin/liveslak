@@ -756,7 +756,7 @@ set gfxpayload=keep
 
 menuentry 'Boot @CDISTRO@ Linux Live (@LIVEDE@) from network' --class slackware --class gnu-linux --class gnu --class os {
   echo "Loading @CDISTRO@ kernel"
-  linux generic load_ramdisk=1 prompt_ramdisk=0 rw printk.time=0 nfs root=${LOCAL_IPADDR}:/mnt/livemedia luksvol= nop hostname=@DISTRO@ tz=$(cat /etc/timezone) locale=${SYSLANG:-"en_US.UTF-8"} kbd=${KBD:-"us"}
+  linux generic load_ramdisk=1 prompt_ramdisk=0 rw printk.time=0 nfsroot=${LOCAL_IPADDR}:/mnt/livemedia luksvol= nop hostname=@DISTRO@ tz=$(cat /etc/timezone) locale=${SYSLANG:-"en_US.UTF-8"} kbd=${KBD:-"us"}
   initrd initrd.img
   echo "Booting @CDISTRO@ kernel"
 }
