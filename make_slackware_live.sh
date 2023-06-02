@@ -2591,6 +2591,12 @@ if [ -d ${LIVE_ROOTDIR}/usr/lib${DIRSUFFIX}/kf5 ]; then
 
   # Set the OS name to "Slackware Live" in "System Information":
   echo "Name=${DISTRO^} Live" >> ${LIVE_ROOTDIR}/etc/kde/xdg/kcm-about-distrorc
+  # Use os-release's VERSION (default=false means: use VERSION_ID)
+  echo "UseOSReleaseVersion=true" >> ${LIVE_ROOTDIR}/etc/kde/xdg/kcm-about-distrorc
+  if [ "${SL_VERSION}" = "current" ]; then
+    # Some more detail on development release:
+    echo "Variant=Post-stable development (-current)" >> ${LIVE_ROOTDIR}/etc/kde/xdg/kcm-about-distrorc
+  fi
 
   # Set sane SDDM defaults on first boot (root-owned file):
   mkdir -p ${LIVE_ROOTDIR}/var/lib/sddm
