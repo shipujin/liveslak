@@ -818,7 +818,11 @@ Press ENTER to return to the main menu." 14 68
 Ready to start the PXE Server!\n\
 The PXE server log will be displayed in the next screen.
 \n\
-Press ENTER to start." 14 68
+Press ENTER to start or ESCAPE to return to the main menu." 14 68
+      if [ $? -ne 0 ]; then
+        # User did not press ENTER, let's return to main menu:
+        continue
+      fi
     fi
 
     # Time to start the BOOTP/TFTP/NFS servers:
