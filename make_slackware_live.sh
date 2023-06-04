@@ -1621,7 +1621,7 @@ RODIRS="${LIVE_BOOT}"
 # Create the verification file for the install_pkgs function:
 echo "${THEDATE} (${BUILDER})" > ${LIVE_BOOT}/${MARKER}
 
-# Do we need to add core2ram:
+# Do we need to add core2ram modules:
 if [ "$CORE2RAM" == "YES" ]; then
   echo "-- Adding core2ram."
   MSEQ="pkglist:${CORE2RAMMODS/ /,} ${MSEQ}"
