@@ -205,7 +205,8 @@ if [ "$(echo ${SL_VERSION}|cut -d. -f1)" == "14" ]; then
   # Slackware up and until 14.2 has KDE4 which includes the 'kdei' package set:
   SEQ_SLACKWARE="tagfile:a,ap,d,e,f,k,kde,kdei,l,n,t,tcl,x,xap,xfce,y pkglist:slackextra"
 else
-  SEQ_SLACKWARE="tagfile:a,ap,d,e,f,k,kde,l,n,t,tcl,x,xap,xfce,y pkglist:slackextra"
+  # Exclude Emacs to keep the ISO size below DVD size:
+  SEQ_SLACKWARE="tagfile:a,ap,d,f,k,kde,l,n,t,tcl,x,xap,xfce,y pkglist:slackextra"
 fi
 
 # Stripped-down Slackware with XFCE as the Desktop Environment:
@@ -243,6 +244,7 @@ SEQ_STUDW="tagfile:a,ap,d,e,f,k,kde,l,n,t,tcl,x,xap,xfce,y pkglist:slackextra,sl
 # Package blacklists for variants:
 #BLACKLIST_DAW="seamonkey"
 #BLACKLIST_LEAN="seamonkey"
+BLACKLIST_SLACKWARE="calligra calligraplan gcc-gdc gcc-gfortran gcc-gnat gcc-objc krita kstars seamonkey"
 #BLACKLIST_XFCE="gst-plugins-bad-free lynx mc motif mozilla-firefox pidgin xlockmore"
 
 # Potentially we will use package(s) from 'testing' instead of regular repo:
