@@ -2626,6 +2626,18 @@ EOT
 super-user-command=sudo
 KDESU_EOF
 
+  # For the above to work in KDE5 with newer versions of sudo (since 2022),
+  # we need the following also. KDE5 fixed this in git on 04-aug-2023, see
+  # https://bugs.kde.org/show_bug.cgi?id=452532 but it does not hurt to have
+  # it here, and it helps to support older KDE releases:
+  if [ -x ${LIVE_ROOTDIR}/usr/lib*/libexec/kf5/kdesu_stub ]; then
+    mkdir -p ${LIVE_ROOTDIR}/etc/sudoers.d
+    chmod 750 ${LIVE_ROOTDIR}/etc/sudoers.d
+    cat <<KDESU_EOF2 >${LIVE_ROOTDIR}/etc/sudoers.d/kdesu
+Defaults!/usr/lib*/libexec/kf5/kdesu_stub !use_pty
+KDESU_EOF2
+  fi
+
   # Set akonadi backend:
   cat <<AKONADI_EOF >${LIVE_ROOTDIR}/etc/skel/.config/akonadi/akonadiserverrc
 [%General]
