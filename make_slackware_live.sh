@@ -211,7 +211,7 @@ fi
 
 # Stripped-down Slackware with XFCE as the Desktop Environment:
 # - each series will become a squashfs module:
-SEQ_XFCEBASE="${MINLIST},noxbase,x_base,xapbase,xfcebase local:mcpp"
+SEQ_XFCEBASE="pkglist:${MINLIST},noxbase,x_base,xapbase,xfcebase local:mcpp"
 
 # Stripped-down Base Slackware:
 SEQ_LEAN="pkglist:${MINLIST},noxbase,x_base,xapbase,xfcebase,slackpkgplus,z00_plasma5supp,z01_plasma5base,z01_swdev"
@@ -1444,6 +1444,7 @@ esac
 
 if [ "${MSEQ#pkglist:${CORE2RAMMODS/ /,}}" != "${MSEQ}" ]; then
   # This live ISO contains core2ram modules out of the box:
+  echo "-- Native core2ram."
   CORE2RAM="NATIVE"
 fi
 if [ "${CORE2RAM}" != "NO" ]; then
