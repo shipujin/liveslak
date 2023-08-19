@@ -191,6 +191,12 @@ cat <<EOT
 #   -v|--verbose               Show verbose messages.
 #   -w|--wait<number>          Add <number> seconds wait time to initialize USB.
 #
+# Note that if you upgrade the kernel and modules using $(basename $0),
+# this will apply only to the USB boot kernel and its initrd!
+# Before running $(basename $0) to upgrade the kernel & modules,
+# you first need to upgrade the kernel-generic and kernel-modules packages
+# in the Live OS using installpkg/upgradepkg or slackpkg.
+#
 EOT
 } # End of showhelp()
 
