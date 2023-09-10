@@ -2787,6 +2787,11 @@ cat <<EOT >${LIVE_ROOTDIR}/usr/share/fontconfig/conf.avail/99-noto-mono-color-em
 </fontconfig>
 EOT
 
+  if [ "$LIVEDE" = "DAW" ] || [ "$LIVEDE" = "LEAN" ]; then
+    # These lean installations do not support Wayland graphical sessions:
+    rm -rf ${LIVE_ROOTDIR}/usr/share/wayland-sessions
+  fi
+
 fi # End Plasma5
 
 if [ "$LIVEDE" = "DLACK" ]; then
