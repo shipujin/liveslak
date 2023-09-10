@@ -1269,6 +1269,18 @@ FillMode=2
 Image=file:///usr/share/${LIVEMAIN}/${LIVEDE,,}/background.jpg
 EOT
 
+# Is a dark theme requested to match the background atmosphere?
+if [ -f ${LIVE_TOOLDIR}/media/${LIVEDE,,}/bg/theme ]; then
+  if [ "$(grep -v '^#' ${LIVE_TOOLDIR}/media/${LIVEDE,,}/bg/theme)" == "dark" ]
+  then
+    mkdir -p ${LIVE_ROOTDIR}/home/${LIVEUID}/.config
+    cat <<EOT > ${LIVE_ROOTDIR}/home/${LIVEUID}/.config/plasmarc
+[Theme]
+name=breeze-dark
+EOT
+  fi
+fi
+
 } # End of plasma5_custom_bg()
 
 # ---------------------------------------------------------------------------
