@@ -1463,7 +1463,7 @@ if [ "$RESCUE" = "" ]; then
 
         # Let Slackware mount the unlocked container:
         luksfs=$(blkid /dev/mapper/$luksnam |rev |cut -d'"' -f2 |rev)
-        if ! grep -q /dev/mapper/$luksnam /mnt/overlay/etc/fstab ; then
+        if ! grep -q "^/dev/mapper/$luksnam" /mnt/overlay/etc/fstab ; then
           echo "/dev/mapper/$luksnam  $luksmnt  $luksfs  defaults  1  1" >> /mnt/overlay/etc/fstab
         fi
         # On shutdown, ensure that the container gets locked again:
@@ -1807,7 +1807,7 @@ EOT
   done
   if [ $RUN_DEPMOD -eq 1 ]; then
     # This costs a few seconds in additional boot-up time unfortunately:
-    echo "${MARKER}: Additional kernel module(s) found... need a bit"
+    echo "${MARKER}:  Additional kernel module(s) found... need a bit"
     chroot /mnt/overlay /sbin/depmod -a
   fi
   unset RUN_DEPMOD
@@ -1859,8 +1859,8 @@ fi
 /sbin/udevadm control --exit
 
 unset ERR
-umount /proc
-umount /sys
+umount /proc 2>/dev/null
+umount /sys 2>/dev/null
 umount /run 2>/dev/null
 
 echo "${MARKER}:  Slackware Live system is ready."
