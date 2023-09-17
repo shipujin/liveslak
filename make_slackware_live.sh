@@ -3410,6 +3410,12 @@ tar -C ${LIVE_ROOTDIR}/boot/initrd-tree/ -xf ${DHCPD_PKG} \
   var/lib/dhcpcd lib/dhcpcd sbin/dhcpcd usr/lib${DIRSUFFIX}/dhcpcd \
   etc/dhcpcd.conf.new
 mv ${LIVE_ROOTDIR}/boot/initrd-tree/etc/dhcpcd.conf{.new,}
+# Create the dhcpcd account because we added the package to the initrd:
+if ! grep -q dhcpcd ${LIVE_ROOTDIR}/boot/initrd-tree/etc/passwd; then
+  echo "dhcpcd:x:68:68:User for dhcpcd:/var/lib/dhcpcd:/bin/false" >> ${LIVE_ROOTDIR}/boot/initrd-tree/etc/passwd
+  echo "dhcpcd:x:68:" >> ${LIVE_ROOTDIR}/boot/initrd-tree/etc/group
+fi
+
 # Add getfattr to read extended attributes (even if we won't need it):
 ATTR_PKG=$(find ${DEF_SL_PKGROOT}/../ -name "attr-*.t?z" |head -1)
 tar --wildcards -C ${LIVE_ROOTDIR}/boot/initrd-tree/ -xf ${ATTR_PKG} \
