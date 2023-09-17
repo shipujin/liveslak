@@ -1805,6 +1805,7 @@ sed -e "s/^\(127.0.0.1\t*\)darkstar.*/\1${LIVE_HOSTNAME}.home.arpa ${LIVE_HOSTNA
 cat <<EOT >> ${LIVE_ROOTDIR}/etc/resolv.conf
 nameserver 8.8.4.4
 nameserver 8.8.8.8
+nameserver 1.1.1.1
 
 EOT
 
