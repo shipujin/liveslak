@@ -1820,11 +1820,14 @@ EOT
   # In case of network boot, do not kill the network, umount NFS prematurely
   #  or stop udevd on shutdown:
   if [ -n "$NFSHOST" ]; then
-    sed -i /mnt/overlay/etc/rc.d/rc.0 \
-      -e "/on \/ type nfs/s%grep -q 'on / type nfs'%egrep -q 'on / type (nfs|tmpfs)'%" \
-      -e '/umount.*nfs/s/nfs,//' \
-      -e 's/rc.udev force-stop/rc.udev stop/' \
-      -e 's/$(pgrep mdmon)/& $(pgrep udevd)/'
+    for RUNLVL in 0 6 ; do 
+      sed -i /mnt/overlay/etc/rc.d/rc.${RUNLVL} \
+        -e "/on \/ type nfs/s%grep -q 'on / type nfs'%egrep -q 'on / type (nfs|tmpfs)'%" \
+        -e "s%'on / type nfs4'%& -e 'on / type overlay'%" \
+        -e '/umount.*nfs/s/nfs,//' \
+        -e 's/rc.udev force-stop/rc.udev stop/' \
+        -e 's/$(pgrep mdmon)/& $(pgrep udevd)/'
+    done
   fi
 
   # Copy contents of rootcopy directory (may be empty) to overlay:
