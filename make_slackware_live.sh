@@ -3504,7 +3504,7 @@ if [ "$SL_ARCH" = "x86_64" -o "$EFI32" = "YES" ]; then
 
   # Create the grub fonts used in the theme.
   # Command outputs string like this: "Font name: DejaVu Sans Mono Regular 5".
-  for FSIZE in 5 10 12 20 ; do
+  for FSIZE in 5 10 12 20 24 ; do
     grub-mkfont -s ${FSIZE} -av \
       -o ${LIVE_STAGING}/EFI/BOOT/theme/dejavusansmono${FSIZE}.pf2 \
       /usr/share/fonts/TTF/DejaVuSansMono.ttf \
