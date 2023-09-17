@@ -2173,6 +2173,7 @@ cat ${LIVE_TOOLDIR}/pxeserver.tpl | sed \
   -e "s/@LIVEDE@/$LIVEDE/g" \
   -e "s/@LIVEMAIN@/$LIVEMAIN/g" \
   -e "s/@MARKER@/$MARKER/g" \
+  -e "s/@KAPPEND@/$KAPPEND/g" \
   -e "s/@SL_VERSION@/$SL_VERSION/g" \
   -e "s/@VERSION@/$VERSION/g" \
   > ${LIVE_ROOTDIR}/usr/local/sbin/pxeserver
