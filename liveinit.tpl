@@ -481,6 +481,8 @@ if [ "$RESCUE" = "" ]; then
       echo "/run/dhcpcd-${MYDEV}.pid"
     elif [ -s /run/dhcpcd-${MYDEV}-4.pid ]; then
       echo "/run/dhcpcd-${MYDEV}-4.pid"
+    elif [ -s /run/${MYDEV}.pid ]; then
+      echo "/run/${MYDEV}.pid"
     else
       echo UNKNOWNLOC
     fi
@@ -1653,7 +1655,7 @@ EOPW
         mkdir -p /mnt/overlay/run/dhcpcd
         mount --bind /run/dhcpcd /mnt/overlay/run/dhcpcd
       fi
-      cp -a /run/dhcpcd* /mnt/overlay/run/
+      cp -a /run/dhcpcd* /run/${INTERFACE}.pid /mnt/overlay/run/
       cat /etc/resolv.conf > /mnt/overlay/etc/resolv.conf
 
       # Disable NetworkManager:
