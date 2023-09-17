@@ -1566,6 +1566,11 @@ else
   TRIM=${TRIM:-"none"}
 fi
 
+# Determine additional boot parameters to be added:
+if [ -z ${KAPPEND} ]; then
+  eval KAPPEND=\$KAPPEND_${LIVEDE}
+fi
+
 # Determine possible blacklist to use:
 if [ -z "${BLACKLIST}" ]; then
   eval BLACKLIST=\$BLACKLIST_${LIVEDE}
@@ -3466,11 +3471,6 @@ mv ${LIVE_BOOT}/boot/initrd_${KVER}.img ${LIVE_STAGING}/boot/initrd.img
 
 # Squash the boot directory into its own module:
 mksquashfs ${LIVE_BOOT} ${LIVE_MOD_SYS}/0000-${DISTRO}_boot-${SL_VERSION}-${SL_ARCH}.sxz -noappend -comp ${SQ_COMP} ${SQ_COMP_PARAMS}
-
-# Determine additional boot parameters to be added:
-if [ -z ${KAPPEND} ]; then
-  eval KAPPEND=\$KAPPEND_${LIVEDE}
-fi
 
 # Copy the syslinux configuration.
 # The next block checks here for a possible UEFI grub boot image:
