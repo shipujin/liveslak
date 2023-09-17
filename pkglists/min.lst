@@ -148,6 +148,7 @@ sysvinit
 sysvinit-scripts
 tar
 terminus-font
+tmux
 traceroute
 usbutils
 userspace-rcu
