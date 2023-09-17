@@ -3218,6 +3218,10 @@ touch ${LIVE_ROOTDIR}/etc/fastboot
 # We will not write to the hardware clock:
 sed -i -e '/systohc/s/^/# /' ${LIVE_ROOTDIR}/etc/rc.d/rc.6
 
+# Don't try to re-mount our squashfs and overlay filesystems:
+sed -e 's/^ *SKIPFS="no/&squashfs,nooverlay,no/' \
+  -i ${LIVE_ROOTDIR}/etc/rc.d/rc.S
+
 # Run some package setup scripts (usually run by the slackware installer),
 # as well as some of the delaying commands in rc.M and rc.modules:
 
