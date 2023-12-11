@@ -33,8 +33,8 @@ eval $2  # EFISUFF=value2
 eval $2  # EFIDIR=value3
 
 # Defaults in case the script was called without parameters:
-EFIFORM=${EFIFORM:-"x86_64"}
-EFISUFF=${EFISUFF:-"x64"}
+EFIFORM=${EFIFORM:-"loongarch64"}
+EFISUFF=${EFISUFF:-"loongarch64"}
 EFIDIR=${EFIDIR:-"/EFI/BOOT"}
 
 # Fix the path in grub-ebedded.cfg if needed:
@@ -48,7 +48,7 @@ echo "Building ${EFIDIR}/boot${EFISUFF}.efi and /boot/syslinux/efiboot.img."
 GMODDIR="$(dirname $(LANG=C grub-mkimage -O ${EFIFORM}-efi -p ${EFIDIR} alienbob 2>&1 | cut -d\` -f2 |cut -d\' -f1) )"
 GMODLIST=""
 # 'shim_lock' is built into grub, not a module anymore:
-for GMOD in part_gpt part_msdos fat btrfs ext2 f2fs jfs xfs iso9660 ntfs chain linux boot configfile normal regexp extcmd minicmd reboot halt search search_fs_file search_fs_uuid search_label gfxterm gfxmenu gfxterm_menu gfxterm_background efi_gop efi_uga all_video loadbios gzio echo true probe loadenv bitmap_scale font cat help ls png jpeg tga test at_keyboard usb_keyboard disk memdisk nativedisk file loopback tar tftp net efinet efifwsetup zstd ; do
+for GMOD in part_gpt part_msdos fat btrfs ext2 f2fs jfs xfs iso9660 ntfs chain linux boot configfile normal regexp extcmd minicmd reboot halt search search_fs_file search_fs_uuid search_label gfxterm gfxmenu gfxterm_menu gfxterm_background efi_gop all_video gzio echo true probe loadenv bitmap_scale font cat help ls png jpeg tga test disk memdisk file loopback tar tftp net efinet efifwsetup zstd ; do
   [ -f ${GMODDIR}/${GMOD}.mod ] && GMODLIST="${GMODLIST} ${GMOD}" || echo ">> ${GMOD} not found"
 done
 
@@ -57,7 +57,7 @@ grub-mkimage --format=${EFIFORM}-efi --output=boot${EFISUFF}.efi --config=grub-e
 
 # Then, create a FAT formatted image that contains bootx64.efi in the
 # ${EFIDIR} directory.  This is used to bootstrap GRUB from the ISO image.
-dd if=/dev/zero of=efiboot.img bs=1K count=1440
+dd if=/dev/zero of=efiboot.img bs=1K count=2048
 # Format the image as FAT12:
 mkdosfs -F 12 efiboot.img
 # Create a temporary mount point:
@@ -71,6 +71,8 @@ cp -a boot${EFISUFF}.efi $MOUNTPOINT/${EFIDIR}
 umount $MOUNTPOINT
 rmdir $MOUNTPOINT
 # Move the efiboot.img to ../../boot/syslinux:
+#mv efiboot.img ../../boot/syslinux/
+mkdir ../../boot/syslinux/
 mv efiboot.img ../../boot/syslinux/
 
 echo

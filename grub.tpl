@@ -49,7 +49,7 @@ if loadfont $prefix/theme/dejavusansmono12.pf2 ; then
 fi
 
 menuentry "Start @CDISTRO@@DIRSUFFIX@ @SL_VERSION@ @LIVEDE@ liveslak-@VERSION@ ($sl_lang)" --hotkey b {
-  linux ($root)/boot/generic @KAPPEND@ load_ramdisk=1 prompt_ramdisk=0 rw printk.time=0 kbd=$sl_kbd tz=$sl_tz locale=$sl_locale xkb=$sl_xkb
+  linux ($root)/boot/generic @KAPPEND@ load_ramdisk=1 prompt_ramdisk=0 rw printk.time=0 kbd=$sl_kbd tz=$sl_tz locale=$sl_locale xkb=$sl_xkb quiet
   initrd ($root)/boot/initrd.img
 }
 

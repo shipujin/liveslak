@@ -97,7 +97,7 @@ NFSROOTSUP=${NFSROOTSUP:-"YES"}
 REFRESH=""
 
 # Use xorriso instead of mkisofs/isohybrid to create the ISO:
-USEXORR=${USEXORR:-"NO"}
+USEXORR=${USEXORR:-"YES"}
 
 #
 # ---------------------------------------------------------------------------
@@ -138,7 +138,7 @@ LIVE_HOSTNAME=${LIVE_HOSTNAME:-"darkstar"}
 RUNLEVEL=${RUNLEVEL:-4}
 
 # Use the graphical syslinux menu (YES or NO)?
-SYSMENU=${SYSMENU:-"YES"}
+SYSMENU=${SYSMENU:-"NO"}
 
 # The amount of seconds we want the init script to wait to give the kernel's
 # USB subsystem time to settle. The default value of mkinitrd is "1" which
@@ -185,10 +185,10 @@ CORE2RAM=${CORE2RAM:-"NO"}
 CORE2RAMMODS="${MINLIST} noxbase"
 
 # Slackware version to use (note: this won't work for Slackware <= 14.1):
-SL_VERSION=${SL_VERSION:-"current"}
+SL_VERSION=${SL_VERSION:-"1.0"}
 
 # Slackware architecture to install:
-SL_ARCH=${SL_ARCH:-"x86_64"}
+SL_ARCH=${SL_ARCH:-"loongarch64"}
 
 # Root directory of a Slackware local mirror tree;
 # You can define custom repository location (must be in local filesystem)
@@ -197,7 +197,9 @@ SL_REPO=${SL_REPO:-"/var/cache/liveslak/Slackware"}
 DEF_SL_REPO=${SL_REPO}
 
 # The rsync URI of our default Slackware mirror server:
-SL_REPO_URL=${SL_REPO_URL:-"rsync.osuosl.org::slackware"}
+#SL_REPO_URL=${SL_REPO_URL:-"rsync.osuosl.org::slackware"}
+#SL_REPO_URL=${SL_REPO_URL:-"rsync://mirrors.nju.edu.cn/slackwareloong/slackwareloong64-release"}
+SL_REPO_URL=${SL_REPO_URL:-"rsync://slackware.uk/slackwareloong/slackwareloong64-release"}
 DEF_SL_REPO_URL=${SL_REPO_URL}
 
 # List of Slackware package series - each will become a squashfs module:
@@ -206,7 +208,8 @@ if [ "$(echo ${SL_VERSION}|cut -d. -f1)" == "14" ]; then
   SEQ_SLACKWARE="tagfile:a,ap,d,e,f,k,kde,kdei,l,n,t,tcl,x,xap,xfce,y pkglist:slackextra"
 else
   # Exclude Emacs to keep the ISO size below DVD size:
-  SEQ_SLACKWARE="tagfile:a,ap,d,f,k,kde,l,n,t,tcl,x,xap,xfce,y pkglist:slackextra"
+  #SEQ_SLACKWARE="tagfile:a,ap,d,k,kde,l,n,t,tcl,x,xap,xfce,y "
+  SEQ_SLACKWARE="tagfile:a,ap,d,k,kde,l,n,t,tcl,x,xap,xfce,y pkglist:slackbuilds"
 fi
 
 # Stripped-down Slackware with XFCE as the Desktop Environment:
@@ -450,7 +453,8 @@ function install_pkgs() {
       # so we are dealing with an actual Slackware repository rootdir.
       # We select only the requested release in the Slackware package mirror;
       # This must *not* end with a '/' :
-      SELECTION="${DISTRO}${DIRSUFFIX}-${SL_VERSION}"
+      #SELECTION="${DISTRO}${DIRSUFFIX}-${SL_VERSION}"
+      SELECTION="slackwareloong64-${SL_VERSION}"
     else
       SELECTION=""
     fi
@@ -463,6 +467,10 @@ function install_pkgs() {
         # Must be a rsync URL!
         echo "-- Rsync-ing repository content from '${SL_REPO_URL}' to local directory '${SL_REPO}'..."
         echo "-- This can be time-consuming.  Please wait."
+	echo "====================================="
+	echo "SL_REPO_URL= $SL_REPO_URL"
+	echo "SELECTION= $SELECTION"
+	echo "====================================="
         rsync -rlptD --no-motd --exclude=source ${RSYNCREP} ${SL_REPO_URL}/${SELECTION} ${SL_REPO}/
         RRES=$?
         echo "-- Done rsync-ing from '${SL_REPO_URL}'."
@@ -515,9 +523,9 @@ function install_pkgs() {
         fi
       done
       # Install a SMP kernel/modules if requested:
-      if [ "${PKG}" = "kernel-generic" ] && [ "$SL_ARCH" != "x86_64" -a "$SMP32" = "YES" ]; then
+      if [ "${PKG}" = "kernel-generic" ] && [ "$SL_ARCH" != "loongarch64" -a "$SMP32" = "YES" ]; then
         PKG="kernel-generic-smp"
-      elif [ "${PKG}" = "kernel-modules" ] && [ "$SL_ARCH" != "x86_64" -a "$SMP32" = "YES" ]; then
+      elif [ "${PKG}" = "kernel-modules" ] && [ "$SL_ARCH" != "loongarch64" -a "$SMP32" = "YES" ]; then
         PKG="kernel-modules-smp"
       fi
       # Now decide what to do:
@@ -806,7 +814,7 @@ EOL
       fi
       cat <<EOL >> ${MENUROOTDIR}/lang_${LANCOD}.cfg
   kernel /boot/generic
-  append initrd=/boot/initrd.img $KAPPEND load_ramdisk=1 prompt_ramdisk=0 rw printk.time=0 kbd=$KBD tz=$(cat ${LIVE_TOOLDIR}/languages |grep "^$SUBCOD:" |cut -d: -f4) locale=$(cat ${LIVE_TOOLDIR}/languages |grep "^$SUBCOD:" |cut -d: -f5) xkb=$(cat ${LIVE_TOOLDIR}/languages |grep "^$SUBCOD:" |cut -d: -f6)
+  append initrd=/boot/initrd.img $KAPPEND load_ramdisk=1 prompt_ramdisk=0 rw printk.time=0 kbd=$KBD tz=$(cat ${LIVE_TOOLDIR}/languages |grep "^$SUBCOD:" |cut -d: -f4) locale=$(cat ${LIVE_TOOLDIR}/languages |grep "^$SUBCOD:" |cut -d: -f5) xkb=$(cat ${LIVE_TOOLDIR}/languages |grep "^$SUBCOD:" |cut -d: -f6) 
 
 EOL
     done
@@ -1107,7 +1115,7 @@ function create_iso() {
 
   # Time to determine the output filename, now that we know all the variables
   # and ensured that the OUTPUT directory exists:
-  OUTFILE=${OUTFILE:-"${OUTPUT}/${DISTRO}${DIRSUFFIX}-live${ISOTAG}-${SL_VERSION}.iso"}
+  OUTFILE=${OUTFILE:-"${OUTPUT}/slackwareloong${DIRSUFFIX}-live${ISOTAG}-${SL_VERSION}.iso"}
   if [ "$USEXORR" = "NO" ]; then
     mkisofs -o "${OUTFILE}" \
       -V "${MEDIALABEL}" \
@@ -1140,15 +1148,14 @@ function create_iso() {
       -V "${MEDIALABEL}" \
       -J -joliet-long -r \
       -hide-rr-moved \
-      -v -d -N \
-      -b boot/syslinux/isolinux.bin \
-      -c boot/syslinux/isolinux.boot \
-      -boot-load-size ${BOOTLOADSIZE} -boot-info-table -no-emul-boot \
-      ${UEFI_OPTS} \
-      -isohybrid-mbr /usr/share/syslinux/isohdpfx.bin \
+      -v -d -N -no-emul-boot -boot-load-size 4 -boot-info-table \
+      -iso-level 3 \
+      -full-iso9660-filenames \
+      -eltorito-alt-boot \
+      -e boot/syslinux/efiboot.img \
       -isohybrid-gpt-basdat \
       -preparer "$(echo $LIVEDE |sed 's/BASE//') Live built by ${BUILDER}" \
-      -publisher "The Slackware Linux Project - http://www.slackware.com/" \
+      -publisher "The Slackwareloong Linux Project - http://www.slackwarecn.cn" \
       -A "${DISTRO^}-${SL_VERSION} for ${SL_ARCH} ($(echo $LIVEDE |sed 's/BASE//') Live $VERSION)" \
       -x ./$(basename ${LIVE_WORK}) \
       -x ./${LIVEMAIN}/bootinst \
@@ -1492,6 +1499,10 @@ if [ "$SL_ARCH" = "x86_64" ]; then
   DIRSUFFIX="64"
   EFIFORM="x86_64"
   EFISUFF="x64"
+elif [ "$SL_ARCH" = "loongarch64" ]; then
+  DIRSUFFIX="64"
+  EFIFORM="loongarch64"
+  EFISUFF="loongarch64"
 else
   DIRSUFFIX=""
   EFIFORM="i386"
@@ -1499,7 +1510,7 @@ else
 fi
 
 # Package root directory, arch dependent:
-SL_PKGROOT=${SL_REPO}/${DISTRO}${DIRSUFFIX}-${SL_VERSION}/${DISTRO}${DIRSUFFIX}
+SL_PKGROOT=${SL_REPO}/slackwareloong${DIRSUFFIX}-${SL_VERSION}/${DISTRO}${DIRSUFFIX}
 DEF_SL_PKGROOT=${SL_PKGROOT}
 
 # Patches root directory, arch dependent:
@@ -1507,9 +1518,9 @@ SL_PATCHROOT=${SL_REPO}/${DISTRO}${DIRSUFFIX}-${SL_VERSION}/patches/packages
 DEF_SL_PATCHROOT=${SL_PATCHROOT}
 
 # Are all the required add-on tools present?
-[ "$USEXORR" = "NO" ] && ISOGEN="mkisofs isohybrid" || ISOGEN="xorriso"
+[ "$USEXORR" = "NO" ] && ISOGEN=" " || ISOGEN="xorriso"
 PROG_MISSING=""
-REQTOOLS="mksquashfs unsquashfs grub-mkfont grub-mkimage syslinux $ISOGEN installpkg upgradepkg keytab-lilo rsync wget mkdosfs"
+REQTOOLS="mksquashfs unsquashfs grub-mkfont grub-mkimage $ISOGEN installpkg upgradepkg rsync wget mkdosfs"
 if [ $SECUREBOOT -eq 1 ]; then
    REQTOOLS="${REQTOOLS} openssl sbsign"
 fi
@@ -1707,7 +1718,7 @@ for SPS in ${SL_SERIES} ; do
 
     echo "-- Installing the '${SPS}' series."
     umount ${LIVE_ROOTDIR} 2>${DBGOUT} || true
-    mount -t overlay -o lowerdir=${RODIRS},upperdir=${INSTDIR},workdir=${LIVE_OVLDIR} overlay ${LIVE_ROOTDIR}
+    mount -t overlay -o index=off -o lowerdir=${RODIRS},upperdir=${INSTDIR},workdir=${LIVE_OVLDIR} overlay ${LIVE_ROOTDIR}
 
     # Install the package series:
     install_pkgs ${SPS} ${LIVE_ROOTDIR} ${MTYPE}
@@ -1717,6 +1728,9 @@ for SPS in ${SL_SERIES} ; do
 
       # We need to take care of a few things first:
       if [ "$SL_ARCH" = "x86_64" -o "$SMP32" = "NO" ]; then
+        KGEN=$(ls --indicator-style=none ${INSTDIR}/var/log/packages/kernel*modules* |grep -v smp |head -1 |rev | cut -d- -f3 |tr _ - |rev)
+        KVER=$(ls --indicator-style=none ${INSTDIR}/lib/modules/ |grep -v smp |head -1)
+      elif [ "$SL_ARCH" = "loongarch64" -o "$SMP32" = "NO" ]; then
         KGEN=$(ls --indicator-style=none ${INSTDIR}/var/log/packages/kernel*modules* |grep -v smp |head -1 |rev | cut -d- -f3 |tr _ - |rev)
         KVER=$(ls --indicator-style=none ${INSTDIR}/lib/modules/ |grep -v smp |head -1)
       else
@@ -1785,6 +1799,9 @@ mount -t overlay -o lowerdir=${RODIRS},upperdir=${INSTDIR},workdir=${LIVE_OVLDIR
 
 # Determine the kernel version in the Live OS:
 if [ "$SL_ARCH" = "x86_64" -o "$SMP32" = "NO" ]; then
+  KGEN=$(ls --indicator-style=none ${LIVE_ROOTDIR}/var/log/packages/kernel*modules* |grep -v smp |head -1 |rev | cut -d- -f3 |tr _ - |rev)
+  KVER=$(ls --indicator-style=none ${LIVE_ROOTDIR}/lib/modules/ |grep -v smp |head -1)
+elif [ "$SL_ARCH" = "loongarch64" -o "$SMP32" = "NO" ]; then
   KGEN=$(ls --indicator-style=none ${LIVE_ROOTDIR}/var/log/packages/kernel*modules* |grep -v smp |head -1 |rev | cut -d- -f3 |tr _ - |rev)
   KVER=$(ls --indicator-style=none ${LIVE_ROOTDIR}/lib/modules/ |grep -v smp |head -1)
 else
@@ -2102,212 +2119,212 @@ EOT
 # If we added slackpkg+ for easier system management, let's configure it too.
 # Update the cache for slackpkg:
 echo "-- Creating slackpkg cache, takes a few seconds..."
-chroot "${LIVE_ROOTDIR}" /bin/bash <<EOSL 2>${DBGOUT}
-
-# Rebuild SSL certificate database to prevent GPG verification errors
-# which are in fact triggered by SSL certificate errors:
-/usr/sbin/update-ca-certificates --fresh 1>/dev/null
-
-if [ -f var/log/packages/slackpkg+-* ] ; then
-  cat <<EOPL > etc/slackpkg/slackpkgplus.conf
-SLACKPKGPLUS=on
-VERBOSE=1
-ALLOW32BIT=off
-USEBL=1
-WGETOPTS="--timeout=20 --tries=2"
-GREYLIST=on
-PKGS_PRIORITY=( restricted alienbob ktown mate )
-REPOPLUS=( slackpkgplus restricted alienbob ktown mate )
-MIRRORPLUS['slackpkgplus']=https://slackware.nl/slackpkgplus/
-MIRRORPLUS['restricted']=http://slackware.nl/people/alien/restricted_sbrepos/${SL_VERSION}/${SL_ARCH}/
-MIRRORPLUS['alienbob']=http://slackware.nl/people/alien/sbrepos/${SL_VERSION}/${SL_ARCH}/
-MIRRORPLUS['mate']=http://slackware.uk/msb/${SL_VERSION}/latest/${SL_ARCH}/ 
-#MIRRORPLUS['studioware']=http://slackware.uk/studioware/${SL_VERSION}/ 
-EOPL
-  # Use the appropriate ktown variant:
-  eval $( grep "^ *VARIANT=" ${LIVE_TOOLDIR}/pkglists/ktown.conf)
-  if [ "$VARIANT" = "testing" ]; then
-    cat <<EOPL >> etc/slackpkg/slackpkgplus.conf
-#MIRRORPLUS['ktown']=http://slackware.nl/alien-kde/${SL_VERSION}/latest/${SL_ARCH}/
-MIRRORPLUS['ktown']=http://slackware.nl/alien-kde/${SL_VERSION}/testing/${SL_ARCH}/
-EOPL
-  else
-    cat <<EOPL >> etc/slackpkg/slackpkgplus.conf
+#chroot "${LIVE_ROOTDIR}" /bin/bash <<EOSL 2>${DBGOUT}
+#
+## Rebuild SSL certificate database to prevent GPG verification errors
+## which are in fact triggered by SSL certificate errors:
+#/usr/sbin/update-ca-certificates --fresh 1>/dev/null
+#
+#if [ -f var/log/packages/slackpkg+-* ] ; then
+#  cat <<EOPL > etc/slackpkg/slackpkgplus.conf
+#SLACKPKGPLUS=on
+#VERBOSE=1
+#ALLOW32BIT=off
+#USEBL=1
+#WGETOPTS="--timeout=20 --tries=2"
+#GREYLIST=on
+#PKGS_PRIORITY=( restricted alienbob ktown mate )
+#REPOPLUS=( slackpkgplus restricted alienbob ktown mate )
+#MIRRORPLUS['slackpkgplus']=https://slackware.nl/slackpkgplus/
+#MIRRORPLUS['restricted']=http://slackware.nl/people/alien/restricted_sbrepos/${SL_VERSION}/${SL_ARCH}/
+#MIRRORPLUS['alienbob']=http://slackware.nl/people/alien/sbrepos/${SL_VERSION}/${SL_ARCH}/
+#MIRRORPLUS['mate']=http://slackware.uk/msb/${SL_VERSION}/latest/${SL_ARCH}/ 
+##MIRRORPLUS['studioware']=http://slackware.uk/studioware/${SL_VERSION}/ 
+#EOPL
+#  # Use the appropriate ktown variant:
+#  eval $( grep "^ *VARIANT=" ${LIVE_TOOLDIR}/pkglists/ktown.conf)
+#  if [ "$VARIANT" = "testing" ]; then
+#    cat <<EOPL >> etc/slackpkg/slackpkgplus.conf
+##MIRRORPLUS['ktown']=http://slackware.nl/alien-kde/${SL_VERSION}/latest/${SL_ARCH}/
 #MIRRORPLUS['ktown']=http://slackware.nl/alien-kde/${SL_VERSION}/testing/${SL_ARCH}/
-MIRRORPLUS['ktown']=http://slackware.nl/alien-kde/${SL_VERSION}/latest/${SL_ARCH}/
-EOPL
-  fi
-fi
-
-# Slackpkg wants you to opt-in on slackware-current:
-if [ "${SL_VERSION}" = "current" ]; then
-  mkdir -p /var/lib/slackpkg
-  touch /var/lib/slackpkg/current
-fi
-
-ARCH=${SL_ARCH} /usr/sbin/slackpkg -batch=on -default_answer=y update gpg
-ARCH=${SL_ARCH} /usr/sbin/slackpkg -batch=on -default_answer=y update
-# Let any lingering .new files replace their originals:
-yes o | ARCH=${SL_ARCH} /usr/sbin/slackpkg new-config
-
-EOSL
+#EOPL
+#  else
+#    cat <<EOPL >> etc/slackpkg/slackpkgplus.conf
+##MIRRORPLUS['ktown']=http://slackware.nl/alien-kde/${SL_VERSION}/testing/${SL_ARCH}/
+#MIRRORPLUS['ktown']=http://slackware.nl/alien-kde/${SL_VERSION}/latest/${SL_ARCH}/
+#EOPL
+#  fi
+#fi
+#
+## Slackpkg wants you to opt-in on slackware-current:
+#if [ "${SL_VERSION}" = "current" ]; then
+#  mkdir -p /var/lib/slackpkg
+#  touch /var/lib/slackpkg/current
+#fi
+#
+#ARCH=${SL_ARCH} /usr/sbin/slackpkg -batch=on -default_answer=y update gpg
+#ARCH=${SL_ARCH} /usr/sbin/slackpkg -batch=on -default_answer=y update
+## Let any lingering .new files replace their originals:
+#yes o | ARCH=${SL_ARCH} /usr/sbin/slackpkg new-config
+#
+#EOSL
 
 # Add our scripts to the Live OS:
 mkdir -p  ${LIVE_ROOTDIR}/usr/local/sbin
 install -m0755 ${LIVE_TOOLDIR}/makemod ${LIVE_TOOLDIR}/iso2usb.sh ${LIVE_TOOLDIR}/isocomp.sh ${LIVE_TOOLDIR}/upslak.sh ${LIVE_ROOTDIR}/usr/local/sbin/
 
-# Add PXE Server infrastructure:
-mkdir -p ${LIVE_ROOTDIR}/var/lib/tftpboot/pxelinux.cfg
-cp -ia /usr/share/syslinux/pxelinux.0 ${LIVE_ROOTDIR}/var/lib/tftpboot/
-ln -s /mnt/livemedia/boot/generic ${LIVE_ROOTDIR}/var/lib/tftpboot/
-ln -s /mnt/livemedia/boot/initrd.img ${LIVE_ROOTDIR}/var/lib/tftpboot/
-mkdir -p ${LIVE_ROOTDIR}/var/lib/tftpboot/EFI/BOOT
-ln -s /mnt/livemedia/EFI/BOOT ${LIVE_ROOTDIR}/var/lib/tftpboot/uefi
-ln -s /mnt/livemedia/EFI/BOOT/bootx64.efi ${LIVE_ROOTDIR}/var/lib/tftpboot/EFI/BOOT/
-cat ${LIVE_TOOLDIR}/pxeserver.tpl | sed \
-  -e "s/@DIRSUFFIX@/$DIRSUFFIX/g" \
-  -e "s/@DISTRO@/$DISTRO/g" \
-  -e "s/@CDISTRO@/${DISTRO^}/g" \
-  -e "s/@UDISTRO@/${DISTRO^^}/g" \
-  -e "s/@KVER@/$KVER/g" \
-  -e "s/@LIVEDE@/$LIVEDE/g" \
-  -e "s/@LIVEMAIN@/$LIVEMAIN/g" \
-  -e "s/@MARKER@/$MARKER/g" \
-  -e "s/@KAPPEND@/$KAPPEND/g" \
-  -e "s/@SL_VERSION@/$SL_VERSION/g" \
-  -e "s/@VERSION@/$VERSION/g" \
-  > ${LIVE_ROOTDIR}/usr/local/sbin/pxeserver
-chmod 755 ${LIVE_ROOTDIR}/usr/local/sbin/pxeserver
+## Add PXE Server infrastructure:
+#mkdir -p ${LIVE_ROOTDIR}/var/lib/tftpboot/pxelinux.cfg
+#cp -ia /usr/share/syslinux/pxelinux.0 ${LIVE_ROOTDIR}/var/lib/tftpboot/
+#ln -s /mnt/livemedia/boot/generic ${LIVE_ROOTDIR}/var/lib/tftpboot/
+#ln -s /mnt/livemedia/boot/initrd.img ${LIVE_ROOTDIR}/var/lib/tftpboot/
+#mkdir -p ${LIVE_ROOTDIR}/var/lib/tftpboot/EFI/BOOT
+#ln -s /mnt/livemedia/EFI/BOOT ${LIVE_ROOTDIR}/var/lib/tftpboot/uefi
+#ln -s /mnt/livemedia/EFI/BOOT/bootx64.efi ${LIVE_ROOTDIR}/var/lib/tftpboot/EFI/BOOT/
+#cat ${LIVE_TOOLDIR}/pxeserver.tpl | sed \
+#  -e "s/@DIRSUFFIX@/$DIRSUFFIX/g" \
+#  -e "s/@DISTRO@/$DISTRO/g" \
+#  -e "s/@CDISTRO@/${DISTRO^}/g" \
+#  -e "s/@UDISTRO@/${DISTRO^^}/g" \
+#  -e "s/@KVER@/$KVER/g" \
+#  -e "s/@LIVEDE@/$LIVEDE/g" \
+#  -e "s/@LIVEMAIN@/$LIVEMAIN/g" \
+#  -e "s/@MARKER@/$MARKER/g" \
+#  -e "s/@KAPPEND@/$KAPPEND/g" \
+#  -e "s/@SL_VERSION@/$SL_VERSION/g" \
+#  -e "s/@VERSION@/$VERSION/g" \
+#  > ${LIVE_ROOTDIR}/usr/local/sbin/pxeserver
+#chmod 755 ${LIVE_ROOTDIR}/usr/local/sbin/pxeserver
 
-# Add a harddisk installer to the ISO.
-# The huge kernel does not require an initrd and installation to the
-# hard drive will not be complicated, so a liveslak install is recommended
-# for newbies only if the ISO contains huge kernel...
-if [ -f ${DEF_SL_PKGROOT}/../isolinux/initrd.img ]; then
-  echo "-- Adding 'setup2hd' hard disk installer to /usr/share/${LIVEMAIN}/."
-  # Extract the 'setup' files we need from the Slackware installer
-  # and move them to a single directory in the ISO:
-  mkdir -p ${LIVE_ROOTDIR}/usr/share/${LIVEMAIN}
-  cd  ${LIVE_ROOTDIR}/usr/share/${LIVEMAIN}
-    uncompressfs ${DEF_SL_PKGROOT}/../isolinux/initrd.img | cpio -i -d -m -H newc usr/lib/setup/* sbin/probe sbin/fixdate
-    mv -i usr/lib/setup/* sbin/probe sbin/fixdate .
-    rm -r usr sbin
-    rm -f setup
-  cd - 1>/dev/null
-  # Fix some occurrences of '/mnt' that should not be used in the Live ISO
-  # (this was applied in Slackware > 14.2 but does not harm to do this anyway):
-  sed -i ${LIVE_ROOTDIR}/usr/share/${LIVEMAIN}/* \
-    -e 's,T_PX=/mnt,T_PX="`cat $TMP/SeTT_PX`",g' \
-    -e 's, /mnt, ${T_PX},g' \
-    -e 's,=/mnt$,=${T_PX},g' \
-    -e 's,=/mnt/,=${T_PX}/,g'
-  # Allow a choice of dialog:
-  sed -i ${LIVE_ROOTDIR}/usr/share/${LIVEMAIN}/* \
-    -e '1a \\nDIALOG=${DIALOG:-dialog}\n' \
-    -e 's/dialog -/${DIALOG} -/'
-  # If T_PX is used in a script, it should be defined first:
-  for FILE in ${LIVE_ROOTDIR}/usr/share/${LIVEMAIN}/* ; do
-    if grep -q T_PX $FILE ; then
-      if ! grep -q "^T_PX=" $FILE ; then
-        if ! grep -q "^TMP=" $FILE ; then
-          sed -e '/#!/a T_PX="`cat $TMP/SeTT_PX`"' -i $FILE
-          sed -e '/#!/a TMP=/var/log/setup/tmp' -i $FILE
-        else
-          sed -e '/^TMP=/a T_PX="`cat $TMP/SeTT_PX`"' -i $FILE
-        fi
-      fi
-    fi
-  done
-  if [ -f ${LIVE_ROOTDIR}/sbin/liloconfig ]; then
-    if [ -f ${LIVE_TOOLDIR}/patches/liloconfig_${SL_VERSION}.patch ]; then
-      LILOPATCH=liloconfig_${SL_VERSION}.patch
-    elif [ -f ${LIVE_TOOLDIR}/patches/liloconfig.patch ]; then
-      LILOPATCH=liloconfig.patch
-    else
-      LILOPATCH=""
-    fi
-    if [ -n "${LILOPATCH}" ]; then
-      patch ${LIVE_ROOTDIR}/sbin/liloconfig ${LIVE_TOOLDIR}/patches/${LILOPATCH}
-    fi
-  fi
-  if [ -f ${LIVE_ROOTDIR}/usr/sbin/eliloconfig ]; then
-    if [ -f ${LIVE_TOOLDIR}/patches/eliloconfig_${SL_VERSION}.patch ]; then
-      ELILOPATCH=eliloconfig_${SL_VERSION}.patch
-    elif  [ -f ${LIVE_TOOLDIR}/patches/eliloconfig.patch ]; then
-      ELILOPATCH=eliloconfig.patch
-    else
-      ELILOPATCH=""
-    fi
-    if [ -n "${ELILOPATCH}" ]; then
-      patch ${LIVE_ROOTDIR}/usr/sbin/eliloconfig ${LIVE_TOOLDIR}/patches/${ELILOPATCH}
-    fi
-  fi
-  # Fix some occurrences of '/usr/lib/setup/' that are covered by $PATH:
-  sed -i -e 's,/usr/lib/setup/,,g' -e 's,:/usr/lib/setup,:/usr/share/${LIVEMAIN},g' ${LIVE_ROOTDIR}/usr/share/${LIVEMAIN}/*
-  # Prevent SeTconfig from asking redundant questions after a Live OS install:
-  sed -i ${LIVE_ROOTDIR}/usr/share/${LIVEMAIN}/SeTconfig \
-    -e '/.\/var\/log\/setup\/$SCRIPT $T_PX $ROOT_DEVICE/i # Skip stuff that was taken care of by liveslak\nif [ -f $TMP/SeTlive ] && echo $SCRIPT |grep -qE "(make-bootdisk|mouse|setconsolefont|xwmconfig)"; then true; else' \
-    -e '/.\/var\/log\/setup\/$SCRIPT $T_PX $ROOT_DEVICE/a fi'
-  # Add the Slackware Live HD installer scripts:
-  for USCRIPT in SeTuacct SeTudiskpart SeTumedia SeTupass SeTpasswd SeTfirewall rc.firewall setup.liveslak setup.slackware ; do
-    cat ${LIVE_TOOLDIR}/setup2hd/${USCRIPT}.tpl | sed \
-      -e "s/@DIRSUFFIX@/$DIRSUFFIX/g" \
-      -e "s/@DISTRO@/$DISTRO/g" \
-      -e "s/@CDISTRO@/${DISTRO^}/g" \
-      -e "s/@UDISTRO@/${DISTRO^^}/g" \
-      -e "s/@KVER@/$KVER/g" \
-      -e "s/@LIVEDE@/$LIVEDE/g" \
-      -e "s/@LIVEMAIN@/$LIVEMAIN/g" \
-      -e "s/@LIVEUID@/$LIVEUID/g" \
-      -e "s/@LIVEUIDNR@/$LIVEUIDNR/g" \
-      -e "s/@MARKER@/$MARKER/g" \
-      -e "s/@SL_VERSION@/$SL_VERSION/g" \
-      -e "s/@VERSION@/$VERSION/g" \
-      > ${LIVE_ROOTDIR}/usr/share/${LIVEMAIN}/${USCRIPT}
-    chmod 755 ${LIVE_ROOTDIR}/usr/share/${LIVEMAIN}/${USCRIPT}
-  done
-  mkdir -p ${LIVE_ROOTDIR}/usr/local/sbin
-  cat ${LIVE_TOOLDIR}/setup2hd.tpl | sed \
-    -e "s/@DIRSUFFIX@/$DIRSUFFIX/g" \
-    -e "s/@DISTRO@/$DISTRO/g" \
-    -e "s/@CDISTRO@/${DISTRO^}/g" \
-    -e "s/@UDISTRO@/${DISTRO^^}/g" \
-    -e "s/@KVER@/$KVER/g" \
-    -e "s/@LIVEDE@/$LIVEDE/g" \
-    -e "s/@LIVEMAIN@/$LIVEMAIN/g" \
-    -e "s/@LIVEUID@/$LIVEUID/g" \
-    -e "s/@LIVEUIDNR@/$LIVEUIDNR/g" \
-    -e "s/@MARKER@/$MARKER/g" \
-    -e "s/@SL_VERSION@/$SL_VERSION/g" \
-    -e "s/@VERSION@/$VERSION/g" \
-    > ${LIVE_ROOTDIR}/usr/local/sbin/setup2hd
-  chmod 755 ${LIVE_ROOTDIR}/usr/local/sbin/setup2hd
-  # Slackware Live HD post-install customization hook:
-  if [ -f ${LIVE_TOOLDIR}/setup2hd.local.tpl ]; then
-    # The '.local' suffix means: install it as a sample file only:
-    HOOK_SRC="${LIVE_TOOLDIR}/setup2hd.local.tpl"
-    HOOK_DST="${LIVE_ROOTDIR}/usr/share/${LIVEMAIN}/setup2hd.$DISTRO.sample"
-  elif [ -f ${LIVE_TOOLDIR}/setup2hd.$DISTRO ]; then
-    # Install the hook; the file will be sourced by "setup2hd".
-    HOOK_SRC="${LIVE_TOOLDIR}/setup2hd.$DISTRO"
-    HOOK_DST="${LIVE_ROOTDIR}/usr/share/${LIVEMAIN}/setup2hd.$DISTRO"
-  fi
-  cat ${HOOK_SRC} | sed \
-    -e "s/@DIRSUFFIX@/$DIRSUFFIX/g" \
-    -e "s/@DISTRO@/$DISTRO/g" \
-    -e "s/@CDISTRO@/${DISTRO^}/g" \
-    -e "s/@UDISTRO@/${DISTRO^^}/g" \
-    -e "s/@KVER@/$KVER/g" \
-    -e "s/@LIVEDE@/$LIVEDE/g" \
-    -e "s/@LIVEMAIN@/$LIVEMAIN/g" \
-    -e "s/@MARKER@/$MARKER/g" \
-    -e "s/@SL_VERSION@/$SL_VERSION/g" \
-    -e "s/@VERSION@/$VERSION/g" \
-    > ${HOOK_DST}
-  chmod 644 ${HOOK_DST}
- else
-  echo "-- Could not find ${DEF_SL_PKGROOT}/../isolinux/initrd.img - not adding 'setup2hd'!"
-fi
+## Add a harddisk installer to the ISO.
+## The huge kernel does not require an initrd and installation to the
+## hard drive will not be complicated, so a liveslak install is recommended
+## for newbies only if the ISO contains huge kernel...
+#if [ -f ${DEF_SL_PKGROOT}/../isolinux/initrd.img ]; then
+#  echo "-- Adding 'setup2hd' hard disk installer to /usr/share/${LIVEMAIN}/."
+#  # Extract the 'setup' files we need from the Slackware installer
+#  # and move them to a single directory in the ISO:
+#  mkdir -p ${LIVE_ROOTDIR}/usr/share/${LIVEMAIN}
+#  cd  ${LIVE_ROOTDIR}/usr/share/${LIVEMAIN}
+#    uncompressfs ${DEF_SL_PKGROOT}/../isolinux/initrd.img | cpio -i -d -m -H newc usr/lib/setup/* sbin/probe sbin/fixdate
+#    mv -i usr/lib/setup/* sbin/probe sbin/fixdate .
+#    rm -r usr sbin
+#    rm -f setup
+#  cd - 1>/dev/null
+#  # Fix some occurrences of '/mnt' that should not be used in the Live ISO
+#  # (this was applied in Slackware > 14.2 but does not harm to do this anyway):
+#  sed -i ${LIVE_ROOTDIR}/usr/share/${LIVEMAIN}/* \
+#    -e 's,T_PX=/mnt,T_PX="`cat $TMP/SeTT_PX`",g' \
+#    -e 's, /mnt, ${T_PX},g' \
+#    -e 's,=/mnt$,=${T_PX},g' \
+#    -e 's,=/mnt/,=${T_PX}/,g'
+#  # Allow a choice of dialog:
+#  sed -i ${LIVE_ROOTDIR}/usr/share/${LIVEMAIN}/* \
+#    -e '1a \\nDIALOG=${DIALOG:-dialog}\n' \
+#    -e 's/dialog -/${DIALOG} -/'
+#  # If T_PX is used in a script, it should be defined first:
+#  for FILE in ${LIVE_ROOTDIR}/usr/share/${LIVEMAIN}/* ; do
+#    if grep -q T_PX $FILE ; then
+#      if ! grep -q "^T_PX=" $FILE ; then
+#        if ! grep -q "^TMP=" $FILE ; then
+#          sed -e '/#!/a T_PX="`cat $TMP/SeTT_PX`"' -i $FILE
+#          sed -e '/#!/a TMP=/var/log/setup/tmp' -i $FILE
+#        else
+#          sed -e '/^TMP=/a T_PX="`cat $TMP/SeTT_PX`"' -i $FILE
+#        fi
+#      fi
+#    fi
+#  done
+#  if [ -f ${LIVE_ROOTDIR}/sbin/liloconfig ]; then
+#    if [ -f ${LIVE_TOOLDIR}/patches/liloconfig_${SL_VERSION}.patch ]; then
+#      LILOPATCH=liloconfig_${SL_VERSION}.patch
+#    elif [ -f ${LIVE_TOOLDIR}/patches/liloconfig.patch ]; then
+#      LILOPATCH=liloconfig.patch
+#    else
+#      LILOPATCH=""
+#    fi
+#    if [ -n "${LILOPATCH}" ]; then
+#      patch ${LIVE_ROOTDIR}/sbin/liloconfig ${LIVE_TOOLDIR}/patches/${LILOPATCH}
+#    fi
+#  fi
+#  if [ -f ${LIVE_ROOTDIR}/usr/sbin/eliloconfig ]; then
+#    if [ -f ${LIVE_TOOLDIR}/patches/eliloconfig_${SL_VERSION}.patch ]; then
+#      ELILOPATCH=eliloconfig_${SL_VERSION}.patch
+#    elif  [ -f ${LIVE_TOOLDIR}/patches/eliloconfig.patch ]; then
+#      ELILOPATCH=eliloconfig.patch
+#    else
+#      ELILOPATCH=""
+#    fi
+#    if [ -n "${ELILOPATCH}" ]; then
+#      patch ${LIVE_ROOTDIR}/usr/sbin/eliloconfig ${LIVE_TOOLDIR}/patches/${ELILOPATCH}
+#    fi
+#  fi
+#  # Fix some occurrences of '/usr/lib/setup/' that are covered by $PATH:
+#  sed -i -e 's,/usr/lib/setup/,,g' -e 's,:/usr/lib/setup,:/usr/share/${LIVEMAIN},g' ${LIVE_ROOTDIR}/usr/share/${LIVEMAIN}/*
+#  # Prevent SeTconfig from asking redundant questions after a Live OS install:
+#  sed -i ${LIVE_ROOTDIR}/usr/share/${LIVEMAIN}/SeTconfig \
+#    -e '/.\/var\/log\/setup\/$SCRIPT $T_PX $ROOT_DEVICE/i # Skip stuff that was taken care of by liveslak\nif [ -f $TMP/SeTlive ] && echo $SCRIPT |grep -qE "(make-bootdisk|mouse|setconsolefont|xwmconfig)"; then true; else' \
+#    -e '/.\/var\/log\/setup\/$SCRIPT $T_PX $ROOT_DEVICE/a fi'
+#  # Add the Slackware Live HD installer scripts:
+#  for USCRIPT in SeTuacct SeTudiskpart SeTumedia SeTupass SeTpasswd SeTfirewall rc.firewall setup.liveslak setup.slackware ; do
+#    cat ${LIVE_TOOLDIR}/setup2hd/${USCRIPT}.tpl | sed \
+#      -e "s/@DIRSUFFIX@/$DIRSUFFIX/g" \
+#      -e "s/@DISTRO@/$DISTRO/g" \
+#      -e "s/@CDISTRO@/${DISTRO^}/g" \
+#      -e "s/@UDISTRO@/${DISTRO^^}/g" \
+#      -e "s/@KVER@/$KVER/g" \
+#      -e "s/@LIVEDE@/$LIVEDE/g" \
+#      -e "s/@LIVEMAIN@/$LIVEMAIN/g" \
+#      -e "s/@LIVEUID@/$LIVEUID/g" \
+#      -e "s/@LIVEUIDNR@/$LIVEUIDNR/g" \
+#      -e "s/@MARKER@/$MARKER/g" \
+#      -e "s/@SL_VERSION@/$SL_VERSION/g" \
+#      -e "s/@VERSION@/$VERSION/g" \
+#      > ${LIVE_ROOTDIR}/usr/share/${LIVEMAIN}/${USCRIPT}
+#    chmod 755 ${LIVE_ROOTDIR}/usr/share/${LIVEMAIN}/${USCRIPT}
+#  done
+#  mkdir -p ${LIVE_ROOTDIR}/usr/local/sbin
+#  cat ${LIVE_TOOLDIR}/setup2hd.tpl | sed \
+#    -e "s/@DIRSUFFIX@/$DIRSUFFIX/g" \
+#    -e "s/@DISTRO@/$DISTRO/g" \
+#    -e "s/@CDISTRO@/${DISTRO^}/g" \
+#    -e "s/@UDISTRO@/${DISTRO^^}/g" \
+#    -e "s/@KVER@/$KVER/g" \
+#    -e "s/@LIVEDE@/$LIVEDE/g" \
+#    -e "s/@LIVEMAIN@/$LIVEMAIN/g" \
+#    -e "s/@LIVEUID@/$LIVEUID/g" \
+#    -e "s/@LIVEUIDNR@/$LIVEUIDNR/g" \
+#    -e "s/@MARKER@/$MARKER/g" \
+#    -e "s/@SL_VERSION@/$SL_VERSION/g" \
+#    -e "s/@VERSION@/$VERSION/g" \
+#    > ${LIVE_ROOTDIR}/usr/local/sbin/setup2hd
+#  chmod 755 ${LIVE_ROOTDIR}/usr/local/sbin/setup2hd
+#  # Slackware Live HD post-install customization hook:
+#  if [ -f ${LIVE_TOOLDIR}/setup2hd.local.tpl ]; then
+#    # The '.local' suffix means: install it as a sample file only:
+#    HOOK_SRC="${LIVE_TOOLDIR}/setup2hd.local.tpl"
+#    HOOK_DST="${LIVE_ROOTDIR}/usr/share/${LIVEMAIN}/setup2hd.$DISTRO.sample"
+#  elif [ -f ${LIVE_TOOLDIR}/setup2hd.$DISTRO ]; then
+#    # Install the hook; the file will be sourced by "setup2hd".
+#    HOOK_SRC="${LIVE_TOOLDIR}/setup2hd.$DISTRO"
+#    HOOK_DST="${LIVE_ROOTDIR}/usr/share/${LIVEMAIN}/setup2hd.$DISTRO"
+#  fi
+#  cat ${HOOK_SRC} | sed \
+#    -e "s/@DIRSUFFIX@/$DIRSUFFIX/g" \
+#    -e "s/@DISTRO@/$DISTRO/g" \
+#    -e "s/@CDISTRO@/${DISTRO^}/g" \
+#    -e "s/@UDISTRO@/${DISTRO^^}/g" \
+#    -e "s/@KVER@/$KVER/g" \
+#    -e "s/@LIVEDE@/$LIVEDE/g" \
+#    -e "s/@LIVEMAIN@/$LIVEMAIN/g" \
+#    -e "s/@MARKER@/$MARKER/g" \
+#    -e "s/@SL_VERSION@/$SL_VERSION/g" \
+#    -e "s/@VERSION@/$VERSION/g" \
+#    > ${HOOK_DST}
+#  chmod 644 ${HOOK_DST}
+# else
+#  echo "-- Could not find ${DEF_SL_PKGROOT}/../isolinux/initrd.img - not adding 'setup2hd'!"
+#fi
 
 # Add the documentation:
 mkdir -p  ${LIVE_ROOTDIR}/usr/doc/liveslak-${VERSION}
@@ -3371,6 +3388,9 @@ mount --bind /dev ${LIVE_ROOTDIR}/dev
 if [ "$SL_ARCH" = "x86_64" -o "$SMP32" = "NO" ]; then
   KGEN=$(ls --indicator-style=none ${LIVE_ROOTDIR}/var/log/packages/kernel*modules* |grep -v smp |head -1 |rev | cut -d- -f3 |tr _ - |rev)
   KVER=$(ls --indicator-style=none ${LIVE_ROOTDIR}/lib/modules/ |grep -v smp |head -1)
+elif [ "$SL_ARCH" = "loongarch64" -o "$SMP32" = "NO" ]; then
+  KGEN=$(ls --indicator-style=none ${LIVE_ROOTDIR}/var/log/packages/kernel*modules* |grep -v smp |head -1 |rev | cut -d- -f3 |tr _ - |rev)
+  KVER=$(ls --indicator-style=none ${LIVE_ROOTDIR}/lib/modules/ |grep -v smp |head -1)
 else
   KGEN=$(ls --indicator-style=none ${LIVE_ROOTDIR}/var/log/packages/kernel*modules* |grep smp |head -1 |rev | cut -d- -f3 |tr _ - |rev)
   KVER=$(ls --indicator-style=none ${LIVE_ROOTDIR}/lib/modules/ |grep smp |head -1)
@@ -3484,12 +3504,12 @@ mv ${LIVE_BOOT}/boot/initrd_${KVER}.img ${LIVE_STAGING}/boot/initrd.img
 # Squash the boot directory into its own module:
 mksquashfs ${LIVE_BOOT} ${LIVE_MOD_SYS}/0000-${DISTRO}_boot-${SL_VERSION}-${SL_ARCH}.sxz -noappend -comp ${SQ_COMP} ${SQ_COMP_PARAMS}
 
-# Copy the syslinux configuration.
-# The next block checks here for a possible UEFI grub boot image:
-cp -a ${LIVE_TOOLDIR}/syslinux ${LIVE_STAGING}/boot/
+## Copy the syslinux configuration.
+## The next block checks here for a possible UEFI grub boot image:
+#cp -a ${LIVE_TOOLDIR}/syslinux ${LIVE_STAGING}/boot/
 
 # EFI support always for 64bit architecture, but conditional for 32bit.
-if [ "$SL_ARCH" = "x86_64" -o "$EFI32" = "YES" ]; then
+if [ "$SL_ARCH" = "loongarch64" -o "$EFI32" = "YES" ]; then
   # Copy the UEFI boot directory structure:
   rm -rf ${LIVE_STAGING}/EFI/BOOT
   mkdir -p ${LIVE_STAGING}/EFI/BOOT
@@ -3539,42 +3559,43 @@ HSBAT
 
 fi # End EFI support menu.
 
-if [ "$SYSMENU" = "NO" ]; then
-  # Simple isolinux choices, no UEFI support.
-  echo "include syslinux.cfg" > ${LIVE_STAGING}/boot/syslinux/isolinux.cfg
-else
-  # NOTE: Convert a PNG image to VESA bitmap before using it with vesamenu:
-  # $ convert -depth 16 -colors 65536 in.png out.png
-  cp -a /usr/share/syslinux/vesamenu.c32 ${LIVE_STAGING}/boot/syslinux/
-  echo "include menu/vesamenu.cfg" > ${LIVE_STAGING}/boot/syslinux/isolinux.cfg
-  # Generate the multi-language menu:
-  gen_bootmenu ${LIVE_STAGING}/boot/syslinux
-fi
-for SLFILE in message.txt f2.txt syslinux.cfg lang.cfg ; do
-  if [ -f ${LIVE_STAGING}/boot/syslinux/${SLFILE} ]; then
-    sed -i ${LIVE_STAGING}/boot/syslinux/${SLFILE} \
-      -e "s/@DIRSUFFIX@/$DIRSUFFIX/g" \
-      -e "s/@DISTRO@/$DISTRO/g" \
-      -e "s/@CDISTRO@/${DISTRO^}/g" \
-      -e "s/@UDISTRO@/${DISTRO^^}/g" \
-      -e "s/@KVER@/$KVER/g" \
-      -e "s/@LIVEMAIN@/$LIVEMAIN/g" \
-      -e "s/@MEDIALABEL@/$MEDIALABEL/g" \
-      -e "s/@LIVEDE@/$(echo $LIVEDE |sed 's/BASE//')/g" \
-      -e "s/@SL_VERSION@/$SL_VERSION/g"
-  fi
-done
-# The iso2usb.sh script can use this copy of a MBR file as fallback:
-cp -a /usr/share/syslinux/gptmbr.bin ${LIVE_STAGING}/boot/syslinux/
-# We have memtest in the syslinux bootmenu:
-mv ${LIVE_STAGING}/boot/syslinux/memtest ${LIVE_STAGING}/boot/
-
-# Make use of proper console font if we have it available:
-if [ -f /usr/share/kbd/consolefonts/${CONSFONT}.gz ]; then
-  gunzip -cd /usr/share/kbd/consolefonts/${CONSFONT}.gz > ${LIVE_STAGING}/boot/syslinux/${CONSFONT}
-elif [ ! -f ${LIVE_STAGING}/boot/syslinux/${CONSFONT} ]; then
-  sed -i -e "s/^font .*/#&/" ${LIVE_STAGING}/boot/syslinux/menu/*menu*.cfg
-fi
+#if [ "$SYSMENU" = "NO" ]; then
+#  # Simple isolinux choices, no UEFI support.
+##  echo "include syslinux.cfg" > ${LIVE_STAGING}/boot/syslinux/isolinux.cfg
+#  echo "include syslinux.cfg" 
+#else
+#  # NOTE: Convert a PNG image to VESA bitmap before using it with vesamenu:
+#  # $ convert -depth 16 -colors 65536 in.png out.png
+#  cp -a /usr/share/syslinux/vesamenu.c32 ${LIVE_STAGING}/boot/syslinux/
+#  echo "include menu/vesamenu.cfg" > ${LIVE_STAGING}/boot/syslinux/isolinux.cfg
+#  # Generate the multi-language menu:
+#  gen_bootmenu ${LIVE_STAGING}/boot/syslinux
+#fi
+#for SLFILE in message.txt f2.txt syslinux.cfg lang.cfg ; do
+#  if [ -f ${LIVE_STAGING}/boot/syslinux/${SLFILE} ]; then
+#    sed -i ${LIVE_STAGING}/boot/syslinux/${SLFILE} \
+#      -e "s/@DIRSUFFIX@/$DIRSUFFIX/g" \
+#      -e "s/@DISTRO@/$DISTRO/g" \
+#      -e "s/@CDISTRO@/${DISTRO^}/g" \
+#      -e "s/@UDISTRO@/${DISTRO^^}/g" \
+#      -e "s/@KVER@/$KVER/g" \
+#      -e "s/@LIVEMAIN@/$LIVEMAIN/g" \
+#      -e "s/@MEDIALABEL@/$MEDIALABEL/g" \
+#      -e "s/@LIVEDE@/$(echo $LIVEDE |sed 's/BASE//')/g" \
+#      -e "s/@SL_VERSION@/$SL_VERSION/g"
+#  fi
+#done
+## The iso2usb.sh script can use this copy of a MBR file as fallback:
+#cp -a /usr/share/syslinux/gptmbr.bin ${LIVE_STAGING}/boot/syslinux/
+## We have memtest in the syslinux bootmenu:
+#mv ${LIVE_STAGING}/boot/syslinux/memtest ${LIVE_STAGING}/boot/
+#
+## Make use of proper console font if we have it available:
+#if [ -f /usr/share/kbd/consolefonts/${CONSFONT}.gz ]; then
+#  gunzip -cd /usr/share/kbd/consolefonts/${CONSFONT}.gz > ${LIVE_STAGING}/boot/syslinux/${CONSFONT}
+#elif [ ! -f ${LIVE_STAGING}/boot/syslinux/${CONSFONT} ]; then
+#  sed -i -e "s/^font .*/#&/" ${LIVE_STAGING}/boot/syslinux/menu/*menu*.cfg
+#fi
 
 # -----------------------------------------------------------------------------
 # Assemble the ISO
